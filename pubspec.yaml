@@ -1,0 +1,34 @@
+name: sadaqo
+description: "SADAQO - Aplikasi donasi masjid, santunan, dan qurban patungan."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  flutter_bloc: ^9.1.1
+  equatable: ^3.0.0
+  get_it: ^9.3.0
+  dartz: ^0.10.1
+  dio: ^5.11.1
+  intl: ^0.20.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/illustrations/
