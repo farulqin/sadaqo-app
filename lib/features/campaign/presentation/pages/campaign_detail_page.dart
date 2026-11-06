@@ -3,6 +3,7 @@ import 'package:sadaqo/core/constants/app_colors.dart';
 import 'package:sadaqo/core/utils/formatter.dart';
 import 'package:sadaqo/core/widgets/percent_chip.dart';
 import 'package:sadaqo/core/widgets/program_image.dart';
+import 'package:sadaqo/core/widgets/round_icon_button.dart';
 import 'package:sadaqo/features/campaign/domain/entities/campaign.dart';
 import 'package:sadaqo/features/donation/presentation/pages/donation_page.dart';
 
@@ -33,7 +34,7 @@ class CampaignDetailPage extends StatelessWidget {
                       Positioned(
                         top: top + 8,
                         left: 12,
-                        child: _RoundButton(
+                        child: RoundIconButton(
                           icon: Icons.arrow_back,
                           onTap: () => Navigator.of(context).pop(),
                         ),
@@ -41,7 +42,7 @@ class CampaignDetailPage extends StatelessWidget {
                       Positioned(
                         top: top + 8,
                         right: 12,
-                        child: _RoundButton(
+                        child: RoundIconButton(
                           icon: Icons.share_outlined,
                           onTap: () => ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Fitur bagikan menyusul')),
@@ -120,29 +121,6 @@ class CampaignDetailPage extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _RoundButton extends StatelessWidget {
-  const _RoundButton({required this.icon, required this.onTap});
-
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white,
-      shape: const CircleBorder(),
-      child: InkWell(
-        customBorder: const CircleBorder(),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Icon(icon, size: 20, color: AppColors.forestGreen),
-        ),
       ),
     );
   }

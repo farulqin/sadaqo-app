@@ -8,8 +8,14 @@ class CampaignCubit extends Cubit<CampaignState> {
 
   final GetCampaigns _getCampaigns;
 
+  /// Muat dengan indikator loading (pertama kali / coba lagi).
   Future<void> load() async {
     emit(const CampaignLoading());
+    await refresh();
+  }
+
+  /// Muat ulang tanpa loading, mis. setelah donasi agar progres dana ikut berubah.
+  Future<void> refresh() async {
     final result = await _getCampaigns(const NoParams());
     result.fold(
       (failure) => emit(CampaignError(failure.message)),

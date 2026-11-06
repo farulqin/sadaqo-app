@@ -20,8 +20,8 @@ class DonationMockDataSource implements DonationRemoteDataSource {
     DonationModel(
       id: 'd2',
       campaignId: 'c4',
-      campaignTitle: 'Kurban Bersama 1447 H',
-      category: ProgramCategory.kurban,
+      campaignTitle: 'Qurban Bersama 1447 H',
+      category: ProgramCategory.qurban,
       amount: 1500000,
       paymentMethod: PaymentMethod.transfer,
       status: DonationStatus.success,

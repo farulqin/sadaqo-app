@@ -12,7 +12,7 @@ import 'package:sadaqo/features/donation/presentation/cubit/donation_history_sta
 enum _Filter {
   semua('Semua'),
   program('Program'),
-  kurban('Kurban');
+  qurban('Qurban');
 
   const _Filter(this.label);
   final String label;
@@ -22,9 +22,9 @@ enum _Filter {
       case _Filter.semua:
         return true;
       case _Filter.program:
-        return d.category != ProgramCategory.kurban;
-      case _Filter.kurban:
-        return d.category == ProgramCategory.kurban;
+        return d.category != ProgramCategory.qurban;
+      case _Filter.qurban:
+        return d.category == ProgramCategory.qurban;
     }
   }
 }

@@ -26,10 +26,10 @@ enum ProgramCategory {
     colorStart: Color(0xFF3A6B47),
     colorEnd: Color(0xFFA3D65C),
   ),
-  kurban(
-    key: 'kurban',
-    label: 'Kurban Patungan',
-    shortLabel: 'Kurban',
+  qurban(
+    key: 'qurban',
+    label: 'Qurban',
+    shortLabel: 'Qurban',
     icon: Icons.agriculture,
     colorStart: Color(0xFF6B5B3A),
     colorEnd: Color(0xFFC9B98A),

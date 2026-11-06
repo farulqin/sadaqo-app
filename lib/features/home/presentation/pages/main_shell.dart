@@ -6,6 +6,7 @@ import 'package:sadaqo/features/donation/presentation/cubit/donation_history_cub
 import 'package:sadaqo/features/donation/presentation/pages/donation_history_page.dart';
 import 'package:sadaqo/features/donation/presentation/pages/donation_page.dart';
 import 'package:sadaqo/features/home/presentation/pages/home_page.dart';
+import 'package:sadaqo/features/news/presentation/cubit/news_cubit.dart';
 import 'package:sadaqo/features/profile/presentation/pages/profile_page.dart';
 
 /// Kerangka utama aplikasi: 5 tab navigasi bawah.
@@ -33,6 +34,7 @@ class _MainShellState extends State<MainShell> {
     // Data dimuat setelah login (nanti butuh token dari backend).
     context.read<CampaignCubit>().load();
     context.read<DonationHistoryCubit>().load();
+    context.read<NewsCubit>().load();
   }
 
   void _goTo(int i) => setState(() => _index = i);

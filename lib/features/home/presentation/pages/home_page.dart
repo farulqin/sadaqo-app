@@ -13,6 +13,9 @@ import 'package:sadaqo/features/campaign/presentation/widgets/campaign_card.dart
 import 'package:sadaqo/features/donation/presentation/cubit/donation_history_cubit.dart';
 import 'package:sadaqo/features/donation/presentation/cubit/donation_history_state.dart';
 import 'package:sadaqo/features/home/presentation/widgets/category_shortcuts.dart';
+import 'package:sadaqo/features/news/presentation/cubit/news_cubit.dart';
+import 'package:sadaqo/features/news/presentation/cubit/news_state.dart';
+import 'package:sadaqo/features/news/presentation/widgets/news_carousel.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key, required this.onNavigateTab});
@@ -47,6 +50,26 @@ class HomePage extends StatelessWidget {
                       builder: (_) => CampaignListPage(initialCategory: category),
                     ),
                   ),
+                ),
+                const SizedBox(height: 20),
+                const SectionHeader(title: 'Berita Terbaru'),
+                const SizedBox(height: 12),
+                BlocBuilder<NewsCubit, NewsState>(
+                  builder: (context, state) {
+                    if (state is NewsError) {
+                      return ErrorView(
+                        message: state.message,
+                        onRetry: () => context.read<NewsCubit>().load(),
+                      );
+                    }
+                    if (state is! NewsLoaded) {
+                      return const SizedBox(height: 190, child: LoadingView());
+                    }
+                    if (state.articles.isEmpty) {
+                      return const SizedBox.shrink();
+                    }
+                    return NewsCarousel(articles: state.articles);
+                  },
                 ),
                 const SizedBox(height: 20),
                 SectionHeader(

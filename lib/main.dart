@@ -5,6 +5,7 @@ import 'package:sadaqo/core/theme/app_theme.dart';
 import 'package:sadaqo/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sadaqo/features/campaign/presentation/cubit/campaign_cubit.dart';
 import 'package:sadaqo/features/donation/presentation/cubit/donation_history_cubit.dart';
+import 'package:sadaqo/features/news/presentation/cubit/news_cubit.dart';
 import 'package:sadaqo/features/splash/presentation/pages/splash_page.dart';
 import 'package:sadaqo/injection_container.dart' as di;
 
@@ -27,6 +28,7 @@ class SadaqoApp extends StatelessWidget {
         BlocProvider<DonationHistoryCubit>.value(
           value: di.sl<DonationHistoryCubit>(),
         ),
+        BlocProvider<NewsCubit>.value(value: di.sl<NewsCubit>()),
       ],
       child: MaterialApp(
         title: 'SADAQO',

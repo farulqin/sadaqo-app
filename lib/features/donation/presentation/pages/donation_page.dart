@@ -296,6 +296,7 @@ class _DonationPageState extends State<DonationPage> {
       );
       if (!context.mounted) return;
       context.read<DonationHistoryCubit>().refresh();
+      context.read<CampaignCubit>().refresh(); // progres dana ikut diperbarui
       context.read<DonationFormCubit>().reset();
       if (widget.campaign != null) {
         Navigator.of(context).pop();

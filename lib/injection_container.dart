@@ -22,6 +22,12 @@ import 'package:sadaqo/features/donation/domain/usecases/create_donation.dart';
 import 'package:sadaqo/features/donation/domain/usecases/get_donation_history.dart';
 import 'package:sadaqo/features/donation/presentation/cubit/donation_form_cubit.dart';
 import 'package:sadaqo/features/donation/presentation/cubit/donation_history_cubit.dart';
+import 'package:sadaqo/features/news/data/datasources/news_mock_datasource.dart';
+import 'package:sadaqo/features/news/data/datasources/news_remote_datasource.dart';
+import 'package:sadaqo/features/news/data/repositories/news_repository_impl.dart';
+import 'package:sadaqo/features/news/domain/repositories/news_repository.dart';
+import 'package:sadaqo/features/news/domain/usecases/get_news.dart';
+import 'package:sadaqo/features/news/presentation/cubit/news_cubit.dart';
 
 /// Service locator: semua dependency didaftarkan di sini.
 /// Urutan per fitur: datasource -> repository -> usecase -> cubit.
@@ -66,4 +72,10 @@ Future<void> init() async {
   );
   // Form dibuat baru setiap halaman donasi dibuka.
   sl.registerFactory<DonationFormCubit>(() => DonationFormCubit(sl()));
+
+  // ===== News =====
+  sl.registerLazySingleton<NewsRemoteDataSource>(() => NewsMockDataSource());
+  sl.registerLazySingleton<NewsRepository>(() => NewsRepositoryImpl(sl()));
+  sl.registerLazySingleton<GetNews>(() => GetNews(sl()));
+  sl.registerLazySingleton<NewsCubit>(() => NewsCubit(sl()));
 }

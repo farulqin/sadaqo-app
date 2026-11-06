@@ -50,11 +50,11 @@ class CampaignMockDataSource implements CampaignRemoteDataSource {
       ),
       CampaignModel(
         id: 'c4',
-        title: 'Kurban Bersama 1447 H',
+        title: 'Qurban Bersama 1447 H',
         description:
-            'Berkurban patungan: satu sapi untuk 7 orang. Daging disalurkan '
+            'Berqurban patungan: satu sapi untuk 7 orang. Daging disalurkan '
             'kepada warga yang membutuhkan di sekitar masjid mitra.',
-        category: ProgramCategory.kurban,
+        category: ProgramCategory.qurban,
         targetAmount: 70000000,
         collectedAmount: 49000000,
         deadline: now.add(const Duration(days: 40)),
