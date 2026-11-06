@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
-import 'core/theme/app_theme.dart';
-import 'features/splash/presentation/pages/splash_page.dart';
-import 'injection_container.dart' as di;
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:sadaqo/core/theme/app_theme.dart';
+import 'package:sadaqo/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:sadaqo/features/campaign/presentation/cubit/campaign_cubit.dart';
+import 'package:sadaqo/features/donation/presentation/cubit/donation_history_cubit.dart';
+import 'package:sadaqo/features/splash/presentation/pages/splash_page.dart';
+import 'package:sadaqo/injection_container.dart' as di;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('id_ID'); // format tanggal bahasa Indonesia
   await di.init();
   runApp(const SadaqoApp());
 }
@@ -14,11 +20,20 @@ class SadaqoApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'SADAQO',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      home: const SplashPage(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<AuthCubit>.value(value: di.sl<AuthCubit>()),
+        BlocProvider<CampaignCubit>.value(value: di.sl<CampaignCubit>()),
+        BlocProvider<DonationHistoryCubit>.value(
+          value: di.sl<DonationHistoryCubit>(),
+        ),
+      ],
+      child: MaterialApp(
+        title: 'SADAQO',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.light,
+        home: const SplashPage(),
+      ),
     );
   }
 }
