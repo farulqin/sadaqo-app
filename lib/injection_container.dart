@@ -28,6 +28,7 @@ import 'package:sadaqo/features/news/data/repositories/news_repository_impl.dart
 import 'package:sadaqo/features/news/domain/repositories/news_repository.dart';
 import 'package:sadaqo/features/news/domain/usecases/get_news.dart';
 import 'package:sadaqo/features/news/presentation/cubit/news_cubit.dart';
+import 'package:sadaqo/features/campaign/data/datasources/mock_campaign_store.dart';
 
 /// Service locator: semua dependency didaftarkan di sini.
 /// Urutan per fitur: datasource -> repository -> usecase -> cubit.
@@ -49,8 +50,10 @@ Future<void> init() async {
   );
 
   // ===== Campaign =====
+  // Penyimpanan data contoh bersama (hapus saat API asli dipakai).
+  sl.registerLazySingleton<MockCampaignStore>(() => MockCampaignStore());
   sl.registerLazySingleton<CampaignRemoteDataSource>(
-    () => CampaignMockDataSource(),
+    () => CampaignMockDataSource(sl()),
   );
   sl.registerLazySingleton<CampaignRepository>(
     () => CampaignRepositoryImpl(sl()),
@@ -60,7 +63,7 @@ Future<void> init() async {
 
   // ===== Donation =====
   sl.registerLazySingleton<DonationRemoteDataSource>(
-    () => DonationMockDataSource(),
+    () => DonationMockDataSource(sl()),
   );
   sl.registerLazySingleton<DonationRepository>(
     () => DonationRepositoryImpl(sl()),

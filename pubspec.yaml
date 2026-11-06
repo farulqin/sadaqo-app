@@ -31,5 +31,10 @@ flutter:
   assets:
     - assets/images/
     - assets/images/programs/
+    - assets/images/masjid_mushola/
+    - assets/images/bantuan_sosial/
+    - assets/images/zakat/
+    - assets/images/kaum_duafa/
+    - assets/images/qurban_bersama/
     - assets/icons/
     - assets/illustrations/

@@ -12,6 +12,11 @@ class Campaign extends Equatable {
     required this.deadline,
     required this.location,
     this.imageAsset,
+    this.subType,
+    this.unitPrice,
+    this.unitLabel,
+    this.slotTotal,
+    this.slotFilled,
   });
 
   final String id;
@@ -23,6 +28,32 @@ class Campaign extends Equatable {
   final DateTime deadline;
   final String location;
   final String? imageAsset;
+
+  /// Jenis di dalam kategori, contoh: Masjid/Mushola, Banjir, Panti Jompo, Kolektif.
+  final String? subType;
+
+  /// Harga tetap per unit (qurban per orang/kolektif). Kosong = nominal bebas.
+  final int? unitPrice;
+  final String? unitLabel; // 'ekor' / 'slot'
+
+  /// Kuota slot (qurban kolektif). Kosong = tanpa batas slot.
+  final int? slotTotal;
+  final int? slotFilled;
+
+  bool get isZakat => category == ProgramCategory.zakat;
+  bool get isFixedPrice => unitPrice != null;
+  bool get isSlotBased => slotTotal != null;
+
+  int get slotsLeft {
+    if (!isSlotBased) return 0;
+    final left = slotTotal! - (slotFilled ?? 0);
+    return left < 0 ? 0 : left;
+  }
+
+  bool get isFull => isSlotBased && slotsLeft <= 0;
+
+  /// Batas jumlah unit sekali pesan.
+  int get maxUnits => isSlotBased ? slotsLeft : 10;
 
   /// 0.0 - 1.0
   double get progress {
@@ -48,5 +79,10 @@ class Campaign extends Equatable {
         deadline,
         location,
         imageAsset,
+        subType,
+        unitPrice,
+        unitLabel,
+        slotTotal,
+        slotFilled,
       ];
 }

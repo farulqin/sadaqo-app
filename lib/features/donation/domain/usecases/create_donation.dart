@@ -10,16 +10,20 @@ import 'package:sadaqo/features/donation/domain/repositories/donation_repository
 class CreateDonation implements UseCase<Donation, CreateDonationParams> {
   const CreateDonation(this._repository);
 
-  static const int minimumAmount = 10000;
+  /// Minimal semua transaksi. Zakat dikecualikan (nominal dari kalkulator).
+  static const int minimumAmount = 5000;
 
   final DonationRepository _repository;
 
   @override
   Future<Either<Failure, Donation>> call(CreateDonationParams params) {
-    // Aturan bisnis: nominal minimal.
-    if (params.amount < minimumAmount) {
+    if (params.category == ProgramCategory.zakat) {
+      if (params.amount <= 0) {
+        return Future.value(Left(ValidationFailure('Nominal zakat tidak valid')));
+      }
+    } else if (params.amount < minimumAmount) {
       return Future.value(
-        Left(ValidationFailure('Minimal donasi ${Formatter.rupiah(minimumAmount)}')),
+        Left(ValidationFailure('Minimal transaksi ${Formatter.rupiah(minimumAmount)}')),
       );
     }
     return _repository.createDonation(

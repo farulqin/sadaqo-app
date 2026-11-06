@@ -14,13 +14,17 @@ import 'package:sadaqo/features/donation/presentation/cubit/donation_form_state.
 import 'package:sadaqo/features/donation/presentation/cubit/donation_history_cubit.dart';
 import 'package:sadaqo/injection_container.dart';
 
-/// Form donasi.
-/// - Dibuka dari detail program: [campaign] terisi, program tidak bisa diganti.
-/// - Dibuka dari tab "Donasi": [campaign] kosong, pengguna memilih program.
+/// Form donasi dengan 3 mode:
+/// 1) nominal bebas (minimal Rp 5.000),
+/// 2) harga tetap per unit (qurban per orang / kolektif) dengan pemilih jumlah,
+/// 3) [fixedAmount] terisi (zakat dari kalkulator): nominal tidak bisa diubah.
+/// Jika [campaign] terisi, program tidak bisa diganti. Jika kosong (tab Donasi),
+/// pengguna memilih program (zakat tidak ikut, karena lewat kalkulator).
 class DonationPage extends StatefulWidget {
-  const DonationPage({super.key, this.campaign});
+  const DonationPage({super.key, this.campaign, this.fixedAmount});
 
   final Campaign? campaign;
+  final int? fixedAmount;
 
   @override
   State<DonationPage> createState() => _DonationPageState();
@@ -32,6 +36,7 @@ class _DonationPageState extends State<DonationPage> {
   final _amountController = TextEditingController();
   Campaign? _selected;
   PaymentMethod _method = PaymentMethod.ewallet;
+  int _qty = 1;
 
   @override
   void initState() {
@@ -45,7 +50,26 @@ class _DonationPageState extends State<DonationPage> {
     super.dispose();
   }
 
-  int get _amount => int.tryParse(_amountController.text) ?? 0;
+  int _qtyFor(Campaign c) {
+    final max = c.maxUnits < 1 ? 1 : c.maxUnits;
+    return _qty > max ? max : _qty;
+  }
+
+  int _amountFor(Campaign? c) {
+    if (widget.fixedAmount != null) return widget.fixedAmount!;
+    final price = c?.unitPrice;
+    if (c != null && price != null) return price * _qtyFor(c);
+    return int.tryParse(_amountController.text) ?? 0;
+  }
+
+  /// Ambil versi terbaru program (kuota/dana bisa berubah setelah donasi).
+  Campaign? _fresh(Campaign? c, List<Campaign> all) {
+    if (c == null) return null;
+    for (final x in all) {
+      if (x.id == c.id) return x;
+    }
+    return c;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,18 +79,25 @@ class _DonationPageState extends State<DonationPage> {
         listener: _onFormState,
         builder: (context, formState) {
           final campaignState = context.watch<CampaignCubit>().state;
-          final campaigns =
+          final all =
               campaignState is CampaignLoaded ? campaignState.campaigns : <Campaign>[];
-          final selected =
-              _selected ?? (campaigns.isNotEmpty ? campaigns.first : null);
+          final pickable = all.where((c) => !c.isZakat).toList();
+          final selected = _fresh(_selected, all) ??
+              (pickable.isNotEmpty ? pickable.first : null);
+
+          final fixed = widget.fixedAmount != null;
+          final amount = _amountFor(selected);
           final submitting = formState is DonationFormSubmitting;
+          final blockedByQuota = !fixed && selected != null && selected.isFull;
+          final canSubmit =
+              !submitting && selected != null && !blockedByQuota && amount > 0;
 
           return Scaffold(
-            appBar: AppBar(title: const Text('Donasi')),
+            appBar: AppBar(title: Text(fixed ? 'Bayar Zakat' : 'Donasi')),
             body: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                _campaignHeader(context, selected, campaigns),
+                _header(context, selected, pickable),
                 const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.all(12),
@@ -80,7 +111,7 @@ class _DonationPageState extends State<DonationPage> {
                       SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          'Donasi Anda aman dan transparan',
+                          'Transaksi Anda aman dan transparan',
                           style: TextStyle(fontWeight: FontWeight.w600),
                         ),
                       ),
@@ -88,41 +119,7 @@ class _DonationPageState extends State<DonationPage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  'Nominal Donasi',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    for (final value in _quickAmounts)
-                      Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                            right: value == _quickAmounts.last ? 0 : 8,
-                          ),
-                          child: _AmountChip(
-                            label: Formatter.rupiahCompact(value),
-                            selected: _amount == value,
-                            onTap: () => setState(
-                              () => _amountController.text = value.toString(),
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  controller: _amountController,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  onChanged: (_) => setState(() {}),
-                  decoration: const InputDecoration(
-                    prefixText: 'Rp ',
-                    hintText: 'Nominal lainnya',
-                  ),
-                ),
+                if (selected != null) ..._amountSection(selected, amount, fixed),
                 const SizedBox(height: 20),
                 const Text(
                   'Metode Pembayaran (Simulasi)',
@@ -157,9 +154,7 @@ class _DonationPageState extends State<DonationPage> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: (submitting || selected == null)
-                      ? null
-                      : () => _submit(context, selected),
+                  onPressed: canSubmit ? () => _submit(context, selected, amount) : null,
                   child: submitting
                       ? const SizedBox(
                           height: 20,
@@ -169,7 +164,7 @@ class _DonationPageState extends State<DonationPage> {
                             color: Colors.white,
                           ),
                         )
-                      : const Text('Lanjutkan Donasi  →'),
+                      : Text(fixed ? 'Bayar Zakat  →' : 'Lanjutkan  →'),
                 ),
               ],
             ),
@@ -179,17 +174,164 @@ class _DonationPageState extends State<DonationPage> {
     );
   }
 
-  Widget _campaignHeader(
-    BuildContext context,
-    Campaign? selected,
-    List<Campaign> campaigns,
-  ) {
+  List<Widget> _amountSection(Campaign c, int amount, bool fixed) {
+    // Mode 3: nominal dari kalkulator zakat.
+    if (fixed) {
+      return [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Total Zakat', style: TextStyle(color: AppColors.textMuted)),
+              Text(
+                Formatter.rupiah(amount),
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.forestGreen,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                c.subType == 'Fitrah'
+                    ? 'Disalurkan dalam bentuk beras'
+                    : 'Disalurkan dalam bentuk uang',
+                style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+              ),
+            ],
+          ),
+        ),
+      ];
+    }
+
+    // Mode 2: harga tetap per unit.
+    if (c.unitPrice != null) {
+      final qty = _qtyFor(c);
+      final unit = c.unitLabel ?? 'unit';
+      return [
+        Text('Jumlah $unit',
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+        const SizedBox(height: 10),
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(child: Text('Harga per $unit')),
+                  Text(
+                    Formatter.rupiah(c.unitPrice!),
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                ],
+              ),
+              if (c.isSlotBased)
+                Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Row(
+                    children: [
+                      const Expanded(child: Text('Sisa slot')),
+                      Text(
+                        '${c.slotsLeft} dari ${c.slotTotal}',
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                    ],
+                  ),
+                ),
+              const Divider(height: 24),
+              Row(
+                children: [
+                  _QtyStepper(
+                    value: qty,
+                    canDecrease: qty > 1,
+                    canIncrease: !c.isFull && qty < c.maxUnits,
+                    onChanged: (v) => setState(() => _qty = v),
+                  ),
+                  const Spacer(),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      const Text('Total',
+                          style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                      Text(
+                        Formatter.rupiah(amount),
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.forestGreen,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              if (c.isFull)
+                const Padding(
+                  padding: EdgeInsets.only(top: 8),
+                  child: Text(
+                    'Kuota program ini sudah penuh',
+                    style: TextStyle(color: AppColors.error, fontWeight: FontWeight.w600),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ];
+    }
+
+    // Mode 1: nominal bebas.
+    return [
+      const Text('Nominal Donasi',
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+      const SizedBox(height: 10),
+      Row(
+        children: [
+          for (final value in _quickAmounts)
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(right: value == _quickAmounts.last ? 0 : 8),
+                child: _AmountChip(
+                  label: Formatter.rupiahCompact(value),
+                  selected: amount == value,
+                  onTap: () => setState(() => _amountController.text = value.toString()),
+                ),
+              ),
+            ),
+        ],
+      ),
+      const SizedBox(height: 10),
+      TextField(
+        controller: _amountController,
+        keyboardType: TextInputType.number,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        onChanged: (_) => setState(() {}),
+        decoration: InputDecoration(
+          prefixText: 'Rp ',
+          hintText: 'Nominal lainnya',
+          helperText: 'Minimal ${Formatter.rupiah(CreateDonation.minimumAmount)}',
+        ),
+      ),
+    ];
+  }
+
+  Widget _header(BuildContext context, Campaign? selected, List<Campaign> pickable) {
     if (selected == null) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 24),
         child: Center(child: CircularProgressIndicator(color: AppColors.forestGreen)),
       );
     }
+    final canChange = widget.campaign == null && widget.fixedAmount == null;
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -224,9 +366,9 @@ class _DonationPageState extends State<DonationPage> {
               ],
             ),
           ),
-          if (widget.campaign == null)
+          if (canChange)
             TextButton(
-              onPressed: () => _pickCampaign(context, campaigns),
+              onPressed: () => _pickCampaign(context, pickable),
               child: const Text('Ganti'),
             ),
         ],
@@ -237,32 +379,44 @@ class _DonationPageState extends State<DonationPage> {
   Future<void> _pickCampaign(BuildContext context, List<Campaign> campaigns) async {
     final picked = await showModalBottomSheet<Campaign>(
       context: context,
+      isScrollControlled: true,
       builder: (sheetContext) => SafeArea(
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            for (final c in campaigns)
-              ListTile(
-                leading: Icon(c.category.icon, color: AppColors.forestGreen),
-                title: Text(c.title),
-                subtitle: Text(c.category.label),
-                onTap: () => Navigator.pop(sheetContext, c),
-              ),
-          ],
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(sheetContext).size.height * 0.7,
+          ),
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              for (final c in campaigns)
+                ListTile(
+                  leading: Icon(c.category.icon, color: AppColors.forestGreen),
+                  title: Text(c.title),
+                  subtitle: Text(c.category.label),
+                  onTap: () => Navigator.pop(sheetContext, c),
+                ),
+            ],
+          ),
         ),
       ),
     );
-    if (picked != null && mounted) setState(() => _selected = picked);
+    if (picked != null && mounted) {
+      setState(() {
+        _selected = picked;
+        _qty = 1;
+        _amountController.clear();
+      });
+    }
   }
 
-  void _submit(BuildContext context, Campaign campaign) {
+  void _submit(BuildContext context, Campaign campaign, int amount) {
     FocusScope.of(context).unfocus();
     context.read<DonationFormCubit>().submit(
           CreateDonationParams(
             campaignId: campaign.id,
             campaignTitle: campaign.title,
             category: campaign.category,
-            amount: _amount,
+            amount: amount,
             paymentMethod: _method,
           ),
         );
@@ -279,9 +433,9 @@ class _DonationPageState extends State<DonationPage> {
         context: context,
         builder: (dialogContext) => AlertDialog(
           icon: const Icon(Icons.check_circle, color: AppColors.success, size: 56),
-          title: const Text('Donasi Berhasil'),
+          title: const Text('Pembayaran Berhasil'),
           content: Text(
-            'Terima kasih! Donasi ${Formatter.rupiah(state.donation.amount)} '
+            'Terima kasih! Pembayaran ${Formatter.rupiah(state.donation.amount)} '
             'untuk "${state.donation.campaignTitle}" tercatat '
             '(simulasi, tidak ada uang sungguhan).',
             textAlign: TextAlign.center,
@@ -296,14 +450,57 @@ class _DonationPageState extends State<DonationPage> {
       );
       if (!context.mounted) return;
       context.read<DonationHistoryCubit>().refresh();
-      context.read<CampaignCubit>().refresh(); // progres dana ikut diperbarui
+      context.read<CampaignCubit>().refresh(); // progres dana dan kuota ikut diperbarui
       context.read<DonationFormCubit>().reset();
-      if (widget.campaign != null) {
+      if (widget.campaign != null || widget.fixedAmount != null) {
         Navigator.of(context).pop();
       } else {
-        setState(_amountController.clear);
+        setState(() {
+          _amountController.clear();
+          _qty = 1;
+        });
       }
     }
+  }
+}
+
+class _QtyStepper extends StatelessWidget {
+  const _QtyStepper({
+    required this.value,
+    required this.canDecrease,
+    required this.canIncrease,
+    required this.onChanged,
+  });
+
+  final int value;
+  final bool canDecrease;
+  final bool canIncrease;
+  final ValueChanged<int> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        IconButton(
+          onPressed: canDecrease ? () => onChanged(value - 1) : null,
+          icon: const Icon(Icons.remove_circle_outline),
+          color: AppColors.forestGreen,
+        ),
+        SizedBox(
+          width: 28,
+          child: Text(
+            '$value',
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+          ),
+        ),
+        IconButton(
+          onPressed: canIncrease ? () => onChanged(value + 1) : null,
+          icon: const Icon(Icons.add_circle_outline),
+          color: AppColors.forestGreen,
+        ),
+      ],
+    );
   }
 }
 

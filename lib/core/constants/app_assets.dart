@@ -3,17 +3,19 @@
 class AppAssets {
   AppAssets._();
 
-  // ===== Gambar =====
   static const String _images = 'assets/images';
-  static const String logo = '$_images/logo_sadaqo.png'; // logo + teks
-  static const String logoEmblem = '$_images/logo_sadaqo_emblem.png'; // tanpa teks
+  static const String logo = '$_images/logo_sadaqo.png';
+  static const String logoEmblem = '$_images/logo_sadaqo_emblem.png';
 
-  /// Foto program. Taruh file di assets/images/programs/, lalu isi
-  /// field imageAsset di mock datasource dengan path ini.
-  /// Contoh: '${AppAssets.programs}/masjid_al_falah.jpg'
-  static const String programs = '$_images/programs';
+  // ===== Foto program, satu folder per fitur =====
+  static String masjid(String file) => '$_images/masjid_mushola/$file';
+  static String sosial(String file) => '$_images/bantuan_sosial/$file';
+  static String duafa(String file) => '$_images/kaum_duafa/$file';
+  static String qurban(String file) => '$_images/qurban_bersama/$file';
+
+  static const String zakatFitrah = '$_images/zakat/zakat_fitrah.jpg';
+  static const String zakatMaal = '$_images/zakat/zakat_maal.jpg';
 
   // ===== Icon =====
-  static const String _icons = 'assets/icons';
-  static const String appIcon = '$_icons/app_icon.png'; // sumber launcher icon
+  static const String appIcon = 'assets/icons/app_icon.png';
 }

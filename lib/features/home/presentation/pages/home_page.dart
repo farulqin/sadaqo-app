@@ -16,6 +16,8 @@ import 'package:sadaqo/features/home/presentation/widgets/category_shortcuts.dar
 import 'package:sadaqo/features/news/presentation/cubit/news_cubit.dart';
 import 'package:sadaqo/features/news/presentation/cubit/news_state.dart';
 import 'package:sadaqo/features/news/presentation/widgets/news_carousel.dart';
+import 'package:sadaqo/core/constants/program_category.dart';
+import 'package:sadaqo/features/zakat/presentation/pages/zakat_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key, required this.onNavigateTab});
@@ -47,7 +49,9 @@ class HomePage extends StatelessWidget {
                 CategoryShortcuts(
                   onSelected: (category) => Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => CampaignListPage(initialCategory: category),
+                      builder: (_) => category == ProgramCategory.zakat
+                          ? const ZakatPage()
+                          : CampaignListPage(initialCategory: category),
                     ),
                   ),
                 ),

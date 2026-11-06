@@ -27,7 +27,7 @@ class CampaignCard extends StatelessWidget {
                 ProgramImage(
                   category: campaign.category,
                   imageAsset: campaign.imageAsset,
-                  height: 140,
+                  height: 150,
                   width: double.infinity,
                 ),
                 Positioned(
@@ -35,6 +35,26 @@ class CampaignCard extends StatelessWidget {
                   bottom: 10,
                   child: PercentChip(percent: campaign.progressPercent),
                 ),
+                if (campaign.subType != null)
+                  Positioned(
+                    right: 10,
+                    top: 10,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.black54,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        campaign.subType!,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
               ],
             ),
             Padding(
@@ -46,10 +66,23 @@ class CampaignCard extends StatelessWidget {
                     campaign.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(Icons.location_on_outlined,
+                          size: 14, color: AppColors.textMuted),
+                      const SizedBox(width: 2),
+                      Expanded(
+                        child: Text(
+                          campaign.location,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 10),
                   ClipRRect(
@@ -76,6 +109,19 @@ class CampaignCard extends StatelessWidget {
                       ),
                     ],
                   ),
+                  if (campaign.isSlotBased) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      campaign.isFull
+                          ? 'Kuota penuh'
+                          : 'Slot terisi ${campaign.slotFilled ?? 0}/${campaign.slotTotal}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: campaign.isFull ? AppColors.error : AppColors.forestGreen,
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -96,17 +142,10 @@ class _Amount extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment:
-          alignEnd ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      crossAxisAlignment: alignEnd ? CrossAxisAlignment.end : CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
-        ),
-        Text(
-          value,
-          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-        ),
+        Text(label, style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
+        Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
       ],
     );
   }

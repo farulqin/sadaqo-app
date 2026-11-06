@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-/// Kategori program donasi. Dipakai bersama oleh fitur campaign dan donation.
+/// Kategori program. Urutan enum = urutan tampil di beranda.
 enum ProgramCategory {
   masjid(
     key: 'masjid',
-    label: 'Masjid & Musala',
+    label: 'Masjid & Mushola',
     shortLabel: 'Masjid',
     icon: Icons.mosque,
     colorStart: Color(0xFF1F3D2B),
@@ -18,17 +18,25 @@ enum ProgramCategory {
     colorStart: Color(0xFF2E5E3E),
     colorEnd: Color(0xFF7FB08A),
   ),
-  yatim(
-    key: 'yatim',
-    label: 'Anak Yatim',
-    shortLabel: 'Yatim',
-    icon: Icons.child_care,
+  zakat(
+    key: 'zakat',
+    label: 'Zakat',
+    shortLabel: 'Zakat',
+    icon: Icons.calculate,
+    colorStart: Color(0xFF8A6D1F),
+    colorEnd: Color(0xFFD9B84A),
+  ),
+  duafa(
+    key: 'duafa',
+    label: 'Kaum Duafa',
+    shortLabel: 'Duafa',
+    icon: Icons.groups,
     colorStart: Color(0xFF3A6B47),
     colorEnd: Color(0xFFA3D65C),
   ),
   qurban(
     key: 'qurban',
-    label: 'Qurban',
+    label: 'Qurban Bersama',
     shortLabel: 'Qurban',
     icon: Icons.agriculture,
     colorStart: Color(0xFF6B5B3A),

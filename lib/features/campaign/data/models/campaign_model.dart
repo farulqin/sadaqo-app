@@ -12,6 +12,11 @@ class CampaignModel extends Campaign {
     required super.deadline,
     required super.location,
     super.imageAsset,
+    super.subType,
+    super.unitPrice,
+    super.unitLabel,
+    super.slotTotal,
+    super.slotFilled,
   });
 
   /// Nama key JSON mengikuti rencana respons API Laravel.
@@ -26,6 +31,11 @@ class CampaignModel extends Campaign {
       deadline: DateTime.parse(json['deadline'] as String),
       location: json['location'] as String,
       imageAsset: json['image'] as String?,
+      subType: json['sub_type'] as String?,
+      unitPrice: (json['unit_price'] as num?)?.toInt(),
+      unitLabel: json['unit_label'] as String?,
+      slotTotal: (json['slot_total'] as num?)?.toInt(),
+      slotFilled: (json['slot_filled'] as num?)?.toInt(),
     );
   }
 
@@ -39,5 +49,29 @@ class CampaignModel extends Campaign {
         'deadline': deadline.toIso8601String(),
         'location': location,
         'image': imageAsset,
+        'sub_type': subType,
+        'unit_price': unitPrice,
+        'unit_label': unitLabel,
+        'slot_total': slotTotal,
+        'slot_filled': slotFilled,
       };
+
+  CampaignModel copyWith({int? collectedAmount, int? slotFilled}) {
+    return CampaignModel(
+      id: id,
+      title: title,
+      description: description,
+      category: category,
+      targetAmount: targetAmount,
+      collectedAmount: collectedAmount ?? this.collectedAmount,
+      deadline: deadline,
+      location: location,
+      imageAsset: imageAsset,
+      subType: subType,
+      unitPrice: unitPrice,
+      unitLabel: unitLabel,
+      slotTotal: slotTotal,
+      slotFilled: slotFilled ?? this.slotFilled,
+    );
+  }
 }
