@@ -26,12 +26,25 @@ class CreateDonation implements UseCase<Donation, CreateDonationParams> {
         Left(ValidationFailure('Minimal transaksi ${Formatter.rupiah(minimumAmount)}')),
       );
     }
+
+    // E-wallet dan transfer bank wajib memilih penyedia (DANA, BCA, dst).
+    if (params.paymentMethod != PaymentMethod.qris &&
+        (params.paymentProvider == null || params.paymentProvider!.isEmpty)) {
+      return Future.value(
+        Left(ValidationFailure('Pilih ${params.paymentMethod.label} terlebih dahulu')),
+      );
+    }
+
     return _repository.createDonation(
       campaignId: params.campaignId,
       campaignTitle: params.campaignTitle,
       category: params.category,
       amount: params.amount,
       paymentMethod: params.paymentMethod,
+      paymentProvider: params.paymentProvider,
+      donorName: params.donorName.trim().isEmpty
+          ? Donation.anonymousName
+          : params.donorName.trim(),
     );
   }
 }
@@ -43,6 +56,8 @@ class CreateDonationParams extends Equatable {
     required this.category,
     required this.amount,
     required this.paymentMethod,
+    required this.donorName,
+    this.paymentProvider,
   });
 
   final String campaignId;
@@ -50,8 +65,19 @@ class CreateDonationParams extends Equatable {
   final ProgramCategory category;
   final int amount;
   final PaymentMethod paymentMethod;
+  final String? paymentProvider;
+
+  /// Nama donatur, atau "Hamba Allah" jika ingin disembunyikan.
+  final String donorName;
 
   @override
-  List<Object?> get props =>
-      [campaignId, campaignTitle, category, amount, paymentMethod];
+  List<Object?> get props => [
+        campaignId,
+        campaignTitle,
+        category,
+        amount,
+        paymentMethod,
+        paymentProvider,
+        donorName,
+      ];
 }

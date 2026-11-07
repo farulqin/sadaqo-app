@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
 import 'package:sadaqo/core/constants/program_category.dart';
+import 'package:sadaqo/core/widgets/category_icon.dart';
 
 /// Empat pintasan kategori di beranda.
 class CategoryShortcuts extends StatelessWidget {
@@ -31,7 +32,7 @@ class CategoryShortcuts extends StatelessWidget {
                         color: AppColors.sandBeige,
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(c.icon, color: AppColors.forestGreen),
+                      child: CategoryIcon(c, color: AppColors.forestGreen),
                     ),
                     const SizedBox(height: 6),
                     Text(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sadaqo/core/constants/app_assets.dart';
 
 /// Kategori program. Urutan enum = urutan tampil di beranda.
 enum ProgramCategory {
@@ -38,7 +39,8 @@ enum ProgramCategory {
     key: 'qurban',
     label: 'Qurban Bersama',
     shortLabel: 'Qurban',
-    icon: Icons.agriculture,
+    icon: Icons.pets, // cadangan jika gambar ikon tidak ditemukan
+    iconAsset: AppAssets.iconQurban, // ikon kepala sapi
     colorStart: Color(0xFF6B5B3A),
     colorEnd: Color(0xFFC9B98A),
   );
@@ -50,12 +52,14 @@ enum ProgramCategory {
     required this.icon,
     required this.colorStart,
     required this.colorEnd,
+    this.iconAsset,
   });
 
   final String key;
   final String label;
   final String shortLabel;
   final IconData icon;
+  final String? iconAsset;
   final Color colorStart;
   final Color colorEnd;
 

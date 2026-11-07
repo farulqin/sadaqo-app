@@ -18,6 +18,7 @@ import 'package:sadaqo/features/news/presentation/cubit/news_state.dart';
 import 'package:sadaqo/features/news/presentation/widgets/news_carousel.dart';
 import 'package:sadaqo/core/constants/program_category.dart';
 import 'package:sadaqo/features/zakat/presentation/pages/zakat_page.dart';
+import 'package:sadaqo/features/profile/presentation/widgets/user_avatar.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key, required this.onNavigateTab});
@@ -149,17 +150,7 @@ class _Header extends StatelessWidget {
         children: [
           Row(
             children: [
-              CircleAvatar(
-                radius: 22,
-                backgroundColor: AppColors.sandBeige,
-                child: Text(
-                  initial,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.forestGreen,
-                  ),
-                ),
-              ),
+            UserAvatar(initial: initial, radius: 22),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(

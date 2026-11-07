@@ -11,6 +11,8 @@ class DonationModel extends Donation {
     required super.paymentMethod,
     required super.status,
     required super.createdAt,
+    super.paymentProvider,
+    super.donorName = Donation.anonymousName,
   });
 
   factory DonationModel.fromJson(Map<String, dynamic> json) {
@@ -22,13 +24,15 @@ class DonationModel extends Donation {
       amount: (json['amount'] as num).toInt(),
       paymentMethod: PaymentMethod.values.firstWhere(
         (m) => m.name == json['payment_method'],
-        orElse: () => PaymentMethod.ewallet,
+        orElse: () => PaymentMethod.qris,
       ),
+      paymentProvider: json['payment_provider'] as String?,
       status: DonationStatus.values.firstWhere(
         (s) => s.name == json['status'],
         orElse: () => DonationStatus.pending,
       ),
       createdAt: DateTime.parse(json['created_at'] as String),
+      donorName: (json['donor_name'] as String?) ?? Donation.anonymousName,
     );
   }
 
@@ -39,7 +43,9 @@ class DonationModel extends Donation {
         'category': category.key,
         'amount': amount,
         'payment_method': paymentMethod.name,
+        'payment_provider': paymentProvider,
         'status': status.name,
         'created_at': createdAt.toIso8601String(),
+        'donor_name': donorName,
       };
 }

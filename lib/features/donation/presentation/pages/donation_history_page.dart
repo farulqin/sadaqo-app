@@ -145,7 +145,11 @@ class _DonationTile extends StatelessWidget {
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
                 Text(
-                  Formatter.date(donation.createdAt),
+                  '${Formatter.date(donation.createdAt)} • ${donation.paymentLabel}',
+                  style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                ),
+                Text(
+                  'Atas nama: ${donation.donorName}',
                   style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
                 ),
               ],

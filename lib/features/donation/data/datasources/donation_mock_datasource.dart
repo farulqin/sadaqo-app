@@ -58,6 +58,8 @@ class DonationMockDataSource implements DonationRemoteDataSource {
     required ProgramCategory category,
     required int amount,
     required PaymentMethod paymentMethod,
+    String? paymentProvider,
+    required String donorName,
   }) async {
     await Future<void>.delayed(const Duration(milliseconds: 900));
 
@@ -77,8 +79,10 @@ class DonationMockDataSource implements DonationRemoteDataSource {
       category: category,
       amount: amount,
       paymentMethod: paymentMethod,
+      paymentProvider: paymentProvider,
       status: DonationStatus.success,
       createdAt: DateTime.now(),
+      donorName: donorName,
     );
     _items.insert(0, donation);
     _campaigns.applyDonation(campaignId: campaignId, amount: amount);

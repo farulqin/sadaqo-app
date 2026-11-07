@@ -11,5 +11,7 @@ abstract class DonationRemoteDataSource {
     required ProgramCategory category,
     required int amount,
     required PaymentMethod paymentMethod,
+    String? paymentProvider,
+    required String donorName,
   });
 }

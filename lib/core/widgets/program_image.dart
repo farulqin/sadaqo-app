@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sadaqo/core/constants/program_category.dart';
+import 'package:sadaqo/core/widgets/category_icon.dart';
 
 /// Gambar program. Jika [imageAsset] kosong atau file tidak ditemukan,
 /// ditampilkan gradient + icon sesuai kategori (tidak akan error).
@@ -48,7 +49,7 @@ class ProgramImage extends StatelessWidget {
         ),
       ),
       child: Center(
-        child: Icon(category.icon, size: size, color: Colors.white70),
+        child: CategoryIcon(category, size: size, color: Colors.white70),
       ),
     );
   }

@@ -29,6 +29,12 @@ import 'package:sadaqo/features/news/domain/repositories/news_repository.dart';
 import 'package:sadaqo/features/news/domain/usecases/get_news.dart';
 import 'package:sadaqo/features/news/presentation/cubit/news_cubit.dart';
 import 'package:sadaqo/features/campaign/data/datasources/mock_campaign_store.dart';
+import 'package:sadaqo/features/profile/data/datasources/profile_local_datasource.dart';
+import 'package:sadaqo/features/profile/data/repositories/profile_repository_impl.dart';
+import 'package:sadaqo/features/profile/domain/repositories/profile_repository.dart';
+import 'package:sadaqo/features/profile/domain/usecases/get_profile_photo.dart';
+import 'package:sadaqo/features/profile/domain/usecases/save_profile_photo.dart';
+import 'package:sadaqo/features/profile/presentation/cubit/profile_cubit.dart';
 
 /// Service locator: semua dependency didaftarkan di sini.
 /// Urutan per fitur: datasource -> repository -> usecase -> cubit.
@@ -81,4 +87,13 @@ Future<void> init() async {
   sl.registerLazySingleton<NewsRepository>(() => NewsRepositoryImpl(sl()));
   sl.registerLazySingleton<GetNews>(() => GetNews(sl()));
   sl.registerLazySingleton<NewsCubit>(() => NewsCubit(sl()));
+
+  // ===== Profile (foto profil) =====
+  sl.registerLazySingleton<ProfileLocalDataSource>(() => ProfileMemoryDataSource());
+  sl.registerLazySingleton<ProfileRepository>(() => ProfileRepositoryImpl(sl()));
+  sl.registerLazySingleton<GetProfilePhoto>(() => GetProfilePhoto(sl()));
+  sl.registerLazySingleton<SaveProfilePhoto>(() => SaveProfilePhoto(sl()));
+  sl.registerLazySingleton<ProfileCubit>(
+    () => ProfileCubit(getPhoto: sl(), savePhoto: sl()),
+  );
 }

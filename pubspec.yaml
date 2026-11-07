@@ -18,6 +18,8 @@ dependencies:
   dartz: ^0.10.1
   dio: ^5.11.1
   intl: ^0.20.3
+  qr_flutter: ^4.1.0
+  image_picker: ^1.2.4
 
 dev_dependencies:
   flutter_test:
@@ -36,5 +38,6 @@ flutter:
     - assets/images/zakat/
     - assets/images/kaum_duafa/
     - assets/images/qurban_bersama/
+    - assets/images/avatar/
     - assets/icons/
     - assets/illustrations/

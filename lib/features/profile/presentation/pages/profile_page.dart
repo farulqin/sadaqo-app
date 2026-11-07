@@ -7,6 +7,8 @@ import 'package:sadaqo/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sadaqo/features/auth/presentation/pages/login_page.dart';
 import 'package:sadaqo/features/donation/presentation/cubit/donation_history_cubit.dart';
 import 'package:sadaqo/features/donation/presentation/cubit/donation_history_state.dart';
+import 'package:sadaqo/features/profile/presentation/widgets/photo_picker_sheet.dart';
+import 'package:sadaqo/features/profile/presentation/widgets/user_avatar.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key, required this.onNavigateTab});
@@ -30,16 +32,29 @@ class ProfilePage extends StatelessWidget {
         children: [
           Column(
             children: [
-              CircleAvatar(
-                radius: 40,
-                backgroundColor: AppColors.sandBeige,
-                child: Text(
-                  user?.initial ?? '?',
-                  style: const TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.forestGreen,
-                  ),
+              GestureDetector(
+                onTap: () => showModalBottomSheet<void>(
+                  context: context,
+                  isScrollControlled: true,
+                  builder: (_) => const PhotoPickerSheet(),
+                ),
+                child: Stack(
+                  children: [
+                    UserAvatar(initial: user?.initial ?? '?', radius: 44),
+                    Positioned(
+                      right: 0,
+                      bottom: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: AppColors.forestGreen,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        child: const Icon(Icons.camera_alt, size: 16, color: Colors.white),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 10),

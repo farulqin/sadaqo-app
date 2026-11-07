@@ -28,6 +28,8 @@ class DonationRepositoryImpl implements DonationRepository {
     required ProgramCategory category,
     required int amount,
     required PaymentMethod paymentMethod,
+    String? paymentProvider,
+    required String donorName,
   }) async {
     try {
       final donation = await _remote.createDonation(
@@ -36,6 +38,8 @@ class DonationRepositoryImpl implements DonationRepository {
         category: category,
         amount: amount,
         paymentMethod: paymentMethod,
+        paymentProvider: paymentProvider,
+        donorName: donorName,
       );
       return Right(donation);
     } on ServerException catch (e) {

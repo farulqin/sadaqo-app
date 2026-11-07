@@ -12,5 +12,7 @@ abstract class DonationRepository {
     required ProgramCategory category,
     required int amount,
     required PaymentMethod paymentMethod,
+    String? paymentProvider,
+    required String donorName,
   });
 }
