@@ -7,7 +7,8 @@ enum ProgramCategory {
     key: 'masjid',
     label: 'Masjid & Mushola',
     shortLabel: 'Masjid',
-    icon: Icons.mosque,
+    icon: Icons.mosque, // cadangan jika gambar ikon tidak ditemukan
+    iconAsset: AppAssets.iconMasjid,
     colorStart: Color(0xFF1F3D2B),
     colorEnd: Color(0xFF4E7D5B),
   ),
@@ -16,6 +17,7 @@ enum ProgramCategory {
     label: 'Bantuan Sosial',
     shortLabel: 'Sosial',
     icon: Icons.volunteer_activism,
+    iconAsset: AppAssets.iconSosial,
     colorStart: Color(0xFF2E5E3E),
     colorEnd: Color(0xFF7FB08A),
   ),
@@ -24,6 +26,7 @@ enum ProgramCategory {
     label: 'Zakat',
     shortLabel: 'Zakat',
     icon: Icons.calculate,
+    iconAsset: AppAssets.iconZakat,
     colorStart: Color(0xFF8A6D1F),
     colorEnd: Color(0xFFD9B84A),
   ),
@@ -32,6 +35,7 @@ enum ProgramCategory {
     label: 'Kaum Duafa',
     shortLabel: 'Duafa',
     icon: Icons.groups,
+    iconAsset: AppAssets.iconDuafa,
     colorStart: Color(0xFF3A6B47),
     colorEnd: Color(0xFFA3D65C),
   ),
@@ -39,8 +43,8 @@ enum ProgramCategory {
     key: 'qurban',
     label: 'Qurban Bersama',
     shortLabel: 'Qurban',
-    icon: Icons.pets, // cadangan jika gambar ikon tidak ditemukan
-    iconAsset: AppAssets.iconQurban, // ikon kepala sapi
+    icon: Icons.pets,
+    iconAsset: AppAssets.iconQurban,
     colorStart: Color(0xFF6B5B3A),
     colorEnd: Color(0xFFC9B98A),
   );

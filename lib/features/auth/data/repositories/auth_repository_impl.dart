@@ -16,8 +16,29 @@ class AuthRepositoryImpl implements AuthRepository {
     required String password,
   }) async {
     try {
-      final user = await _remote.login(email, password);
-      return Right(user);
+      return Right(await _remote.login(email, password));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, AppUser>> register({
+    required String name,
+    required String email,
+    required String password,
+  }) async {
+    try {
+      return Right(await _remote.register(name, email, password));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, AppUser>> loginWithProvider(String provider) async {
+    try {
+      return Right(await _remote.loginWithProvider(provider));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }

@@ -4,6 +4,7 @@ import 'package:sadaqo/core/utils/formatter.dart';
 import 'package:sadaqo/core/widgets/percent_chip.dart';
 import 'package:sadaqo/core/widgets/program_image.dart';
 import 'package:sadaqo/features/campaign/domain/entities/campaign.dart';
+import 'package:sadaqo/features/favorite/presentation/widgets/favorite_button.dart';
 
 class CampaignCard extends StatelessWidget {
   const CampaignCard({super.key, required this.campaign, required this.onTap});
@@ -34,6 +35,11 @@ class CampaignCard extends StatelessWidget {
                   left: 10,
                   bottom: 10,
                   child: PercentChip(percent: campaign.progressPercent),
+                ),
+                Positioned(
+                  left: 10,
+                  top: 10,
+                  child: FavoriteButton(campaignId: campaign.id, size: 34),
                 ),
                 if (campaign.subType != null)
                   Positioned(

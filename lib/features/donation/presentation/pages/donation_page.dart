@@ -17,6 +17,7 @@ import 'package:sadaqo/features/donation/presentation/cubit/donation_history_cub
 import 'package:sadaqo/features/donation/presentation/widgets/payment_sheet.dart';
 import 'package:sadaqo/features/donation/presentation/widgets/program_picker_sheet.dart';
 import 'package:sadaqo/injection_container.dart';
+import 'package:sadaqo/features/splash/presentation/pages/kindness_splash_page.dart';
 
 /// Form donasi dengan 3 mode nominal:
 /// 1) nominal bebas (minimal Rp 5.000),
@@ -564,6 +565,19 @@ class _DonationPageState extends State<DonationPage> {
               child: const Text('Tutup'),
             ),
           ],
+        ),
+      );
+      if (!context.mounted) return;
+      // Splash syukur: otomatis tertutup, atau ketuk untuk melewati.
+      await Navigator.of(context).push(
+        PageRouteBuilder<void>(
+          transitionDuration: const Duration(milliseconds: 500),
+          pageBuilder: (context, animation, secondaryAnimation) => KindnessSplashPage(
+            message: KindnessMessages.thanks,
+            onDone: (ctx) => Navigator.of(ctx).pop(),
+          ),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+              FadeTransition(opacity: animation, child: child),
         ),
       );
       if (!context.mounted) return;

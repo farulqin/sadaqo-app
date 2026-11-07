@@ -9,5 +9,14 @@ abstract class AuthRepository {
     required String password,
   });
 
+  Future<Either<Failure, AppUser>> register({
+    required String name,
+    required String email,
+    required String password,
+  });
+
+  /// [provider]: 'Google' atau 'Apple'.
+  Future<Either<Failure, AppUser>> loginWithProvider(String provider);
+
   Future<Either<Failure, Unit>> logout();
 }

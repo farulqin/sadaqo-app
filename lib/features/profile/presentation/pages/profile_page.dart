@@ -9,6 +9,7 @@ import 'package:sadaqo/features/donation/presentation/cubit/donation_history_cub
 import 'package:sadaqo/features/donation/presentation/cubit/donation_history_state.dart';
 import 'package:sadaqo/features/profile/presentation/widgets/photo_picker_sheet.dart';
 import 'package:sadaqo/features/profile/presentation/widgets/user_avatar.dart';
+import 'package:sadaqo/features/favorite/presentation/pages/favorites_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key, required this.onNavigateTab});
@@ -109,7 +110,13 @@ class ProfilePage extends StatelessWidget {
               children: [
                 _MenuTile(Icons.person_outline, 'Profil Saya', () => soon('Profil Saya')),
                 _MenuTile(Icons.receipt_long_outlined, 'Riwayat Donasi', () => onNavigateTab(3)),
-                _MenuTile(Icons.favorite_border, 'Program Favorit', () => soon('Program Favorit')),
+                _MenuTile(
+                  Icons.favorite_border,
+                  'Program Favorit',
+                  () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const FavoritesPage()),
+                  ),
+                ),
                 _MenuTile(Icons.settings_outlined, 'Pengaturan', () => soon('Pengaturan')),
                 _MenuTile(Icons.help_outline, 'Bantuan & FAQ', () => soon('Bantuan & FAQ')),
                 _MenuTile(

@@ -11,6 +11,7 @@ import 'package:sadaqo/features/campaign/presentation/cubit/campaign_cubit.dart'
 import 'package:sadaqo/features/campaign/presentation/cubit/campaign_state.dart';
 import 'package:sadaqo/features/donation/presentation/pages/donation_page.dart';
 import 'package:sadaqo/features/zakat/presentation/pages/zakat_page.dart';
+import 'package:sadaqo/features/favorite/presentation/widgets/favorite_button.dart';
 
 class CampaignDetailPage extends StatelessWidget {
   const CampaignDetailPage({super.key, required this.campaign});
@@ -81,6 +82,11 @@ class CampaignDetailPage extends StatelessWidget {
                             const SnackBar(content: Text('Fitur bagikan menyusul')),
                           ),
                         ),
+                      ),
+                      Positioned(
+                        top: top + 8,
+                        right: 58,
+                        child: FavoriteButton(campaignId: c.id),
                       ),
                       Positioned(
                         left: 16,

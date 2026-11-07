@@ -9,6 +9,8 @@ import 'package:sadaqo/features/news/presentation/cubit/news_cubit.dart';
 import 'package:sadaqo/features/splash/presentation/pages/splash_page.dart';
 import 'package:sadaqo/injection_container.dart' as di;
 import 'package:sadaqo/features/profile/presentation/cubit/profile_cubit.dart';
+import 'package:sadaqo/features/favorite/presentation/cubit/favorite_cubit.dart';
+import 'package:sadaqo/features/notification/presentation/cubit/notification_cubit.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +33,8 @@ class SadaqoApp extends StatelessWidget {
         ),
         BlocProvider<NewsCubit>.value(value: di.sl<NewsCubit>()),
         BlocProvider<ProfileCubit>.value(value: di.sl<ProfileCubit>()..load()),
+        BlocProvider<NotificationCubit>.value(value: di.sl<NotificationCubit>()),
+        BlocProvider<FavoriteCubit>.value(value: di.sl<FavoriteCubit>()),
       ],
       child: MaterialApp(
         title: 'SADAQO',

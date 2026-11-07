@@ -1,6 +1,7 @@
 import 'package:sadaqo/core/constants/program_category.dart';
 import 'package:sadaqo/features/news/data/datasources/news_remote_datasource.dart';
 import 'package:sadaqo/features/news/data/models/news_model.dart';
+import 'package:sadaqo/core/constants/app_assets.dart';
 
 /// Berita contoh (edukatif, bukan klaim penyaluran). Satu berita per kategori.
 /// Batas isi berita: maksimal 1000 kata per artikel.
@@ -25,6 +26,7 @@ class NewsMockDataSource implements NewsRemoteDataSource {
         campaignId: 'm1',
         author: 'Redaksi SADAQO',
         publishedAt: now.subtract(const Duration(days: 1)),
+        imageAsset: AppAssets.news('news_masjid_mushola.jpg'),
       ),
       NewsModel(
         id: 'n2',
@@ -41,6 +43,7 @@ class NewsMockDataSource implements NewsRemoteDataSource {
         campaignId: 's1',
         author: 'Redaksi SADAQO',
         publishedAt: now.subtract(const Duration(days: 2)),
+        imageAsset: AppAssets.news('news_bantuan_sosial.jpg'),
       ),
       NewsModel(
         id: 'n3',
@@ -57,6 +60,7 @@ class NewsMockDataSource implements NewsRemoteDataSource {
         campaignId: 'z2',
         author: 'Redaksi SADAQO',
         publishedAt: now.subtract(const Duration(days: 4)),
+        imageAsset: AppAssets.news('news_zakat.jpg'),
       ),
       NewsModel(
         id: 'n4',
@@ -73,6 +77,7 @@ class NewsMockDataSource implements NewsRemoteDataSource {
         campaignId: 'd1',
         author: 'Redaksi SADAQO',
         publishedAt: now.subtract(const Duration(days: 6)),
+        imageAsset: AppAssets.news('news_kaum_duafa.jpg'),
       ),
       NewsModel(
         id: 'n5',
@@ -89,6 +94,7 @@ class NewsMockDataSource implements NewsRemoteDataSource {
         campaignId: 'q6',
         author: 'Redaksi SADAQO',
         publishedAt: now.subtract(const Duration(days: 9)),
+        imageAsset: AppAssets.news('news_qurban.jpg'),
       ),
     ];
   }

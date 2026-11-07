@@ -35,6 +35,18 @@ import 'package:sadaqo/features/profile/domain/repositories/profile_repository.d
 import 'package:sadaqo/features/profile/domain/usecases/get_profile_photo.dart';
 import 'package:sadaqo/features/profile/domain/usecases/save_profile_photo.dart';
 import 'package:sadaqo/features/profile/presentation/cubit/profile_cubit.dart';
+import 'package:sadaqo/features/auth/domain/usecases/login_with_provider.dart';
+import 'package:sadaqo/features/auth/domain/usecases/register_user.dart';
+import 'package:sadaqo/features/favorite/data/datasources/favorite_local_datasource.dart';
+import 'package:sadaqo/features/favorite/data/repositories/favorite_repository_impl.dart';
+import 'package:sadaqo/features/favorite/domain/repositories/favorite_repository.dart';
+import 'package:sadaqo/features/favorite/domain/usecases/favorite_usecases.dart';
+import 'package:sadaqo/features/favorite/presentation/cubit/favorite_cubit.dart';
+import 'package:sadaqo/features/notification/data/datasources/notification_local_datasource.dart';
+import 'package:sadaqo/features/notification/data/repositories/notification_repository_impl.dart';
+import 'package:sadaqo/features/notification/domain/repositories/notification_repository.dart';
+import 'package:sadaqo/features/notification/domain/usecases/notification_usecases.dart';
+import 'package:sadaqo/features/notification/presentation/cubit/notification_cubit.dart';
 
 /// Service locator: semua dependency didaftarkan di sini.
 /// Urutan per fitur: datasource -> repository -> usecase -> cubit.
@@ -51,8 +63,15 @@ Future<void> init() async {
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl()));
   sl.registerLazySingleton<LoginUser>(() => LoginUser(sl()));
   sl.registerLazySingleton<LogoutUser>(() => LogoutUser(sl()));
+    sl.registerLazySingleton<RegisterUser>(() => RegisterUser(sl()));
+  sl.registerLazySingleton<LoginWithProvider>(() => LoginWithProvider(sl()));
   sl.registerLazySingleton<AuthCubit>(
-    () => AuthCubit(loginUser: sl(), logoutUser: sl()),
+    () => AuthCubit(
+      loginUser: sl(),
+      registerUser: sl(),
+      loginWithProvider: sl(),
+      logoutUser: sl(),
+    ),
   );
 
   // ===== Campaign =====
@@ -95,5 +114,34 @@ Future<void> init() async {
   sl.registerLazySingleton<SaveProfilePhoto>(() => SaveProfilePhoto(sl()));
   sl.registerLazySingleton<ProfileCubit>(
     () => ProfileCubit(getPhoto: sl(), savePhoto: sl()),
+  );
+
+    // ===== Notification =====
+  sl.registerLazySingleton<NotificationLocalDataSource>(
+    () => NotificationMemoryDataSource(),
+  );
+  sl.registerLazySingleton<NotificationRepository>(
+    () => NotificationRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton<GetNotifications>(() => GetNotifications(sl()));
+  sl.registerLazySingleton<AddNotification>(() => AddNotification(sl()));
+  sl.registerLazySingleton<MarkAllNotificationsRead>(
+    () => MarkAllNotificationsRead(sl()),
+  );
+  sl.registerLazySingleton<NotificationCubit>(
+    () => NotificationCubit(
+      getNotifications: sl(),
+      addNotification: sl(),
+      markAllRead: sl(),
+    ),
+  );
+
+  // ===== Favorite =====
+  sl.registerLazySingleton<FavoriteLocalDataSource>(() => FavoriteMemoryDataSource());
+  sl.registerLazySingleton<FavoriteRepository>(() => FavoriteRepositoryImpl(sl()));
+  sl.registerLazySingleton<GetFavoriteIds>(() => GetFavoriteIds(sl()));
+  sl.registerLazySingleton<ToggleFavorite>(() => ToggleFavorite(sl()));
+  sl.registerLazySingleton<FavoriteCubit>(
+    () => FavoriteCubit(getIds: sl(), toggleFavorite: sl()),
   );
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sadaqo/core/constants/app_assets.dart';
 import 'package:sadaqo/features/campaign/presentation/cubit/campaign_cubit.dart';
 import 'package:sadaqo/features/campaign/presentation/pages/campaign_list_page.dart';
 import 'package:sadaqo/features/donation/presentation/cubit/donation_history_cubit.dart';
@@ -9,7 +10,7 @@ import 'package:sadaqo/features/home/presentation/pages/home_page.dart';
 import 'package:sadaqo/features/news/presentation/cubit/news_cubit.dart';
 import 'package:sadaqo/features/profile/presentation/pages/profile_page.dart';
 
-/// Kerangka utama aplikasi: 5 tab navigasi bawah.
+/// Kerangka utama aplikasi: 5 tab navigasi bawah (ikon dari assets/icons).
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
 
@@ -48,28 +49,23 @@ class _MainShellState extends State<MainShell> {
         onDestinationSelected: _goTo,
         destinations: const [
           NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
+            icon: ImageIcon(AssetImage(AppAssets.iconBeranda)),
             label: 'Beranda',
           ),
           NavigationDestination(
-            icon: Icon(Icons.event_note_outlined),
-            selectedIcon: Icon(Icons.event_note),
+            icon: ImageIcon(AssetImage(AppAssets.iconProgram)),
             label: 'Program',
           ),
           NavigationDestination(
-            icon: Icon(Icons.favorite_border),
-            selectedIcon: Icon(Icons.favorite),
+            icon: ImageIcon(AssetImage(AppAssets.iconDonasi)),
             label: 'Donasi',
           ),
           NavigationDestination(
-            icon: Icon(Icons.receipt_long_outlined),
-            selectedIcon: Icon(Icons.receipt_long),
+            icon: ImageIcon(AssetImage(AppAssets.iconRiwayat)),
             label: 'Riwayat',
           ),
           NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
+            icon: ImageIcon(AssetImage(AppAssets.iconProfil)),
             label: 'Profil',
           ),
         ],

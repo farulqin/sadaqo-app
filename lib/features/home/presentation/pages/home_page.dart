@@ -19,6 +19,8 @@ import 'package:sadaqo/features/news/presentation/widgets/news_carousel.dart';
 import 'package:sadaqo/core/constants/program_category.dart';
 import 'package:sadaqo/features/zakat/presentation/pages/zakat_page.dart';
 import 'package:sadaqo/features/profile/presentation/widgets/user_avatar.dart';
+import 'package:sadaqo/features/notification/presentation/cubit/notification_cubit.dart';
+import 'package:sadaqo/features/notification/presentation/pages/notification_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key, required this.onNavigateTab});
@@ -171,11 +173,17 @@ class _Header extends StatelessWidget {
                   ],
                 ),
               ),
-              IconButton(
-                onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Notifikasi menyusul')),
+              BlocBuilder<NotificationCubit, NotificationState>(
+                builder: (context, state) => IconButton(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const NotificationPage()),
+                  ),
+                  icon: Badge(
+                    isLabelVisible: state.unread > 0,
+                    label: Text('${state.unread}'),
+                    child: const Icon(Icons.notifications_none, color: Colors.white),
+                  ),
                 ),
-                icon: const Icon(Icons.notifications_none, color: Colors.white),
               ),
             ],
           ),
