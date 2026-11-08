@@ -20,14 +20,19 @@ class NotificationCubit extends Cubit<NotificationState> {
     required GetNotifications getNotifications,
     required AddNotification addNotification,
     required MarkAllNotificationsRead markAllRead,
+    bool Function()? isEnabled,
   })  : _get = getNotifications,
         _add = addNotification,
         _markAll = markAllRead,
+        _isEnabled = isEnabled ?? (() => true),
         super(const NotificationState());
 
   final GetNotifications _get;
   final AddNotification _add;
   final MarkAllNotificationsRead _markAll;
+
+  /// Dibaca dari Pengaturan: jika dimatikan, notifikasi baru tidak dicatat.
+  final bool Function() _isEnabled;
 
   Future<void> load() async {
     final result = await _get(const NoParams());
@@ -41,6 +46,7 @@ class NotificationCubit extends Cubit<NotificationState> {
       );
 
   Future<void> add({required String title, required String body}) async {
+    if (!_isEnabled()) return;
     final result = await _add(AddNotificationParams(title: title, body: body));
     if (result.isRight()) await load();
   }

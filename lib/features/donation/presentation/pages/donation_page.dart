@@ -17,7 +17,10 @@ import 'package:sadaqo/features/donation/presentation/cubit/donation_history_cub
 import 'package:sadaqo/features/donation/presentation/widgets/payment_sheet.dart';
 import 'package:sadaqo/features/donation/presentation/widgets/program_picker_sheet.dart';
 import 'package:sadaqo/injection_container.dart';
-import 'package:sadaqo/features/splash/presentation/pages/kindness_splash_page.dart';
+import 'package:sadaqo/features/splash/presentation/pages/pages/kindness_splash_page.dart';
+import 'package:sadaqo/core/navigation/main_tab_controller.dart';
+import 'package:sadaqo/features/notification/presentation/cubit/notification_cubit.dart';
+import 'package:sadaqo/features/profile/presentation/cubit/settings_cubit.dart';
 
 /// Form donasi dengan 3 mode nominal:
 /// 1) nominal bebas (minimal Rp 5.000),
@@ -49,6 +52,7 @@ class _DonationPageState extends State<DonationPage> {
   void initState() {
     super.initState();
     _selected = widget.campaign;
+    _anonymous = context.read<SettingsCubit>().state.hideNameByDefault;
   }
 
   @override
@@ -541,22 +545,23 @@ class _DonationPageState extends State<DonationPage> {
         );
   }
 
-  Future<void> _onFormState(BuildContext context, DonationFormState state) async {
+    Future<void> _onFormState(BuildContext context, DonationFormState state) async {
     if (state is DonationFormError) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(state.message)));
       return;
     }
     if (state is DonationFormSuccess) {
+      final donation = state.donation;
       await showDialog<void>(
         context: context,
         builder: (dialogContext) => AlertDialog(
           icon: const Icon(Icons.check_circle, color: AppColors.success, size: 56),
           title: const Text('Pembayaran Berhasil'),
           content: Text(
-            'Terima kasih! Pembayaran ${Formatter.rupiah(state.donation.amount)} '
-            'untuk "${state.donation.campaignTitle}" tercatat atas nama '
-            '${state.donation.donorName} (simulasi, tidak ada uang sungguhan).',
+            'Terima kasih! Pembayaran ${Formatter.rupiah(donation.amount)} '
+            'untuk "${donation.campaignTitle}" tercatat atas nama '
+            '${donation.donorName} (simulasi, tidak ada uang sungguhan).',
             textAlign: TextAlign.center,
           ),
           actions: [
@@ -568,31 +573,40 @@ class _DonationPageState extends State<DonationPage> {
         ),
       );
       if (!context.mounted) return;
-      // Splash syukur: otomatis tertutup, atau ketuk untuk melewati.
-      await Navigator.of(context).push(
-        PageRouteBuilder<void>(
-          transitionDuration: const Duration(milliseconds: 500),
-          pageBuilder: (context, animation, secondaryAnimation) => KindnessSplashPage(
-            message: KindnessMessages.thanks,
-            onDone: (ctx) => Navigator.of(ctx).pop(),
-          ),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-              FadeTransition(opacity: animation, child: child),
-        ),
-      );
-      if (!context.mounted) return;
+
+      // 1) Catat dan segarkan data SEBELUM pindah halaman.
       context.read<DonationHistoryCubit>().refresh();
-      context.read<CampaignCubit>().refresh(); // progres dana dan kuota ikut diperbarui
+      context.read<CampaignCubit>().refresh(); // progres dana dan kuota
+      context.read<NotificationCubit>().add(
+            title: 'Alhamdulillah, donasimu berhasil',
+            body: 'Benih kebaikanmu sudah tertanam hari ini. Pembayaran '
+                '${Formatter.rupiah(donation.amount)} untuk "${donation.campaignTitle}" '
+                'telah tercatat atas nama ${donation.donorName}.',
+          );
       context.read<DonationFormCubit>().reset();
-      if (widget.campaign != null || widget.fixedAmount != null) {
-        Navigator.of(context).pop();
-      } else {
+      if (widget.campaign == null && widget.fixedAmount == null) {
         setState(() {
           _amountController.clear();
           _qty = 1;
           _provider = null;
         });
       }
+
+      // 2) Splash syukur, lalu otomatis menuju tab Riwayat.
+      await Navigator.of(context).push(
+        PageRouteBuilder<void>(
+          transitionDuration: const Duration(milliseconds: 500),
+          pageBuilder: (context, animation, secondaryAnimation) => KindnessSplashPage(
+            message: KindnessMessages.thanks,
+            onDone: (ctx) {
+              Navigator.of(ctx).popUntil((route) => route.isFirst);
+              sl<MainTabController>().index.value = MainTabController.history;
+            },
+          ),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+              FadeTransition(opacity: animation, child: child),
+        ),
+      );
     }
   }
 }

@@ -15,6 +15,12 @@ abstract class AuthRepository {
     required String password,
   });
 
+    Future<Either<Failure, AppUser>> updateProfile({
+    required String email,
+    required String name,
+    String? phone,
+  });
+  
   /// [provider]: 'Google' atau 'Apple'.
   Future<Either<Failure, AppUser>> loginWithProvider(String provider);
 

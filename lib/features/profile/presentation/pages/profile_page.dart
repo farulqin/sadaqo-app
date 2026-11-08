@@ -1,30 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sadaqo/core/constants/app_assets.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
+import 'package:sadaqo/core/navigation/main_tab_controller.dart';
 import 'package:sadaqo/core/utils/formatter.dart';
 import 'package:sadaqo/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sadaqo/features/auth/presentation/pages/login_page.dart';
 import 'package:sadaqo/features/donation/presentation/cubit/donation_history_cubit.dart';
 import 'package:sadaqo/features/donation/presentation/cubit/donation_history_state.dart';
+import 'package:sadaqo/features/favorite/presentation/pages/favorites_page.dart';
+import 'package:sadaqo/features/profile/presentation/pages/about_page.dart';
+import 'package:sadaqo/features/profile/presentation/pages/edit_profile_page.dart';
+import 'package:sadaqo/features/profile/presentation/pages/help_page.dart';
+import 'package:sadaqo/features/profile/presentation/pages/settings_page.dart';
 import 'package:sadaqo/features/profile/presentation/widgets/photo_picker_sheet.dart';
 import 'package:sadaqo/features/profile/presentation/widgets/user_avatar.dart';
-import 'package:sadaqo/features/favorite/presentation/pages/favorites_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key, required this.onNavigateTab});
 
   final ValueChanged<int> onNavigateTab;
 
+  void _open(BuildContext context, Widget page) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = context.watch<AuthCubit>().user;
     final history = context.watch<DonationHistoryCubit>().state;
     final total = history is DonationHistoryLoaded ? history.totalSuccess : 0;
-
-    void soon(String feature) => ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$feature menyusul')),
-        );
 
     return Scaffold(
       appBar: AppBar(title: const Text('Profil')),
@@ -108,27 +112,35 @@ class ProfilePage extends StatelessWidget {
             clipBehavior: Clip.antiAlias,
             child: Column(
               children: [
-                _MenuTile(Icons.person_outline, 'Profil Saya', () => soon('Profil Saya')),
-                _MenuTile(Icons.receipt_long_outlined, 'Riwayat Donasi', () => onNavigateTab(3)),
+                _MenuTile(
+                  Icons.person_outline,
+                  'Profil Saya',
+                  () => _open(context, const EditProfilePage()),
+                ),
+                _MenuTile(
+                  Icons.receipt_long_outlined,
+                  'Riwayat Donasi',
+                  () => onNavigateTab(MainTabController.history),
+                ),
                 _MenuTile(
                   Icons.favorite_border,
                   'Program Favorit',
-                  () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const FavoritesPage()),
-                  ),
+                  () => _open(context, const FavoritesPage()),
                 ),
-                _MenuTile(Icons.settings_outlined, 'Pengaturan', () => soon('Pengaturan')),
-                _MenuTile(Icons.help_outline, 'Bantuan & FAQ', () => soon('Bantuan & FAQ')),
+                _MenuTile(
+                  Icons.settings_outlined,
+                  'Pengaturan',
+                  () => _open(context, const SettingsPage()),
+                ),
+                _MenuTile(
+                  Icons.help_outline,
+                  'Bantuan & FAQ',
+                  () => _open(context, const HelpPage()),
+                ),
                 _MenuTile(
                   Icons.info_outline,
                   'Tentang SADAQO',
-                  () => showAboutDialog(
-                    context: context,
-                    applicationName: 'SADAQO',
-                    applicationVersion: '1.0.0',
-                    applicationIcon: Image.asset(AppAssets.logoEmblem, width: 48),
-                    children: const [Text('Berbagi Kebaikan, Menebar Manfaat')],
-                  ),
+                  () => _open(context, const AboutPage()),
                   last: true,
                 ),
               ],

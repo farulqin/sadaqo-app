@@ -5,6 +5,7 @@ import 'package:sadaqo/features/auth/domain/usecases/login_user.dart';
 import 'package:sadaqo/features/auth/domain/usecases/login_with_provider.dart';
 import 'package:sadaqo/features/auth/domain/usecases/logout_user.dart';
 import 'package:sadaqo/features/auth/domain/usecases/register_user.dart';
+import 'package:sadaqo/features/auth/domain/usecases/update_profile.dart';
 import 'package:sadaqo/features/auth/presentation/cubit/auth_state.dart';
 
 /// Alur: UI -> Cubit -> UseCase -> Repository -> DataSource.
@@ -13,16 +14,19 @@ class AuthCubit extends Cubit<AuthState> {
     required LoginUser loginUser,
     required RegisterUser registerUser,
     required LoginWithProvider loginWithProvider,
+    required UpdateProfile updateProfile,
     required LogoutUser logoutUser,
   })  : _loginUser = loginUser,
         _registerUser = registerUser,
         _loginWithProvider = loginWithProvider,
+        _updateProfile = updateProfile,
         _logoutUser = logoutUser,
         super(const AuthInitial());
 
   final LoginUser _loginUser;
   final RegisterUser _registerUser;
   final LoginWithProvider _loginWithProvider;
+  final UpdateProfile _updateProfile;
   final LogoutUser _logoutUser;
 
   AppUser? get user {
@@ -66,6 +70,22 @@ class AuthCubit extends Cubit<AuthState> {
     result.fold(
       (failure) => emit(AuthError(failure.message)),
       (user) => emit(AuthAuthenticated(user)),
+    );
+  }
+
+  /// Mengembalikan pesan error, atau null jika berhasil.
+  Future<String?> updateProfile({required String name, String? phone}) async {
+    final current = user;
+    if (current == null) return 'Sesi berakhir, silakan masuk kembali';
+    final result = await _updateProfile(
+      UpdateProfileParams(email: current.email, name: name, phone: phone),
+    );
+    return result.fold(
+      (failure) => failure.message,
+      (updated) {
+        emit(AuthAuthenticated(updated));
+        return null;
+      },
     );
   }
 

@@ -5,4 +5,5 @@ abstract class AuthRemoteDataSource {
   Future<UserModel> register(String name, String email, String password);
   Future<UserModel> loginWithProvider(String provider);
   Future<void> logout();
+  Future<UserModel> updateProfile(String email, String name, String? phone);
 }

@@ -47,6 +47,9 @@ import 'package:sadaqo/features/notification/data/repositories/notification_repo
 import 'package:sadaqo/features/notification/domain/repositories/notification_repository.dart';
 import 'package:sadaqo/features/notification/domain/usecases/notification_usecases.dart';
 import 'package:sadaqo/features/notification/presentation/cubit/notification_cubit.dart';
+import 'package:sadaqo/core/navigation/main_tab_controller.dart';
+import 'package:sadaqo/features/auth/domain/usecases/update_profile.dart';
+import 'package:sadaqo/features/profile/presentation/cubit/settings_cubit.dart';
 
 /// Service locator: semua dependency didaftarkan di sini.
 /// Urutan per fitur: datasource -> repository -> usecase -> cubit.
@@ -63,13 +66,15 @@ Future<void> init() async {
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl()));
   sl.registerLazySingleton<LoginUser>(() => LoginUser(sl()));
   sl.registerLazySingleton<LogoutUser>(() => LogoutUser(sl()));
-    sl.registerLazySingleton<RegisterUser>(() => RegisterUser(sl()));
+  sl.registerLazySingleton<RegisterUser>(() => RegisterUser(sl()));
   sl.registerLazySingleton<LoginWithProvider>(() => LoginWithProvider(sl()));
+  sl.registerLazySingleton<UpdateProfile>(() => UpdateProfile(sl()));
   sl.registerLazySingleton<AuthCubit>(
     () => AuthCubit(
       loginUser: sl(),
       registerUser: sl(),
       loginWithProvider: sl(),
+      updateProfile: sl(),
       logoutUser: sl(),
     ),
   );
@@ -133,6 +138,7 @@ Future<void> init() async {
       getNotifications: sl(),
       addNotification: sl(),
       markAllRead: sl(),
+      isEnabled: () => sl<SettingsCubit>().state.notificationsEnabled,
     ),
   );
 
@@ -141,7 +147,9 @@ Future<void> init() async {
   sl.registerLazySingleton<FavoriteRepository>(() => FavoriteRepositoryImpl(sl()));
   sl.registerLazySingleton<GetFavoriteIds>(() => GetFavoriteIds(sl()));
   sl.registerLazySingleton<ToggleFavorite>(() => ToggleFavorite(sl()));
-  sl.registerLazySingleton<FavoriteCubit>(
-    () => FavoriteCubit(getIds: sl(), toggleFavorite: sl()),
-  );
+  sl.registerLazySingleton<FavoriteCubit>(() => FavoriteCubit(getIds: sl(), toggleFavorite: sl()),);
+
+    // ===== Pengaturan dan navigasi tab =====
+  sl.registerLazySingleton<SettingsCubit>(() => SettingsCubit());
+  sl.registerLazySingleton<MainTabController>(() => MainTabController());
 }

@@ -53,4 +53,17 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(ServerFailure(e.message));
     }
   }
+
+  @override
+  Future<Either<Failure, AppUser>> updateProfile({
+    required String email,
+    required String name,
+    String? phone,
+  }) async {
+    try {
+      return Right(await _remote.updateProfile(email, name, phone));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
 }
