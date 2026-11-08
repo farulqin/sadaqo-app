@@ -55,7 +55,7 @@ class _SplashPageState extends State<SplashPage>
 
   void _goNext() {
     if (!mounted) return;
-    // TODO (tahap token): langsung ke MainShell jika sudah login.
+    // Catatan (tahap token): langsung ke MainShell jika sudah login.
     Navigator.of(context).pushReplacement(
       PageRouteBuilder<void>(
         transitionDuration: const Duration(milliseconds: 600),

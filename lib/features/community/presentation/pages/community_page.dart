@@ -10,7 +10,6 @@ import 'package:sadaqo/features/community/domain/entities/moderation.dart';
 import 'package:sadaqo/features/community/presentation/cubit/community_cubit.dart';
 import 'package:sadaqo/features/home/presentation/widgets/top_bar_actions.dart';
 import 'package:sadaqo/features/notification/presentation/cubit/notification_cubit.dart';
-import 'package:sadaqo/features/profile/presentation/widgets/user_avatar.dart';
 import 'package:sadaqo/injection_container.dart';
 
 /// Ruang obrolan donatur: kirim chat, emote, dan reaksi. Ada moderasi konten:
