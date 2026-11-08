@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
+import 'package:sadaqo/core/constants/program_category.dart';
+import 'package:sadaqo/core/navigation/main_tab_controller.dart';
 import 'package:sadaqo/core/utils/formatter.dart';
 import 'package:sadaqo/core/widgets/section_header.dart';
 import 'package:sadaqo/core/widgets/state_views.dart';
@@ -13,19 +15,16 @@ import 'package:sadaqo/features/campaign/presentation/widgets/campaign_card.dart
 import 'package:sadaqo/features/donation/presentation/cubit/donation_history_cubit.dart';
 import 'package:sadaqo/features/donation/presentation/cubit/donation_history_state.dart';
 import 'package:sadaqo/features/home/presentation/widgets/category_shortcuts.dart';
+import 'package:sadaqo/features/home/presentation/widgets/top_bar_actions.dart';
 import 'package:sadaqo/features/news/presentation/cubit/news_cubit.dart';
 import 'package:sadaqo/features/news/presentation/cubit/news_state.dart';
 import 'package:sadaqo/features/news/presentation/widgets/news_carousel.dart';
-import 'package:sadaqo/core/constants/program_category.dart';
 import 'package:sadaqo/features/zakat/presentation/pages/zakat_page.dart';
-import 'package:sadaqo/features/profile/presentation/widgets/user_avatar.dart';
-import 'package:sadaqo/features/notification/presentation/cubit/notification_cubit.dart';
-import 'package:sadaqo/features/notification/presentation/pages/notification_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key, required this.onNavigateTab});
 
-  /// Pindah tab di MainShell (1 = Program, 3 = Riwayat).
+  /// Pindah tab di MainShell.
   final ValueChanged<int> onNavigateTab;
 
   @override
@@ -40,9 +39,8 @@ class HomePage extends StatelessWidget {
         children: [
           _Header(
             name: user?.firstName ?? 'Sahabat',
-            initial: user?.initial ?? '?',
             total: total,
-            onSeeHistory: () => onNavigateTab(3),
+            onSeeHistory: () => onNavigateTab(MainTabController.history),
           ),
           Padding(
             padding: const EdgeInsets.all(16),
@@ -82,7 +80,7 @@ class HomePage extends StatelessWidget {
                 SectionHeader(
                   title: 'Program Pilihan',
                   actionLabel: 'Lihat Semua',
-                  onAction: () => onNavigateTab(1),
+                  onAction: () => onNavigateTab(MainTabController.programs),
                 ),
                 const SizedBox(height: 12),
                 BlocBuilder<CampaignCubit, CampaignState>(
@@ -129,13 +127,11 @@ class HomePage extends StatelessWidget {
 class _Header extends StatelessWidget {
   const _Header({
     required this.name,
-    required this.initial,
     required this.total,
     required this.onSeeHistory,
   });
 
   final String name;
-  final String initial;
   final int total;
   final VoidCallback onSeeHistory;
 
@@ -143,7 +139,7 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     final top = MediaQuery.of(context).padding.top;
     return Container(
-      padding: EdgeInsets.fromLTRB(16, top + 14, 16, 18),
+      padding: EdgeInsets.fromLTRB(16, top + 10, 8, 18),
       decoration: const BoxDecoration(
         color: AppColors.forestGreen,
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
@@ -152,14 +148,14 @@ class _Header extends StatelessWidget {
         children: [
           Row(
             children: [
-            UserAvatar(initial: initial, radius: 22),
-              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Halo, $name 👋',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 17,
@@ -173,22 +169,13 @@ class _Header extends StatelessWidget {
                   ],
                 ),
               ),
-              BlocBuilder<NotificationCubit, NotificationState>(
-                builder: (context, state) => IconButton(
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const NotificationPage()),
-                  ),
-                  icon: Badge(
-                    isLabelVisible: state.unread > 0,
-                    label: Text('${state.unread}'),
-                    child: const Icon(Icons.notifications_none, color: Colors.white),
-                  ),
-                ),
-              ),
+              // Notifikasi + foto profil (membuka halaman Profil)
+              const TopBarActions(),
             ],
           ),
           const SizedBox(height: 16),
           Container(
+            margin: const EdgeInsets.only(right: 8),
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: Colors.white,

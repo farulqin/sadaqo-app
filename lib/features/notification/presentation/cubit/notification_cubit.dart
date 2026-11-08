@@ -45,8 +45,13 @@ class NotificationCubit extends Cubit<NotificationState> {
         body: 'Bismillah, mari tebar benih kebaikan hari ini.',
       );
 
-  Future<void> add({required String title, required String body}) async {
-    if (!_isEnabled()) return;
+  Future<void> add({
+    required String title,
+    required String body,
+    bool important = false,
+  }) async {
+    // Pemberitahuan penting (mis. pelanggaran) tetap dicatat walau notifikasi dimatikan.
+    if (!important && !_isEnabled()) return;
     final result = await _add(AddNotificationParams(title: title, body: body));
     if (result.isRight()) await load();
   }

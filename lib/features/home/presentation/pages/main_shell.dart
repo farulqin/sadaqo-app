@@ -4,16 +4,16 @@ import 'package:sadaqo/core/constants/app_assets.dart';
 import 'package:sadaqo/core/navigation/main_tab_controller.dart';
 import 'package:sadaqo/features/campaign/presentation/cubit/campaign_cubit.dart';
 import 'package:sadaqo/features/campaign/presentation/pages/campaign_list_page.dart';
+import 'package:sadaqo/features/community/presentation/pages/community_page.dart';
 import 'package:sadaqo/features/donation/presentation/cubit/donation_history_cubit.dart';
 import 'package:sadaqo/features/donation/presentation/pages/donation_history_page.dart';
 import 'package:sadaqo/features/donation/presentation/pages/donation_page.dart';
 import 'package:sadaqo/features/home/presentation/pages/home_page.dart';
 import 'package:sadaqo/features/news/presentation/cubit/news_cubit.dart';
-import 'package:sadaqo/features/profile/presentation/pages/profile_page.dart';
 import 'package:sadaqo/injection_container.dart';
 
 /// Kerangka utama aplikasi: 5 tab navigasi bawah (ikon dari assets/icons).
-/// Tab aktif disimpan di [MainTabController] supaya bisa diganti dari halaman lain.
+/// Profil tidak lagi menjadi tab: dibuka dari ikon foto di bagian atas.
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
 
@@ -29,7 +29,7 @@ class _MainShellState extends State<MainShell> {
     const CampaignListPage(),
     const DonationPage(),
     const DonationHistoryPage(),
-    ProfilePage(onNavigateTab: _goTo),
+    const CommunityPage(),
   ];
 
   @override
@@ -71,8 +71,8 @@ class _MainShellState extends State<MainShell> {
               label: 'Riwayat',
             ),
             NavigationDestination(
-              icon: ImageIcon(AssetImage(AppAssets.iconProfil)),
-              label: 'Profil',
+              icon: ImageIcon(AssetImage(AppAssets.iconKomunitas)),
+              label: 'Komunitas',
             ),
           ],
         ),

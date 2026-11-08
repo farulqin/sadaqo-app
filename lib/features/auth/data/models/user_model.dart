@@ -1,4 +1,5 @@
 import 'package:sadaqo/features/auth/domain/entities/app_user.dart';
+import 'package:sadaqo/features/auth/domain/entities/gender.dart';
 
 class UserModel extends AppUser {
   const UserModel({
@@ -6,6 +7,7 @@ class UserModel extends AppUser {
     required super.name,
     required super.email,
     super.phone,
+    super.gender,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -14,6 +16,7 @@ class UserModel extends AppUser {
       name: json['name'] as String,
       email: json['email'] as String,
       phone: json['phone'] as String?,
+      gender: Gender.fromKey(json['gender'] as String?),
     );
   }
 
@@ -22,5 +25,6 @@ class UserModel extends AppUser {
         'name': name,
         'email': email,
         'phone': phone,
+        'gender': gender?.key,
       };
 }

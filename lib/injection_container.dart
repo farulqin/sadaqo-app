@@ -50,6 +50,11 @@ import 'package:sadaqo/features/notification/presentation/cubit/notification_cub
 import 'package:sadaqo/core/navigation/main_tab_controller.dart';
 import 'package:sadaqo/features/auth/domain/usecases/update_profile.dart';
 import 'package:sadaqo/features/profile/presentation/cubit/settings_cubit.dart';
+import 'package:sadaqo/features/community/data/datasources/community_local_datasource.dart';
+import 'package:sadaqo/features/community/data/repositories/community_repository_impl.dart';
+import 'package:sadaqo/features/community/domain/repositories/community_repository.dart';
+import 'package:sadaqo/features/community/domain/usecases/community_usecases.dart';
+import 'package:sadaqo/features/community/presentation/cubit/community_cubit.dart';
 
 /// Service locator: semua dependency didaftarkan di sini.
 /// Urutan per fitur: datasource -> repository -> usecase -> cubit.
@@ -149,7 +154,25 @@ Future<void> init() async {
   sl.registerLazySingleton<ToggleFavorite>(() => ToggleFavorite(sl()));
   sl.registerLazySingleton<FavoriteCubit>(() => FavoriteCubit(getIds: sl(), toggleFavorite: sl()),);
 
-    // ===== Pengaturan dan navigasi tab =====
+  // ===== Pengaturan dan navigasi tab =====
   sl.registerLazySingleton<SettingsCubit>(() => SettingsCubit());
   sl.registerLazySingleton<MainTabController>(() => MainTabController());
+
+  // ===== Community =====
+  sl.registerLazySingleton<CommunityLocalDataSource>(() => CommunityMemoryDataSource());
+  sl.registerLazySingleton<CommunityRepository>(() => CommunityRepositoryImpl(sl()));
+  sl.registerLazySingleton<GetMessages>(() => GetMessages(sl()));
+  sl.registerLazySingleton<GetModerationStatus>(() => GetModerationStatus(sl()));
+  sl.registerLazySingleton<SendMessage>(() => SendMessage(sl()));
+  sl.registerLazySingleton<ToggleReaction>(() => ToggleReaction(sl()));
+  sl.registerLazySingleton<ReportMessage>(() => ReportMessage(sl()));
+  sl.registerLazySingleton<CommunityCubit>(
+    () => CommunityCubit(
+      getMessages: sl(),
+      getStatus: sl(),
+      sendMessage: sl(),
+      toggleReaction: sl(),
+      reportMessage: sl(),
+    ),
+  );
 }

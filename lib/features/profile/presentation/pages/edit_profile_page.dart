@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sadaqo/core/constants/app_assets.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
+import 'package:sadaqo/features/auth/domain/entities/gender.dart';
 import 'package:sadaqo/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sadaqo/features/notification/presentation/cubit/notification_cubit.dart';
+import 'package:sadaqo/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:sadaqo/features/profile/presentation/widgets/photo_picker_sheet.dart';
 import 'package:sadaqo/features/profile/presentation/widgets/user_avatar.dart';
 
-/// "Profil Saya": ubah foto, nama, dan nomor HP. Email tidak dapat diubah.
+/// "Profil Saya": ubah foto, nama, jenis kelamin, dan nomor HP. Email tidak dapat diubah.
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
 
@@ -17,6 +20,7 @@ class EditProfilePage extends StatefulWidget {
 class _EditProfilePageState extends State<EditProfilePage> {
   late final TextEditingController _nameController;
   late final TextEditingController _phoneController;
+  Gender? _gender;
   bool _saving = false;
 
   @override
@@ -25,6 +29,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final user = context.read<AuthCubit>().user;
     _nameController = TextEditingController(text: user?.name ?? '');
     _phoneController = TextEditingController(text: user?.phone ?? '');
+    _gender = user?.gender;
   }
 
   @override
@@ -40,6 +45,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final error = await context.read<AuthCubit>().updateProfile(
           name: _nameController.text,
           phone: _phoneController.text,
+          gender: _gender,
         );
     if (!mounted) return;
     setState(() => _saving = false);
@@ -48,6 +54,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
       return;
     }
+
+    // Jika avatar yang terpasang tidak sesuai jenis kelamin baru, foto dilepas.
+    final profile = context.read<ProfileCubit>();
+    final asset = profile.state.photo?.avatarAsset;
+    if (asset != null && _gender != null) {
+      final allowed =
+          _gender == Gender.male ? AppAssets.avatarsMale : AppAssets.avatarsFemale;
+      if (!allowed.contains(asset)) profile.removePhoto();
+    }
+
     context.read<NotificationCubit>().add(
           title: 'Profil diperbarui',
           body: 'Perubahan data profilmu berhasil disimpan.',
@@ -109,7 +125,36 @@ class _EditProfilePageState extends State<EditProfilePage> {
               prefixIcon: Icon(Icons.person_outline),
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
+          const Text(
+            'Jenis kelamin',
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            children: [
+              for (final g in Gender.values)
+                ChoiceChip(
+                  label: Text(g.label),
+                  selected: _gender == g,
+                  showCheckmark: false,
+                  onSelected: (_) => setState(() => _gender = g),
+                  selectedColor: AppColors.forestGreen,
+                  backgroundColor: Colors.white,
+                  labelStyle: TextStyle(
+                    color: _gender == g ? Colors.white : AppColors.textDark,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          const Text(
+            'Dipakai untuk menyarankan foto dan avatar yang sesuai.',
+            style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+          ),
+          const SizedBox(height: 16),
           TextField(
             controller: TextEditingController(text: user?.email ?? ''),
             enabled: false,

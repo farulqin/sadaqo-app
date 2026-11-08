@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:sadaqo/core/error/failures.dart';
 import 'package:sadaqo/features/auth/domain/entities/app_user.dart';
+import 'package:sadaqo/features/auth/domain/entities/gender.dart';
 
 /// Kontrak: domain hanya tahu "apa" yang dibutuhkan, bukan "bagaimana".
 abstract class AuthRepository {
@@ -15,10 +16,11 @@ abstract class AuthRepository {
     required String password,
   });
 
-    Future<Either<Failure, AppUser>> updateProfile({
+  Future<Either<Failure, AppUser>> updateProfile({
     required String email,
     required String name,
     String? phone,
+    Gender? gender,
   });
   
   /// [provider]: 'Google' atau 'Apple'.

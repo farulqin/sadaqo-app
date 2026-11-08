@@ -4,6 +4,7 @@ import 'package:sadaqo/core/error/failures.dart';
 import 'package:sadaqo/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:sadaqo/features/auth/domain/entities/app_user.dart';
 import 'package:sadaqo/features/auth/domain/repositories/auth_repository.dart';
+import 'package:sadaqo/features/auth/domain/entities/gender.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   const AuthRepositoryImpl(this._remote);
@@ -59,9 +60,10 @@ class AuthRepositoryImpl implements AuthRepository {
     required String email,
     required String name,
     String? phone,
+    Gender? gender,
   }) async {
     try {
-      return Right(await _remote.updateProfile(email, name, phone));
+      return Right(await _remote.updateProfile(email, name, phone, gender));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }

@@ -1,15 +1,17 @@
 import 'package:sadaqo/core/error/exceptions.dart';
 import 'package:sadaqo/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:sadaqo/features/auth/data/models/user_model.dart';
+import 'package:sadaqo/features/auth/domain/entities/gender.dart';
 
 /// Data dummy selama backend Laravel belum siap.
 /// - Login: email apa saja dan password >= 6 karakter dianggap berhasil.
-///   Jika email pernah didaftarkan/diubah, nama dan nomor HP yang tersimpan dipakai.
+///   Jika email pernah didaftarkan/diubah, nama, nomor HP, dan jenis kelamin dipakai.
 /// - Daftar: email yang sama tidak boleh didaftarkan dua kali (selama aplikasi hidup).
 /// - Google/Apple: disimulasikan dengan akun contoh.
 class AuthMockDataSource implements AuthRemoteDataSource {
   final Map<String, String> _names = {}; // email -> nama
   final Map<String, String> _phones = {}; // email -> nomor HP
+  final Map<String, Gender> _genders = {}; // email -> jenis kelamin
 
   UserModel _build(String email) {
     final key = email.trim().toLowerCase();
@@ -18,6 +20,7 @@ class AuthMockDataSource implements AuthRemoteDataSource {
       name: _names[key] ?? 'Farid Ulil Yaqin',
       email: email.trim(),
       phone: _phones[key],
+      gender: _genders[key],
     );
   }
 
@@ -49,7 +52,12 @@ class AuthMockDataSource implements AuthRemoteDataSource {
   }
 
   @override
-  Future<UserModel> updateProfile(String email, String name, String? phone) async {
+  Future<UserModel> updateProfile(
+    String email,
+    String name,
+    String? phone,
+    Gender? gender,
+  ) async {
     await Future<void>.delayed(const Duration(milliseconds: 600));
     final key = email.trim().toLowerCase();
     _names[key] = name;
@@ -58,6 +66,7 @@ class AuthMockDataSource implements AuthRemoteDataSource {
     } else {
       _phones[key] = phone;
     }
+    if (gender != null) _genders[key] = gender;
     return _build(email);
   }
 

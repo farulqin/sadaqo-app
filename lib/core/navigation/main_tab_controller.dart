@@ -7,7 +7,7 @@ class MainTabController {
   static const int programs = 1;
   static const int donate = 2;
   static const int history = 3;
-  static const int profile = 4;
+  static const int community = 4;
 
   final ValueNotifier<int> index = ValueNotifier<int>(home);
 }

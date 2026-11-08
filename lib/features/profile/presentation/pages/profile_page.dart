@@ -14,11 +14,10 @@ import 'package:sadaqo/features/profile/presentation/pages/help_page.dart';
 import 'package:sadaqo/features/profile/presentation/pages/settings_page.dart';
 import 'package:sadaqo/features/profile/presentation/widgets/photo_picker_sheet.dart';
 import 'package:sadaqo/features/profile/presentation/widgets/user_avatar.dart';
+import 'package:sadaqo/injection_container.dart';
 
 class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key, required this.onNavigateTab});
-
-  final ValueChanged<int> onNavigateTab;
+  const ProfilePage({super.key});
 
   void _open(BuildContext context, Widget page) {
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));
@@ -120,7 +119,10 @@ class ProfilePage extends StatelessWidget {
                 _MenuTile(
                   Icons.receipt_long_outlined,
                   'Riwayat Donasi',
-                  () => onNavigateTab(MainTabController.history),
+                  () {
+                    Navigator.of(context).pop(); // kembali dari halaman Profil
+                    sl<MainTabController>().index.value = MainTabController.history;
+                  },
                 ),
                 _MenuTile(
                   Icons.favorite_border,

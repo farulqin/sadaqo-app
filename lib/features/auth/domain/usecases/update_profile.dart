@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:sadaqo/core/error/failures.dart';
 import 'package:sadaqo/core/usecases/usecase.dart';
 import 'package:sadaqo/features/auth/domain/entities/app_user.dart';
+import 'package:sadaqo/features/auth/domain/entities/gender.dart';
 import 'package:sadaqo/features/auth/domain/repositories/auth_repository.dart';
 
 class UpdateProfile implements UseCase<AppUser, UpdateProfileParams> {
@@ -27,17 +28,24 @@ class UpdateProfile implements UseCase<AppUser, UpdateProfileParams> {
       email: params.email,
       name: name,
       phone: (phone == null || phone.isEmpty) ? null : phone,
+      gender: params.gender,
     );
   }
 }
 
 class UpdateProfileParams extends Equatable {
-  const UpdateProfileParams({required this.email, required this.name, this.phone});
+  const UpdateProfileParams({
+    required this.email,
+    required this.name,
+    this.phone,
+    this.gender,
+  });
 
   final String email;
   final String name;
   final String? phone;
+  final Gender? gender;
 
   @override
-  List<Object?> get props => [email, name, phone];
+  List<Object?> get props => [email, name, phone, gender];
 }

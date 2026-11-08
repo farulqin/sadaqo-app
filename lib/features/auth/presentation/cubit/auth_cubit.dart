@@ -7,6 +7,7 @@ import 'package:sadaqo/features/auth/domain/usecases/logout_user.dart';
 import 'package:sadaqo/features/auth/domain/usecases/register_user.dart';
 import 'package:sadaqo/features/auth/domain/usecases/update_profile.dart';
 import 'package:sadaqo/features/auth/presentation/cubit/auth_state.dart';
+import 'package:sadaqo/features/auth/domain/entities/gender.dart';
 
 /// Alur: UI -> Cubit -> UseCase -> Repository -> DataSource.
 class AuthCubit extends Cubit<AuthState> {
@@ -74,11 +75,20 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   /// Mengembalikan pesan error, atau null jika berhasil.
-  Future<String?> updateProfile({required String name, String? phone}) async {
+  Future<String?> updateProfile({
+    required String name,
+    String? phone,
+    Gender? gender,
+  }) async {
     final current = user;
     if (current == null) return 'Sesi berakhir, silakan masuk kembali';
     final result = await _updateProfile(
-      UpdateProfileParams(email: current.email, name: name, phone: phone),
+      UpdateProfileParams(
+        email: current.email,
+        name: name,
+        phone: phone,
+        gender: gender,
+      ),
     );
     return result.fold(
       (failure) => failure.message,
