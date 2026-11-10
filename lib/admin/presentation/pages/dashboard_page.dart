@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:sadaqo/admin/core/admin_utils.dart';
 import 'package:sadaqo/admin/data/admin_activity_log.dart';
@@ -8,7 +10,6 @@ import 'package:sadaqo/admin/data/admin_verification_store.dart';
 import 'package:sadaqo/admin/presentation/admin_nav.dart';
 import 'package:sadaqo/admin/presentation/widgets/admin_widgets.dart';
 import 'package:sadaqo/admin/presentation/widgets/charts.dart';
-import 'package:sadaqo/core/constants/app_assets.dart';
 import 'package:sadaqo/core/constants/program_category.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
 import 'package:sadaqo/features/campaign/data/datasources/mock_campaign_store.dart';
@@ -53,18 +54,42 @@ class _DashboardPageState extends State<DashboardPage> {
   int _rangeIndex = 0;
   DateTimeRange? _custom; // jika admin memilih tanggal sendiri
   final PageController _popular = PageController();
-  int _popularPage = 0;
+  int _popularPage = 0; // indeks absolut (carousel berputar tanpa ujung)
+  Timer? _auto;
 
   @override
   void initState() {
     super.initState();
     _analytics.sync();
+    _startAuto();
   }
 
   @override
   void dispose() {
+    _auto?.cancel();
     _popular.dispose();
     super.dispose();
+  }
+
+  /// Program Terpopuler bergeser sendiri tiap 4 detik, seperti papan iklan.
+  void _startAuto() {
+    _auto?.cancel();
+    _auto = Timer.periodic(const Duration(seconds: 4), (_) {
+      if (!mounted || !_popular.hasClients) return;
+      _popular.nextPage(
+        duration: const Duration(milliseconds: 700),
+        curve: Curves.easeInOutCubic,
+      );
+    });
+  }
+
+  String _rangeLabel() {
+    final p = _period;
+    final last = p.end.subtract(const Duration(days: 1));
+    final same = p.start.year == last.year && p.start.month == last.month && p.start.day == last.day;
+    return same
+        ? AdminFmt.dayMonthYear(last)
+        : '${AdminFmt.dayMonthYear(p.start)} – ${AdminFmt.dayMonthYear(last)}';
   }
 
   DateTimeRange get _period {
@@ -85,8 +110,8 @@ class _DashboardPageState extends State<DashboardPage> {
       firstDate: now.subtract(const Duration(days: 365)),
       lastDate: now,
       initialDateRange: DateTimeRange(
-        start: now.subtract(const Duration(days: 6)),
-        end: now,
+        start: _period.start,
+        end: _period.end.subtract(const Duration(days: 1)),
       ),
     );
     if (picked == null) return;
@@ -133,56 +158,86 @@ class _DashboardPageState extends State<DashboardPage> {
 
   // ---------------- Header ----------------
   Widget _welcome(double w) {
-    return SizedBox(
-      height: 112,
-      child: Stack(
-        children: [
-          if (w >= 760)
-            Positioned(
-              right: 0,
-              top: -4,
-              bottom: 0,
-              width: w * 0.42,
-              child: ShaderMask(
-                blendMode: BlendMode.dstIn,
-                shaderCallback: (r) => const LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [Colors.transparent, Colors.black],
-                  stops: [0, 0.55],
-                ).createShader(r),
-                child: Image.asset(
-                  AppAssets.masjid('masjid_al_azzam.jpg'),
-                  fit: BoxFit.cover,
-                  alignment: Alignment.center,
-                  cacheWidth: 900,
-                  errorBuilder: (context, e, s) => const SizedBox.shrink(),
-                ),
-              ),
-            ),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Selamat datang, Admin! 👋',
-                  style: TextStyle(
-                    fontSize: w < 600 ? 22 : 30,
-                    fontWeight: FontWeight.w800,
-                    color: AdminColors.green,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  'Berikut ringkasan aktivitas SADAQO hari ini.',
-                  style: TextStyle(fontSize: 15),
-                ),
-              ],
-            ),
+    final title = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Selamat datang, Admin! 👋',
+          style: TextStyle(
+            fontSize: w < 600 ? 23 : 31,
+            fontWeight: FontWeight.w800,
+            color: AdminColors.green,
           ),
+        ),
+        const SizedBox(height: 4),
+        const Text(
+          'Berikut ringkasan aktivitas SADAQO hari ini.',
+          style: TextStyle(fontSize: 15, color: Color(0xFF1A1A1A)),
+        ),
+      ],
+    );
+    if (w < 760) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 6),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [title, const SizedBox(height: 12), _datePill()],
+        ),
+      );
+    }
+    return SizedBox(
+      height: 118,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(child: title),
+          Align(alignment: Alignment.topRight, child: Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: _datePill(),
+          )),
         ],
+      ),
+    );
+  }
+
+  /// Kalender di pojok kanan atas: pilih satu hari atau rentang tanggal untuk
+  /// melihat grafik dan aktivitas pada tanggal itu.
+  Widget _datePill() {
+    return Material(
+      color: Colors.white.withValues(alpha: 0.92),
+      elevation: 3,
+      shadowColor: AdminColors.green.withValues(alpha: 0.25),
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: _pickRange,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.calendar_month_rounded, size: 20, color: AdminColors.green),
+              const SizedBox(width: 8),
+              Text(
+                _rangeLabel(),
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(width: 6),
+              if (_custom != null)
+                InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () => setState(() => _custom = null),
+                  child: const Padding(
+                    padding: EdgeInsets.all(2),
+                    child: Icon(Icons.close_rounded, size: 17, color: AdminColors.danger),
+                  ),
+                )
+              else
+                const Icon(Icons.keyboard_arrow_down_rounded, size: 20),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -378,7 +433,8 @@ class _DashboardPageState extends State<DashboardPage> {
   // ---------------- Program terpopuler ----------------
   Widget _popularCard() {
     final top = [..._campaigns.all]..sort((a, b) => b.collectedAmount.compareTo(a.collectedAmount));
-    final items = top.take(3).toList();
+    final items = top.take(5).toList();
+    final n = items.length;
     return AdminCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -392,29 +448,38 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
           ),
           const SizedBox(height: 10),
-          if (items.isEmpty)
+          if (n == 0)
             const EmptyState(icon: Icons.campaign_outlined, text: 'Belum ada program')
           else ...[
             SizedBox(
               height: 218,
-              child: PageView(
-                controller: _popular,
-                onPageChanged: (i) => setState(() => _popularPage = i),
-                children: [for (final c in items) _popularItem(c)],
+              // Berhenti sebentar saat disentuh / disorot mouse, lanjut otomatis setelahnya.
+              child: MouseRegion(
+                onEnter: (_) => _auto?.cancel(),
+                onExit: (_) => _startAuto(),
+                child: Listener(
+                  onPointerDown: (_) => _auto?.cancel(),
+                  onPointerUp: (_) => _startAuto(),
+                  child: PageView.builder(
+                    controller: _popular,
+                    onPageChanged: (i) => setState(() => _popularPage = i),
+                    itemBuilder: (context, i) => _popularItem(items[i % n], i % n + 1),
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                for (var i = 0; i < items.length; i++)
+                for (var i = 0; i < n; i++)
                   AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
+                    duration: const Duration(milliseconds: 250),
                     margin: const EdgeInsets.symmetric(horizontal: 3),
-                    width: i == _popularPage ? 18 : 7,
+                    width: i == _popularPage % n ? 20 : 7,
                     height: 7,
                     decoration: BoxDecoration(
-                      color: i == _popularPage ? AdminColors.green : AdminColors.border,
+                      color: i == _popularPage % n ? AdminColors.green : AdminColors.border,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -426,11 +491,34 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget _popularItem(Campaign c) {
+  Widget _popularItem(Campaign c, int rank) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AssetThumb(c.imageAsset, width: 112, height: 190, radius: 14),
+        Stack(
+          children: [
+            AssetThumb(c.imageAsset, width: 118, height: 196, radius: 16),
+            Positioned(
+              left: 8,
+              top: 8,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                decoration: BoxDecoration(
+                  color: rank == 1 ? AdminColors.gold : AdminColors.green.withValues(alpha: 0.9),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '#$rank',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    color: rank == 1 ? AdminColors.green : Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -469,26 +557,27 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   // ---------------- Aktivitas terbaru ----------------
-  List<AdminActivity> _activities() {
-    final items = <AdminActivity>[..._log.all];
-    for (final t in _analytics.all.take(4)) {
+  List<AdminActivity> _activities(DateTimeRange period) {
+    bool inRange(DateTime d) => !d.isBefore(period.start) && d.isBefore(period.end);
+    final items = <AdminActivity>[..._log.all.where((a) => inRange(a.at))];
+    for (final t in _analytics.between(period.start, period.end).take(6)) {
       items.add(AdminActivity(
         ActivityKind.donation,
         'Donasi sebesar ${AdminFmt.rupiah(t.amount)} untuk program ${t.campaignTitle} (${t.donorName})',
         t.at,
       ));
     }
-    for (final u in _users.all.where((u) => !u.isDemo || DateTime.now().difference(u.joinedAt).inDays < 14).take(3)) {
+    for (final u in _users.all.where((u) => inRange(u.joinedAt)).take(4)) {
       items.add(AdminActivity(ActivityKind.user, 'Pengguna baru mendaftar: ${u.name}', u.joinedAt));
     }
-    for (final e in _community.events.take(4)) {
+    for (final e in _community.events.where((e) => inRange(e.at)).take(4)) {
       items.add(AdminActivity(
         e.action.isAuto ? ActivityKind.report : ActivityKind.community,
         '${e.action.label}: ${e.userName}',
         e.at,
       ));
     }
-    for (final s in _verification.all.where((s) => s.status == SubmissionStatus.pending)) {
+    for (final s in _verification.all.where((s) => s.status == SubmissionStatus.pending && inRange(s.submittedAt))) {
       items.add(AdminActivity(ActivityKind.verified, 'Pengajuan kampanye baru: "${s.title}"', s.submittedAt));
     }
     items.sort((a, b) => b.at.compareTo(a.at));
@@ -513,7 +602,7 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _activityCard() {
-    final items = _activities();
+    final items = _activities(_period);
     return AdminCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -526,9 +615,13 @@ class _DashboardPageState extends State<DashboardPage> {
               child: const Text('Lihat Semua →'),
             ),
           ),
-          const SizedBox(height: 6),
+          Text(
+            _rangeLabel(),
+            style: const TextStyle(fontSize: 12, color: AdminColors.muted),
+          ),
+          const SizedBox(height: 4),
           if (items.isEmpty)
-            const EmptyState(icon: Icons.history_rounded, text: 'Belum ada aktivitas')
+            const EmptyState(icon: Icons.history_rounded, text: 'Tidak ada aktivitas pada tanggal ini')
           else
             for (final a in items.take(5)) _activityRow(a),
         ],

@@ -18,6 +18,7 @@ import 'package:sadaqo/admin/presentation/pages/verification_page.dart';
 import 'package:sadaqo/admin/presentation/widgets/admin_widgets.dart';
 import 'package:sadaqo/core/constants/app_assets.dart';
 import 'package:sadaqo/core/constants/app_info.dart';
+import 'package:sadaqo/core/widgets/batik_widgets.dart';
 import 'package:sadaqo/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sadaqo/features/auth/presentation/pages/login_page.dart';
 import 'package:sadaqo/features/campaign/data/datasources/mock_campaign_store.dart';
@@ -102,27 +103,39 @@ class _AdminShellState extends State<AdminShell> {
             children: [
               if (wide) SizedBox(width: 258, child: sidebar),
               Expanded(
-                child: Column(
-                  children: [
-                    _TopBar(
-                      nav: _nav,
-                      compact: !wide,
-                      onMenu: () => _scaffoldKey.currentState?.openDrawer(),
-                      onLogout: _logout,
-                    ),
-                    Expanded(
-                      child: ListenableBuilder(
-                        listenable: _nav,
-                        builder: (context, _) => ClipRect(
-                          child: KeyedSubtree(
-                            key: ValueKey<int>(_nav.nonce),
-                            child: _page(_nav.page),
-                          ),
-                        ),
+                child: ListenableBuilder(
+                  listenable: _nav,
+                  builder: (context, _) => Stack(
+                    children: [
+                      // Latar bercorak batik, sama seperti halaman "Tentang SADAQO".
+                      const Positioned.fill(
+                        child: BatikBackground(opacity: 0.07, child: SizedBox.expand()),
                       ),
-                    ),
-                    const _Footer(),
-                  ],
+                      // Gambar masjid selebar layar di dashboard (tulisan sambutan menimpanya).
+                      if (_nav.page == AdminPage.dashboard)
+                        const Positioned(top: 0, left: 0, right: 0, height: 310, child: _HeroBackdrop()),
+                      const Positioned(right: 0, bottom: 0, child: IgnorePointer(child: _LeafCorner())),
+                      Column(
+                        children: [
+                          _TopBar(
+                            nav: _nav,
+                            compact: !wide,
+                            onMenu: () => _scaffoldKey.currentState?.openDrawer(),
+                            onLogout: _logout,
+                          ),
+                          Expanded(
+                            child: ClipRect(
+                              child: KeyedSubtree(
+                                key: ValueKey<int>(_nav.nonce),
+                                child: _page(_nav.page),
+                              ),
+                            ),
+                          ),
+                          const _Footer(),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -164,7 +177,27 @@ class _SidebarState extends State<_Sidebar> {
           colors: [AdminColors.sidebarTop, AdminColors.sidebarBottom],
         ),
       ),
-      child: SafeArea(
+      child: Stack(
+        children: [
+          // Cahaya lembut di belakang logo + corak batik tipis.
+          Positioned(
+            top: -60,
+            left: 0,
+            right: 0,
+            height: 300,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  colors: [
+                    AdminColors.lime.withValues(alpha: 0.20),
+                    AdminColors.lime.withValues(alpha: 0),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const Positioned.fill(child: CustomPaint(painter: _SidebarPatternPainter())),
+          SafeArea(
         child: ListenableBuilder(
           listenable: Listenable.merge([widget.nav, verification]),
           builder: (context, _) {
@@ -247,23 +280,65 @@ class _SidebarState extends State<_Sidebar> {
                     ],
                   ),
                 ),
-                InkWell(
-                  onTap: widget.onLogout,
-                  child: const Padding(
-                    padding: EdgeInsets.fromLTRB(26, 12, 26, 18),
-                    child: Row(
-                      children: [
-                        Icon(Icons.logout_rounded, color: Colors.white),
-                        SizedBox(width: 14),
-                        Text('Logout', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
-                      ],
-                    ),
-                  ),
+                LayoutBuilder(
+                  builder: (context, c) {
+                    final showArt = MediaQuery.sizeOf(context).height >= 830;
+                    final artH = c.maxWidth * 800 / 1120;
+                    return SizedBox(
+                      height: showArt ? artH : 64,
+                      child: Stack(
+                        children: [
+                          if (showArt)
+                            Positioned.fill(
+                              child: Image.asset(
+                                'assets/illustrations/admin_sidebar_art.png',
+                                fit: BoxFit.fitWidth,
+                                alignment: Alignment.bottomCenter,
+                                errorBuilder: (context, e, s) => const SizedBox.shrink(),
+                              ),
+                            ),
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            child: InkWell(
+                              onTap: widget.onLogout,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      const Color(0xFF14301F).withValues(alpha: 0),
+                                      const Color(0xFF14301F).withValues(alpha: 0.85),
+                                    ],
+                                  ),
+                                ),
+                                padding: const EdgeInsets.fromLTRB(26, 22, 26, 16),
+                                child: const Row(
+                                  children: [
+                                    Icon(Icons.logout_rounded, color: Colors.white),
+                                    SizedBox(width: 14),
+                                    Text(
+                                      'Logout',
+                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ],
             );
           },
         ),
+          ),
+        ],
       ),
     );
   }
@@ -477,6 +552,16 @@ class _TopBar extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.82),
+                borderRadius: BorderRadius.circular(32),
+                border: Border.all(color: AdminColors.border),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
             // ----- Notifikasi -----
             StreamBuilder<void>(
               stream: community.changes,
@@ -567,6 +652,9 @@ class _TopBar extends StatelessWidget {
                 ),
               ),
             ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -603,4 +691,111 @@ class _Footer extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Gambar masjid selebar layar di bagian atas dashboard, memudar ke warna latar.
+class _HeroBackdrop extends StatelessWidget {
+  const _HeroBackdrop();
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: ShaderMask(
+        blendMode: BlendMode.dstIn,
+        shaderCallback: (rect) => const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Colors.black, Colors.black, Colors.transparent],
+          stops: [0, 0.58, 1],
+        ).createShader(rect),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Image.asset(
+              AppAssets.masjid('masjid_al_azzam.jpg'),
+              fit: BoxFit.cover,
+              alignment: const Alignment(0, -0.3),
+              cacheWidth: 1600,
+              errorBuilder: (context, e, s) => const SizedBox.shrink(),
+            ),
+            // Sisi kiri dibuat krem agar tulisan sambutan tetap terbaca.
+            const DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [Color(0xF2F6F0E1), Color(0xC8F6F0E1), Color(0x00F6F0E1)],
+                  stops: [0, 0.4, 0.8],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Lengkung daun lembut di pojok kanan bawah (pemanis, seperti desain referensi).
+class _LeafCorner extends StatelessWidget {
+  const _LeafCorner();
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox(width: 420, height: 230, child: CustomPaint(painter: _LeafCornerPainter()));
+  }
+}
+
+class _LeafCornerPainter extends CustomPainter {
+  const _LeafCornerPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width;
+    final h = size.height;
+    final back = Path()
+      ..moveTo(w, h * 0.18)
+      ..cubicTo(w * 0.78, h * 0.34, w * 0.55, h * 0.72, w * 0.12, h)
+      ..lineTo(w, h)
+      ..close();
+    canvas.drawPath(back, Paint()..color = AdminColors.lime.withValues(alpha: 0.20));
+    final front = Path()
+      ..moveTo(w, h * 0.46)
+      ..cubicTo(w * 0.82, h * 0.62, w * 0.66, h * 0.86, w * 0.36, h)
+      ..lineTo(w, h)
+      ..close();
+    canvas.drawPath(front, Paint()..color = AdminColors.green.withValues(alpha: 0.10));
+  }
+
+  @override
+  bool shouldRepaint(covariant _LeafCornerPainter oldDelegate) => false;
+}
+
+/// Corak kawung tipis (putih transparan) untuk latar sidebar hijau.
+class _SidebarPatternPainter extends CustomPainter {
+  const _SidebarPatternPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const cell = 64.0;
+    final paint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.05)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.2;
+    for (double y = cell / 2; y < size.height + cell; y += cell) {
+      for (double x = cell / 2; x < size.width + cell; x += cell) {
+        canvas.save();
+        canvas.translate(x, y);
+        for (var k = 0; k < 4; k++) {
+          canvas.drawOval(Rect.fromCenter(center: const Offset(0, 14), width: 20, height: 28), paint);
+          canvas.rotate(1.5707963267948966);
+        }
+        canvas.drawCircle(Offset.zero, 3, paint);
+        canvas.restore();
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _SidebarPatternPainter oldDelegate) => false;
 }
