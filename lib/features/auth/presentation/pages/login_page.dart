@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sadaqo/core/constants/app_assets.dart';
+import 'package:sadaqo/admin/admin.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
 import 'package:sadaqo/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sadaqo/features/auth/presentation/cubit/auth_state.dart';
@@ -91,6 +92,13 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  /// Admin langsung ke dashboard admin (tanpa splash ucapan dan notifikasi donatur).
+  void _openAdmin(BuildContext context) {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute<void>(builder: (_) => const AdminShell()),
+    );
+  }
+
   /// Berhasil masuk/daftar: catat notifikasi sambutan, tampilkan splash, lalu beranda.
   void _onAuthenticated(BuildContext context) {
     context.read<NotificationCubit>().addWelcome();
@@ -114,7 +122,11 @@ class _LoginPageState extends State<LoginPage> {
     return BlocConsumer<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is AuthAuthenticated) {
-          _onAuthenticated(context);
+          if (state.user.isAdmin) {
+            _openAdmin(context);
+          } else {
+            _onAuthenticated(context);
+          }
         } else if (state is AuthError) {
           ScaffoldMessenger.of(context)
               .showSnackBar(SnackBar(content: Text(state.message)));

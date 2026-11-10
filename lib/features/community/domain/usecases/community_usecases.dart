@@ -58,7 +58,12 @@ class SendMessage implements UseCase<ChatMessage, SendMessageParams> {
 
     final violation = ContentModerator.check(text);
     if (violation != null) {
-      final recorded = await _repository.recordViolation(p.userId);
+      final recorded = await _repository.recordViolation(
+        p.userId,
+        userName: p.userName,
+        type: violation,
+        excerpt: text,
+      );
       final newStatus = recorded.getOrElse(() => status);
       return Left(
         ViolationFailure(violation, newStatus, 'Pesan mengandung ${violation.label}'),

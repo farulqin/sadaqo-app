@@ -8,6 +8,7 @@ class UserModel extends AppUser {
     required super.email,
     super.phone,
     super.gender,
+    super.isAdmin,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {

@@ -47,6 +47,9 @@ import 'package:sadaqo/features/notification/data/repositories/notification_repo
 import 'package:sadaqo/features/notification/domain/repositories/notification_repository.dart';
 import 'package:sadaqo/features/notification/domain/usecases/notification_usecases.dart';
 import 'package:sadaqo/features/notification/presentation/cubit/notification_cubit.dart';
+import 'package:sadaqo/admin/admin.dart';
+import 'package:sadaqo/admin/data/admin_credentials_store.dart';
+import 'package:sadaqo/admin/data/admin_user_store.dart';
 import 'package:sadaqo/core/navigation/main_tab_controller.dart';
 import 'package:sadaqo/features/auth/domain/usecases/update_profile.dart';
 import 'package:sadaqo/features/profile/presentation/cubit/settings_cubit.dart';
@@ -64,10 +67,18 @@ Future<void> init() async {
   // ===== Core =====
   sl.registerLazySingleton<Dio>(() => DioClient.create());
 
+  // ===== Admin (semua kode admin ada di lib/admin/) =====
+  registerAdminDependencies(sl);
+
   // ===== Auth =====
   // Saat backend Laravel siap, ganti AuthMockDataSource dengan
   // implementasi Dio (AuthRemoteDataSourceImpl(sl())). Layer lain tidak berubah.
-  sl.registerLazySingleton<AuthRemoteDataSource>(() => AuthMockDataSource());
+  sl.registerLazySingleton<AuthRemoteDataSource>(
+    () => AuthMockDataSource(
+      adminGate: sl<AdminCredentialsStore>(),
+      directory: sl<AdminUserStore>(),
+    ),
+  );
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl()));
   sl.registerLazySingleton<LoginUser>(() => LoginUser(sl()));
   sl.registerLazySingleton<LogoutUser>(() => LogoutUser(sl()));

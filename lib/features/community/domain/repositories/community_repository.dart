@@ -27,5 +27,10 @@ abstract class CommunityRepository {
   Future<Either<Failure, ModerationStatus>> getStatus(String userId);
 
   /// Mencatat pelanggaran; mengembalikan status terbaru (peringatan atau banned).
-  Future<Either<Failure, ModerationStatus>> recordViolation(String userId);
+  Future<Either<Failure, ModerationStatus>> recordViolation(
+    String userId, {
+    String? userName,
+    ViolationType? type,
+    String? excerpt,
+  });
 }

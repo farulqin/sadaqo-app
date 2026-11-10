@@ -6,9 +6,42 @@ import 'package:sadaqo/core/constants/app_assets.dart';
 /// Berita contoh (edukatif, bukan klaim penyaluran). Satu berita per kategori.
 /// Batas isi berita: maksimal 1000 kata per artikel.
 class NewsMockDataSource implements NewsRemoteDataSource {
+  List<NewsModel>? _items;
+
   @override
   Future<List<NewsModel>> getNews() async {
     await Future<void>.delayed(const Duration(milliseconds: 500));
+    return List.of(_items ??= _seed());
+  }
+
+  // ===== Dipakai dashboard admin (tambah, ubah, hapus berita) =====
+  List<NewsModel> adminAll() => List.of(_items ??= _seed());
+
+  void adminSave(NewsModel article) {
+    final list = adminAll();
+    final i = list.indexWhere((n) => n.id == article.id);
+    if (i < 0) {
+      list.insert(0, article); // terbaru di atas
+    } else {
+      list[i] = article;
+    }
+    _items = list;
+  }
+
+  void adminRemove(String id) {
+    _items = adminAll().where((n) => n.id != id).toList();
+  }
+
+  String adminNextId() {
+    var max = 0;
+    for (final n in adminAll()) {
+      final v = int.tryParse(n.id.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+      if (v > max) max = v;
+    }
+    return 'n${max + 1}';
+  }
+
+  List<NewsModel> _seed() {
     final now = DateTime.now();
     return [
       NewsModel(

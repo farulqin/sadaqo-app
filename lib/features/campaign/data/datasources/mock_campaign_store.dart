@@ -32,6 +32,29 @@ class MockCampaignStore {
     _items = List.of(_items)..[i] = updated;
   }
 
+  // ===== Dipakai dashboard admin (tambah, ubah, hapus program) =====
+  void adminSave(CampaignModel campaign) {
+    final i = _items.indexWhere((c) => c.id == campaign.id);
+    _items = i < 0 ? [..._items, campaign] : (List.of(_items)..[i] = campaign);
+  }
+
+  void adminRemove(String id) {
+    _items = _items.where((c) => c.id != id).toList();
+  }
+
+  /// Id baru berurutan per kategori, mis. m11, s6, q7.
+  String adminNextId(ProgramCategory category) {
+    final prefix = category.key.substring(0, 1);
+    var max = 0;
+    for (final c in _items) {
+      if (c.id.startsWith(prefix)) {
+        final n = int.tryParse(c.id.substring(1)) ?? 0;
+        if (n > max) max = n;
+      }
+    }
+    return '$prefix${max + 1}';
+  }
+
   static CampaignModel _c(
     String id,
     ProgramCategory category,

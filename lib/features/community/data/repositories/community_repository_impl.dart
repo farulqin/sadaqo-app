@@ -62,6 +62,18 @@ class CommunityRepositoryImpl implements CommunityRepository {
       _guard(() => _local.getStatus(userId));
 
   @override
-  Future<Either<Failure, ModerationStatus>> recordViolation(String userId) =>
-      _guard(() => _local.recordViolation(userId));
+  Future<Either<Failure, ModerationStatus>> recordViolation(
+    String userId, {
+    String? userName,
+    ViolationType? type,
+    String? excerpt,
+  }) =>
+      _guard(
+        () => _local.recordViolation(
+          userId,
+          userName: userName,
+          type: type,
+          excerpt: excerpt,
+        ),
+      );
 }

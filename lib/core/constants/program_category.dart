@@ -51,21 +51,34 @@ enum ProgramCategory {
 
   const ProgramCategory({
     required this.key,
-    required this.label,
-    required this.shortLabel,
+    required String label,
+    required String shortLabel,
     required this.icon,
     required this.colorStart,
     required this.colorEnd,
-    this.iconAsset,
-  });
+    String? iconAsset,
+  })  : _label = label,
+        _shortLabel = shortLabel,
+        _iconAsset = iconAsset;
 
   final String key;
-  final String label;
-  final String shortLabel;
+  final String _label;
+  final String _shortLabel;
+  final String? _iconAsset;
   final IconData icon;
-  final String? iconAsset;
   final Color colorStart;
   final Color colorEnd;
+
+  /// Nama, nama singkat, dan ikon bisa diubah admin (lihat [CategoryOverrides]).
+  /// Jika tidak diubah, nilai bawaan di atas yang dipakai.
+  String get label => CategoryOverrides.labels[key] ?? _label;
+  String get shortLabel => CategoryOverrides.shortLabels[key] ?? _shortLabel;
+  String? get iconAsset => CategoryOverrides.iconAssets[key] ?? _iconAsset;
+
+  /// Nilai bawaan (sebelum diubah admin), dipakai tombol "Kembalikan".
+  String get defaultLabel => _label;
+  String get defaultShortLabel => _shortLabel;
+  String? get defaultIconAsset => _iconAsset;
 
   static ProgramCategory fromKey(String key) {
     return ProgramCategory.values.firstWhere(
@@ -73,4 +86,14 @@ enum ProgramCategory {
       orElse: () => ProgramCategory.masjid,
     );
   }
+}
+
+/// Perubahan tampilan kategori dari dashboard admin (disimpan di memori,
+/// nanti diganti data dari server). Kunci = [ProgramCategory.key].
+class CategoryOverrides {
+  CategoryOverrides._();
+
+  static final Map<String, String> labels = {};
+  static final Map<String, String> shortLabels = {};
+  static final Map<String, String> iconAssets = {};
 }
