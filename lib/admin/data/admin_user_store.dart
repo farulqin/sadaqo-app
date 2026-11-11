@@ -10,6 +10,7 @@ class AdminUser {
     this.phone,
     this.avatarAsset,
     this.isDemo = false,
+    this.isManager = false,
   });
 
   final String id;
@@ -21,6 +22,9 @@ class AdminUser {
 
   /// true = pengguna contoh (seed), false = pengguna yang benar-benar masuk/daftar.
   final bool isDemo;
+
+  /// true = akun Pengelola Kampanye (tim teknis SADAQO).
+  final bool isManager;
 
   AdminUser copyWith({
     String? name,
@@ -37,6 +41,7 @@ class AdminUser {
         phone: phone ?? this.phone,
         avatarAsset: clearAvatar ? null : (avatarAsset ?? this.avatarAsset),
         isDemo: isDemo,
+        isManager: isManager,
       );
 }
 
@@ -66,6 +71,7 @@ class AdminUserStore extends ChangeNotifier {
     required String name,
     required String email,
     String? phone,
+    bool isManager = false,
   }) {
     final i = _items.indexWhere((u) => u.id == id);
     if (i >= 0) {
@@ -79,6 +85,7 @@ class AdminUserStore extends ChangeNotifier {
           email: email,
           phone: phone,
           joinedAt: DateTime.now(),
+          isManager: isManager,
         ),
         ..._items,
       ];

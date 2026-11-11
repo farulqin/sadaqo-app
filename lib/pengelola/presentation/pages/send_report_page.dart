@@ -10,6 +10,7 @@ import 'package:sadaqo/features/report/presentation/widgets/report_widgets.dart'
 import 'package:sadaqo/injection_container.dart';
 import 'package:sadaqo/pengelola/core/pengelola_config.dart';
 import 'package:sadaqo/pengelola/data/pengelola_store.dart';
+import 'package:sadaqo/pengelola/core/pengelola_layout.dart';
 
 /// Formulir kirim dokumentasi: foto kegiatan, bukti penyaluran, dan laporan.
 /// Jika [revising] diisi, formulir terisi data lama untuk diperbaiki.
@@ -140,8 +141,8 @@ class _SendReportPageState extends State<SendReportPage> {
       appBar: AppBar(title: Text(revising == null ? 'Kirim Dokumentasi' : 'Perbaiki Dokumentasi')),
       body: Form(
         key: _form,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
+        child: ContentListView(
+          maxWidth: PengelolaLayout.formMax,
           children: [
             if (revising?.adminNote != null)
               Container(

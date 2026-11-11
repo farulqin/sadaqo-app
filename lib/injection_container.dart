@@ -61,6 +61,7 @@ import 'package:sadaqo/features/community/presentation/cubit/community_cubit.dar
 import 'package:sadaqo/features/report/data/repositories/report_repository_impl.dart';
 import 'package:sadaqo/features/report/domain/repositories/report_repository.dart';
 import 'package:sadaqo/pengelola/pengelola.dart';
+import 'package:sadaqo/pengelola/data/pengelola_account_store.dart';
 
 // Service locator: semua dependency didaftarkan di sini.
 // Urutan per fitur: datasource -> repository -> usecase -> cubit.
@@ -86,6 +87,7 @@ Future<void> init() async {
     () => AuthMockDataSource(
       adminGate: sl<AdminCredentialsStore>(),
       directory: sl<AdminUserStore>(),
+      pengelolaGate: sl<PengelolaAccountStore>(),
     ),
   );
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl()));

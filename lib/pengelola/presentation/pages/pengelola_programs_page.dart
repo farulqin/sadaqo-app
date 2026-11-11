@@ -7,6 +7,7 @@ import 'package:sadaqo/features/campaign/data/models/campaign_model.dart';
 import 'package:sadaqo/injection_container.dart';
 import 'package:sadaqo/pengelola/data/pengelola_store.dart';
 import 'package:sadaqo/pengelola/presentation/widgets/pengelola_widgets.dart';
+import 'package:sadaqo/pengelola/core/pengelola_layout.dart';
 
 /// Pengajuan kampanye + daftar program milik pengelola.
 class PengelolaProgramsPage extends StatelessWidget {
@@ -41,29 +42,33 @@ class PengelolaProgramsPage extends StatelessWidget {
               .where((s) => s.status != SubmissionStatus.approved)
               .toList();
           final programs = store.programs;
-          return ListView(
+          return ContentListView(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 90),
             children: [
               if (subs.isNotEmpty) ...[
                 const _SectionTitle('Pengajuan Kampanye'),
-                for (final s in subs)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: _SubmissionCard(submission: s, onEdit: () => onEdit(s)),
-                  ),
-                const SizedBox(height: 8),
+                ResponsiveGrid(
+                  minItemWidth: 420,
+                  children: [
+                    for (final s in subs)
+                      _SubmissionCard(submission: s, onEdit: () => onEdit(s)),
+                  ],
+                ),
+                const SizedBox(height: 22),
               ],
               _SectionTitle('Program Aktif (${programs.length})'),
-              for (final p in programs)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: _ProgramCard(
-                    program: p,
-                    status: store.statusOf(p.id),
-                    donors: store.donorsOf(p),
-                    onSendDocs: () => onSendDocs(p.id),
-                  ),
-                ),
+              ResponsiveGrid(
+                minItemWidth: 340,
+                children: [
+                  for (final p in programs)
+                    _ProgramCard(
+                      program: p,
+                      status: store.statusOf(p.id),
+                      donors: store.donorsOf(p),
+                      onSendDocs: () => onSendDocs(p.id),
+                    ),
+                ],
+              ),
             ],
           );
         },

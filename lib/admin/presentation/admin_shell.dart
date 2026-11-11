@@ -28,6 +28,7 @@ import 'package:sadaqo/features/profile/presentation/widgets/user_avatar.dart';
 import 'package:sadaqo/injection_container.dart';
 import 'package:sadaqo/admin/presentation/pages/report_review_page.dart';
 import 'package:sadaqo/features/report/domain/repositories/report_repository.dart';
+import 'package:sadaqo/features/profile/presentation/pages/about_page.dart';
 
 /// Kerangka dashboard admin: sidebar hijau (tetap di layar lebar, laci di layar
 /// sempit), bilah atas dengan pencarian, notifikasi, dan profil, lalu isi halaman.
@@ -90,6 +91,8 @@ class _AdminShellState extends State<AdminShell> {
         return const CategoriesPage();
       case AdminPage.settings:
         return const SettingsPage();
+      case AdminPage.about:
+        return const AboutContent(embedded: true);
     }
   }
 
@@ -261,6 +264,7 @@ class _SidebarState extends State<_Sidebar> {
                       _item(AdminPage.news, current),
                       _item(AdminPage.categories, current),
                       _item(AdminPage.settings, current),
+                      _item(AdminPage.about, current),
                     ],
                   ),
                 ),

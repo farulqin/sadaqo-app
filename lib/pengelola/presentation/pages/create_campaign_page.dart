@@ -7,6 +7,7 @@ import 'package:sadaqo/core/constants/app_colors.dart';
 import 'package:sadaqo/core/constants/program_category.dart';
 import 'package:sadaqo/injection_container.dart';
 import 'package:sadaqo/pengelola/core/pengelola_config.dart';
+import 'package:sadaqo/pengelola/core/pengelola_layout.dart';
 
 /// Formulir buat kampanye (alur pengelola nomor 1-2): isi data, lalu kirim ke
 /// Admin untuk diverifikasi. Jika [editing] diisi, formulir terisi data lama
@@ -125,8 +126,8 @@ class _CreateCampaignPageState extends State<CreateCampaignPage> {
       appBar: AppBar(title: Text(editing == null ? 'Buat Kampanye' : 'Perbaiki Pengajuan')),
       body: Form(
         key: _form,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
+        child: ContentListView(
+          maxWidth: PengelolaLayout.formMax,
           children: [
             if (editing?.note != null)
               Container(

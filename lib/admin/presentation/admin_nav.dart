@@ -11,7 +11,8 @@ enum AdminPage {
   transactions('Transaksi Donasi', Icons.receipt_long_rounded),
   news('Berita', Icons.newspaper_rounded),
   categories('Kategori & Media', Icons.grid_view_rounded),
-  settings('Pengaturan', Icons.settings_rounded);
+  settings('Pengaturan', Icons.settings_rounded),
+  about('Tentang SADAQO', Icons.info_outline_rounded);
 
   const AdminPage(this.label, this.icon);
   final String label;

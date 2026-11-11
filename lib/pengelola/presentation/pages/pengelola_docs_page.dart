@@ -9,6 +9,7 @@ import 'package:sadaqo/features/report/presentation/widgets/report_widgets.dart'
 import 'package:sadaqo/injection_container.dart';
 import 'package:sadaqo/pengelola/data/pengelola_store.dart';
 import 'package:sadaqo/pengelola/presentation/widgets/pengelola_widgets.dart';
+import 'package:sadaqo/pengelola/core/pengelola_layout.dart';
 
 /// Riwayat dokumentasi yang dikirim pengelola + status pemeriksaan admin.
 class PengelolaDocsPage extends StatefulWidget {
@@ -43,7 +44,7 @@ class _PengelolaDocsPageState extends State<PengelolaDocsPage> {
           final items = _filter == null ? all : all.where((r) => r.status == _filter).toList();
           int count(ReportStatus? s) =>
               s == null ? all.length : all.where((r) => r.status == s).length;
-          return ListView(
+          return ContentListView(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 90),
             children: [
               Container(
@@ -90,11 +91,13 @@ class _PengelolaDocsPageState extends State<PengelolaDocsPage> {
                   ),
                 )
               else
-                for (final r in items)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: _ReportCard(report: r, onRevise: () => widget.onRevise(r)),
-                  ),
+                ResponsiveGrid(
+                  minItemWidth: 400,
+                  children: [
+                    for (final r in items)
+                      _ReportCard(report: r, onRevise: () => widget.onRevise(r)),
+                  ],
+                ),
             ],
           );
         },

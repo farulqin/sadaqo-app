@@ -11,6 +11,8 @@ import 'package:sadaqo/features/campaign/presentation/cubit/campaign_cubit.dart'
 import 'package:sadaqo/features/campaign/presentation/cubit/campaign_state.dart';
 import 'package:sadaqo/features/donation/presentation/pages/donation_page.dart';
 import 'package:sadaqo/features/zakat/domain/usecases/zakat_calculator.dart';
+import 'package:sadaqo/features/zakat/domain/entities/zakat_niat.dart';
+import 'package:sadaqo/features/zakat/presentation/widgets/niat_card.dart';
 
 /// Halaman Zakat: kalkulator Fitrah (disalurkan berupa beras) dan Maal (berupa uang).
 class ZakatPage extends StatelessWidget {
@@ -73,6 +75,8 @@ class _FitrahTab extends StatefulWidget {
 
 class _FitrahTabState extends State<_FitrahTab> {
   int _people = 1;
+  int _niatIndex = ZakatNiatData.fitrahSelf;
+  bool _niatOk = false;
   final _priceCtrl =
       TextEditingController(text: ZakatRules.defaultRicePricePerKg.toString());
 
@@ -82,6 +86,18 @@ class _FitrahTabState extends State<_FitrahTab> {
     super.dispose();
   }
 
+  /// Pilihan niat otomatis menyesuaikan jumlah jiwa (tetap bisa diganti manual).
+  void _onPeopleChanged(int v) {
+    setState(() {
+      _people = v;
+      if (_niatIndex == ZakatNiatData.fitrahSelf ||
+          _niatIndex == ZakatNiatData.fitrahFamily) {
+        _niatIndex =
+            v > 1 ? ZakatNiatData.fitrahFamily : ZakatNiatData.fitrahSelf;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final result = ZakatCalculator.fitrah(
@@ -89,6 +105,7 @@ class _FitrahTabState extends State<_FitrahTab> {
       ricePricePerKg: _num(_priceCtrl),
     );
     final campaign = _findZakat(context, 'Fitrah');
+    final canPay = campaign != null && result.amount > 0 && _niatOk;
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -117,7 +134,7 @@ class _FitrahTabState extends State<_FitrahTab> {
               value: _people,
               min: 1,
               max: 50,
-              onChanged: (v) => setState(() => _people = v),
+              onChanged: _onPeopleChanged,
             ),
           ],
         ),
@@ -135,12 +152,47 @@ class _FitrahTabState extends State<_FitrahTab> {
           totalValue: Formatter.rupiah(result.amount),
         ),
         const SizedBox(height: 16),
+        NiatCard(
+          title: 'Niat Zakat Fitrah',
+          niat: ZakatNiatData.fitrah[_niatIndex],
+          selector: Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            children: [
+              for (var i = 0; i < ZakatNiatData.fitrah.length; i++)
+                ChoiceChip(
+                  label: Text(ZakatNiatData.fitrah[i].label),
+                  selected: _niatIndex == i,
+                  showCheckmark: false,
+                  onSelected: (_) => setState(() => _niatIndex = i),
+                  selectedColor: AppColors.forestGreen,
+                  backgroundColor: Colors.white,
+                  labelStyle: TextStyle(
+                    fontSize: 12.5,
+                    color: _niatIndex == i ? Colors.white : AppColors.textDark,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+            ],
+          ),
+          confirmLabel: 'Saya telah berniat menunaikan zakat fitrah',
+          confirmed: _niatOk,
+          onConfirmed: (v) => setState(() => _niatOk = v),
+        ),
+        const SizedBox(height: 16),
         ElevatedButton(
-          onPressed: (campaign == null || result.amount <= 0)
-              ? null
-              : () => _pay(context, campaign, result.amount),
+          onPressed: canPay ? () => _pay(context, campaign, result.amount) : null,
           child: const Text('Bayar Zakat Fitrah  →'),
         ),
+        if (!_niatOk)
+          const Padding(
+            padding: EdgeInsets.only(top: 6),
+            child: Text(
+              'Centang niat di atas untuk melanjutkan pembayaran.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+            ),
+          ),
         const SizedBox(height: 10),
         const _Note(),
       ],
@@ -169,6 +221,7 @@ class _MaalTab extends StatefulWidget {
 class _MaalTabState extends State<_MaalTab> {
   _MaalType _type = _MaalType.income;
   bool _haul = false;
+  bool _niatOk = false;
 
   final _incomeCtrl = TextEditingController();
   final _otherCtrl = TextEditingController();
@@ -315,12 +368,29 @@ class _MaalTabState extends State<_MaalTab> {
           totalValue: Formatter.rupiah(result.zakat),
         ),
         const SizedBox(height: 16),
+        NiatCard(
+          title: 'Niat Zakat Maal',
+          niat: ZakatNiatData.maal,
+          confirmLabel: 'Saya telah berniat menunaikan zakat maal',
+          confirmed: _niatOk,
+          onConfirmed: (v) => setState(() => _niatOk = v),
+        ),
+        const SizedBox(height: 16),
         ElevatedButton(
-          onPressed: (campaign == null || !result.obligated)
+          onPressed: (campaign == null || !result.obligated || !_niatOk)
               ? null
               : () => _pay(context, campaign, result.zakat),
           child: const Text('Bayar Zakat Maal  →'),
         ),
+        if (result.obligated && !_niatOk)
+          const Padding(
+            padding: EdgeInsets.only(top: 6),
+            child: Text(
+              'Centang niat di atas untuk melanjutkan pembayaran.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+            ),
+          ),
         const SizedBox(height: 10),
         const _Note(),
       ],

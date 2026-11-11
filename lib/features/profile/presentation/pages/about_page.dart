@@ -14,7 +14,23 @@ class AboutPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Tentang SADAQO')),
-      body: BatikBackground(
+      body: const AboutContent(),
+    );
+  }
+}
+
+/// Isi halaman "Tentang SADAQO" tanpa Scaffold. [embedded] = true dipakai di
+/// dashboard admin (latar batik sudah disediakan kerangka admin).
+class AboutContent extends StatelessWidget {
+  const AboutContent({super.key, this.embedded = false});
+
+  final bool embedded;
+
+  @override
+  Widget build(BuildContext context) {
+    final content = Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 760),
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
@@ -153,7 +169,7 @@ class AboutPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 14),
-                  Wrap(
+                  const Wrap(
                     spacing: 10,
                     runSpacing: 10,
                     children: [
@@ -219,6 +235,7 @@ class AboutPage extends StatelessWidget {
         ),
       ),
     );
+    return embedded ? content : BatikBackground(child: content);
   }
 }
 

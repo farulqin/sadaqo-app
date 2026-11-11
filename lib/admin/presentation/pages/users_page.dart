@@ -341,6 +341,10 @@ class _UserRow extends StatelessWidget {
                 style: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.w800),
               ),
             ),
+            if (user.isManager) ...[
+              const SizedBox(width: 6),
+              const Pill('Pengelola', color: AdminColors.green, bg: AdminColors.limeSoft),
+            ],
             if (user.isDemo) ...[
               const SizedBox(width: 6),
               const Pill('Contoh', color: AdminColors.muted),

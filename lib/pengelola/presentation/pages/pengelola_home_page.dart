@@ -13,6 +13,8 @@ import 'package:sadaqo/injection_container.dart';
 import 'package:sadaqo/pengelola/core/pengelola_fmt.dart';
 import 'package:sadaqo/pengelola/data/pengelola_store.dart';
 import 'package:sadaqo/pengelola/presentation/widgets/pengelola_widgets.dart';
+import 'package:sadaqo/pengelola/core/pengelola_layout.dart';
+import 'package:sadaqo/pengelola/data/pengelola_account_store.dart';
 
 class PengelolaHomePage extends StatelessWidget {
   const PengelolaHomePage({
@@ -35,22 +37,48 @@ class PengelolaHomePage extends StatelessWidget {
           padding: EdgeInsets.zero,
           children: [
             _Header(store: store, onNavigateTab: onNavigateTab),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
-              child: Column(
-                children: [
-                  _StatsCard(store: store),
-                  const SizedBox(height: 16),
-                  const _ActivityCard(),
-                  const SizedBox(height: 20),
-                  _ProgramSection(
-                    programs: programs.take(3).toList(),
-                    store: store,
-                    onSeeAll: () => onNavigateTab(1),
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: PengelolaLayout.contentMax),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                  child: LayoutBuilder(
+                    builder: (context, c) {
+                      final wide = c.maxWidth >= 760;
+                      final summary = Column(
+                        children: [
+                          _StatsCard(store: store),
+                          const SizedBox(height: 16),
+                          const _ActivityCard(),
+                        ],
+                      );
+                      final side = Column(
+                        children: [
+                          _ProgramSection(
+                            programs: programs.take(wide ? 4 : 3).toList(),
+                            store: store,
+                            onSeeAll: () => onNavigateTab(1),
+                          ),
+                          const SizedBox(height: 14),
+                          _DocsBanner(attention: store.attentionCount, onTap: onSendDocs),
+                        ],
+                      );
+                      if (!wide) {
+                        return Column(
+                          children: [summary, const SizedBox(height: 20), side],
+                        );
+                      }
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(flex: 11, child: summary),
+                          const SizedBox(width: 20),
+                          Expanded(flex: 9, child: side),
+                        ],
+                      );
+                    },
                   ),
-                  const SizedBox(height: 14),
-                  _DocsBanner(attention: store.attentionCount, onTap: onSendDocs),
-                ],
+                ),
               ),
             ),
           ],
@@ -75,77 +103,90 @@ class _Header extends StatelessWidget {
       child: Stack(
         children: [
           const Positioned.fill(child: CustomPaint(painter: _HeaderPainter())),
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: SafeArea(
-              bottom: false,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 12, 0),
-                child: Row(
+          // Isi header dibatasi lebarnya agar rapi di tablet dan layar lebar.
+          Positioned.fill(
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: PengelolaLayout.contentMax),
+                child: Stack(
                   children: [
-                    Image.asset(
-                      AppAssets.logoEmblem,
-                      height: 46,
-                      errorBuilder: (context, e, s) =>
-                          const Icon(Icons.mosque, size: 40, color: Colors.white),
-                    ),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'SADAQO',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 1.2,
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      child: SafeArea(
+                        bottom: false,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 12, 12, 0),
+                          child: Row(
+                            children: [
+                              Image.asset(
+                                AppAssets.logoEmblem,
+                                height: 46,
+                                errorBuilder: (context, e, s) =>
+                                    const Icon(Icons.mosque, size: 40, color: Colors.white),
+                              ),
+                              const SizedBox(width: 8),
+                              const Text(
+                                'SADAQO',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                              const Spacer(),
+                              _Bell(store: store, onNavigateTab: onNavigateTab),
+                              InkWell(
+                                customBorder: const CircleBorder(),
+                                onTap: () => onNavigateTab(3),
+                                child: Container(
+                                  padding: const EdgeInsets.all(2),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: Colors.white, width: 2),
+                                  ),
+                                  child: UserAvatar(initial: initial, radius: 20),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
-                    const Spacer(),
-                    _Bell(store: store, onNavigateTab: onNavigateTab),
-                    InkWell(
-                      customBorder: const CircleBorder(),
-                      onTap: () => onNavigateTab(3),
-                      child: Container(
-                        padding: const EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2),
-                        ),
-                        child: UserAvatar(initial: initial, radius: 20),
+                    const Positioned(
+                      left: 20,
+                      top: 206,
+                      right: 20,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Assalamu'alaikum,",
+                            style: TextStyle(fontSize: 15, color: AppColors.textMuted),
+                          ),
+                          SizedBox(height: 2),
+                          Text(
+                            'Selamat datang, Pengelola!',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.textDark,
+                            ),
+                          ),
+                          SizedBox(height: 2),
+                          Text(
+                            'Bersama kita sebarkan kebaikan ✨',
+                            style: TextStyle(fontSize: 14, color: AppColors.textMuted),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
-          ),
-          const Positioned(
-            left: 20,
-            top: 206,
-            right: 20,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Assalamu'alaikum,",
-                  style: TextStyle(fontSize: 15, color: AppColors.textMuted),
-                ),
-                SizedBox(height: 2),
-                Text(
-                  'Selamat datang, Pengelola!',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.textDark,
-                  ),
-                ),
-                SizedBox(height: 2),
-                Text(
-                  'Bersama kita sebarkan kebaikan ✨',
-                  style: TextStyle(fontSize: 14, color: AppColors.textMuted),
-                ),
-              ],
             ),
           ),
         ],
@@ -162,59 +203,80 @@ class _Bell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final subRevision = store.submissionRevisionCount;
-    final subPending = store.submissionPendingCount;
-    final revision = store.revisionCount;
-    final awaiting = store.awaitingDocsCount;
-    final review = store.pendingReviewCount;
-    final total = subRevision + revision + awaiting;
-    final empty = total + subPending + review == 0;
-    return PopupMenuButton<int>(
-      tooltip: 'Pemberitahuan',
-      offset: const Offset(0, 48),
-      onSelected: onNavigateTab,
-      itemBuilder: (context) => [
-        if (empty)
-          const PopupMenuItem<int>(enabled: false, child: Text('Tidak ada pemberitahuan baru')),
-        if (subRevision > 0)
-          PopupMenuItem<int>(value: 1, child: Text('$subRevision pengajuan kampanye perlu direvisi')),
-        if (subPending > 0)
-          PopupMenuItem<int>(value: 1, child: Text('$subPending pengajuan menunggu verifikasi admin')),
-        if (revision > 0)
-          PopupMenuItem<int>(value: 2, child: Text('$revision dokumentasi perlu direvisi')),
-        if (awaiting > 0)
-          PopupMenuItem<int>(value: 1, child: Text('$awaiting program menunggu dokumen')),
-        if (review > 0)
-          PopupMenuItem<int>(value: 2, child: Text('$review laporan sedang diperiksa admin')),
-      ],
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Badge(
-          isLabelVisible: total > 0,
-          smallSize: 10,
-          backgroundColor: AppColors.error,
-          child: const Icon(Icons.notifications_none_rounded, size: 28, color: AppColors.forestGreen),
-        ),
-      ),
+    final account = sl<PengelolaAccountStore>();
+    return ListenableBuilder(
+      listenable: account,
+      builder: (context, _) {
+        final subRevision = store.submissionRevisionCount;
+        final subPending = store.submissionPendingCount;
+        final revision = store.revisionCount;
+        final awaiting = store.awaitingDocsCount;
+        final review = store.pendingReviewCount;
+        final total = subRevision + revision + awaiting;
+        final empty = total + subPending + review == 0;
+        return PopupMenuButton<int>(
+          tooltip: 'Pemberitahuan',
+          offset: const Offset(0, 48),
+          onSelected: onNavigateTab,
+          itemBuilder: (context) => [
+            if (empty)
+              const PopupMenuItem<int>(enabled: false, child: Text('Tidak ada pemberitahuan baru')),
+            if (subRevision > 0)
+              PopupMenuItem<int>(value: 1, child: Text('$subRevision pengajuan kampanye perlu direvisi')),
+            if (subPending > 0)
+              PopupMenuItem<int>(value: 1, child: Text('$subPending pengajuan menunggu verifikasi admin')),
+            if (revision > 0)
+              PopupMenuItem<int>(value: 2, child: Text('$revision dokumentasi perlu direvisi')),
+            if (awaiting > 0)
+              PopupMenuItem<int>(value: 1, child: Text('$awaiting program menunggu dokumen')),
+            if (review > 0)
+              PopupMenuItem<int>(value: 2, child: Text('$review laporan sedang diperiksa admin')),
+          ],
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Badge(
+              isLabelVisible: account.notificationsEnabled && total > 0,
+              smallSize: 10,
+              backgroundColor: AppColors.error,
+              child: const Icon(Icons.notifications_none_rounded, size: 28, color: AppColors.forestGreen),
+            ),
+          ),
+        );
+      },
     );
   }
 }
 
 /// Gelombang hijau di kiri atas + siluet masjid di kanan (seperti desain referensi).
+/// Di layar lebar, bentuknya tidak melebar: mengikuti lebar isi (maks. contentMax).
 class _HeaderPainter extends CustomPainter {
   const _HeaderPainter();
 
   @override
   void paint(Canvas canvas, Size size) {
-    final w = size.width;
+    final cw = math.min(size.width, PengelolaLayout.contentMax);
+    final off = (size.width - cw) / 2;
+    final w = math.min(cw, 720.0); // lebar acuan gelombang
 
-    // Masjid di belakang (hijau muda transparan).
+    // Masjid di belakang (hijau muda transparan), menempel di sisi kanan isi.
+    final mw = math.min(cw * 0.38, 260.0);
     _mosque(
       canvas,
-      Offset(w * 0.78, 296),
-      w * 0.38,
+      Offset(off + cw - mw * 0.5 - 16, 296),
+      mw,
       Paint()..color = const Color(0xFF7FB08A).withValues(alpha: 0.5),
     );
+
+    // Layar lebar: tutup sisi kiri supaya gelombang tidak terpotong.
+    if (off > 0) {
+      canvas.drawRect(
+        Rect.fromLTWH(0, 0, off + 1, 196),
+        Paint()..color = const Color(0xFF1F3D2B),
+      );
+    }
+
+    canvas.save();
+    canvas.translate(off, 0);
 
     // Garis lime di tepi gelombang.
     final edge = Path()
@@ -244,6 +306,8 @@ class _HeaderPainter extends CustomPainter {
           colors: [Color(0xFF1F3D2B), Color(0xFF3A6B47)],
         ).createShader(Rect.fromLTWH(0, 0, w, 200)),
     );
+
+    canvas.restore();
   }
 
   /// Siluet masjid sederhana: kubah utama, dua kubah kecil, dua menara.
