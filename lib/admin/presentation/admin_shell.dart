@@ -26,6 +26,8 @@ import 'package:sadaqo/features/community/data/datasources/community_admin_datas
 import 'package:sadaqo/features/news/data/datasources/news_mock_datasource.dart';
 import 'package:sadaqo/features/profile/presentation/widgets/user_avatar.dart';
 import 'package:sadaqo/injection_container.dart';
+import 'package:sadaqo/admin/presentation/pages/report_review_page.dart';
+import 'package:sadaqo/features/report/domain/repositories/report_repository.dart';
 
 /// Kerangka dashboard admin: sidebar hijau (tetap di layar lebar, laci di layar
 /// sempit), bilah atas dengan pencarian, notifikasi, dan profil, lalu isi halaman.
@@ -72,6 +74,8 @@ class _AdminShellState extends State<AdminShell> {
         return ProgramsPage(initialQuery: q, startCreate: create);
       case AdminPage.verification:
         return const VerificationPage();
+      case AdminPage.reports:
+        return const ReportReviewPage();
       case AdminPage.users:
         return UsersPage(initialQuery: q, startCreate: create);
       case AdminPage.community:
@@ -199,7 +203,7 @@ class _SidebarState extends State<_Sidebar> {
           const Positioned.fill(child: CustomPaint(painter: _SidebarPatternPainter())),
           SafeArea(
         child: ListenableBuilder(
-          listenable: Listenable.merge([widget.nav, verification]),
+          listenable: Listenable.merge([widget.nav, verification, sl<ReportRepository>()]),
           builder: (context, _) {
             final current = widget.nav.page;
             final inReport = current == AdminPage.statistics || current == AdminPage.transactions;
@@ -240,6 +244,7 @@ class _SidebarState extends State<_Sidebar> {
                       _item(AdminPage.dashboard, current),
                       _item(AdminPage.programs, current),
                       _item(AdminPage.verification, current, badge: verification.pendingCount),
+                      _item(AdminPage.reports, current, badge: sl<ReportRepository>().pendingCount),
                       _item(AdminPage.users, current),
                       _item(AdminPage.community, current),
                       _group(
@@ -566,18 +571,19 @@ class _TopBar extends StatelessWidget {
             StreamBuilder<void>(
               stream: community.changes,
               builder: (context, _) => ListenableBuilder(
-                listenable: verification,
+                listenable: Listenable.merge([verification, sl<ReportRepository>()]),
                 builder: (context, _) {
                   final pending = verification.pendingCount;
                   final reports = community.reports.length;
                   final banned = community.allStatuses.values.where((s) => s.isBanned()).length;
-                  final total = pending + reports;
+                  final docs = sl<ReportRepository>().pendingCount;
+                  final total = pending + reports + docs;
                   return PopupMenuButton<AdminPage>(
                     tooltip: 'Pemberitahuan',
                     onSelected: (p) => nav.go(p),
                     offset: const Offset(0, 46),
                     itemBuilder: (context) => [
-                      if (pending == 0 && reports == 0 && banned == 0)
+                      if (pending == 0 && reports == 0 && banned == 0 && docs == 0)
                         const PopupMenuItem<AdminPage>(
                           enabled: false,
                           child: Text('Tidak ada pemberitahuan baru'),
@@ -586,6 +592,11 @@ class _TopBar extends StatelessWidget {
                         PopupMenuItem(
                           value: AdminPage.verification,
                           child: Text('$pending kampanye menunggu verifikasi'),
+                        ),
+                      if (docs > 0)
+                        PopupMenuItem(
+                          value: AdminPage.reports,
+                          child: Text('$docs laporan menunggu pemeriksaan'),
                         ),
                       if (reports > 0)
                         PopupMenuItem(

@@ -9,6 +9,7 @@ class AppUser extends Equatable {
     this.phone,
     this.gender,
     this.isAdmin = false,
+    this.isManager = false,
   });
 
   final String id;
@@ -20,6 +21,9 @@ class AppUser extends Equatable {
   /// true jika akun ini adalah admin (email terdaftar di AdminConfig).
   final bool isAdmin;
 
+  /// true jika akun ini adalah Pengelola Kampanye (lihat PengelolaConfig).
+  final bool isManager;
+
   String get firstName => name.split(' ').first;
   String get initial => name.isEmpty ? '?' : name[0].toUpperCase();
 
@@ -30,8 +34,9 @@ class AppUser extends Equatable {
         phone: phone ?? this.phone,
         gender: gender ?? this.gender,
         isAdmin: isAdmin,
+        isManager: isManager,
       );
 
   @override
-  List<Object?> get props => [id, name, email, phone, gender, isAdmin];
+  List<Object?> get props => [id, name, email, phone, gender, isAdmin, isManager];
 }

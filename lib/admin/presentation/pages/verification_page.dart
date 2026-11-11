@@ -38,12 +38,12 @@ class _VerificationPageState extends State<VerificationPage> {
     final reason = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Tolak kampanye'),
+        title: const Text('Tolak / minta revisi'),
         content: TextField(
           controller: controller,
           maxLines: 3,
           decoration: const InputDecoration(
-            hintText: 'Tulis alasan penolakan (wajib)',
+            hintText: 'Tulis alasan atau bagian yang perlu direvisi (wajib)',
           ),
         ),
         actions: [
@@ -54,7 +54,7 @@ class _VerificationPageState extends State<VerificationPage> {
               if (controller.text.trim().isEmpty) return;
               Navigator.pop(ctx, controller.text.trim());
             },
-            child: const Text('Tolak'),
+            child: const Text('Kirim'),
           ),
         ],
       ),
@@ -169,6 +169,7 @@ class _SubmissionCard extends StatelessWidget {
           runSpacing: 6,
           children: [
             statusPill,
+            if (s.ownerId != null) const Pill('Dari Pengelola', color: AdminColors.green),
             Pill(s.category.shortLabel, color: AdminColors.green, bg: AdminColors.limeSoft),
             Pill(AdminFmt.ago(s.submittedAt), color: AdminColors.muted),
           ],
@@ -182,6 +183,13 @@ class _SubmissionCard extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(s.description, maxLines: 3, overflow: TextOverflow.ellipsis),
+        if (s.supportingInfo != null) ...[
+          const SizedBox(height: 6),
+          Text(
+            'Info pendukung: ${s.supportingInfo}',
+            style: const TextStyle(fontSize: 12.5, color: AdminColors.muted),
+          ),
+        ],
         const SizedBox(height: 8),
         Text(
           'Target ${AdminFmt.rupiah(s.targetAmount)} • ${s.durationDays} hari',
@@ -210,7 +218,7 @@ class _SubmissionCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AssetThumb(s.imageAsset, width: double.infinity, height: 140, radius: 14),
+            _Cover(s, width: double.infinity, height: 140),
             const SizedBox(height: 10),
             info,
           ],
@@ -222,7 +230,7 @@ class _SubmissionCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AssetThumb(s.imageAsset, width: 170, height: 150, radius: 14),
+          _Cover(s, width: 170, height: 150),
           const SizedBox(width: 16),
           Expanded(child: info),
         ],
@@ -230,3 +238,22 @@ class _SubmissionCard extends StatelessWidget {
     );
   }
 }
+  /// Sampul pengajuan: foto galeri pengelola jika ada, selain itu aset.
+  class _Cover extends StatelessWidget {
+    const _Cover(this.s, {required this.width, required this.height});
+
+    final CampaignSubmission s;
+    final double width;
+    final double height;
+
+    @override
+    Widget build(BuildContext context) {
+      if (s.imageBytes != null) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(14),
+          child: Image.memory(s.imageBytes!, width: width, height: height, fit: BoxFit.cover),
+        );
+      }
+      return AssetThumb(s.imageAsset, width: width, height: height, radius: 14);
+    }
+  }

@@ -6,7 +6,8 @@ import 'package:sadaqo/features/campaign/data/models/campaign_model.dart';
 
 enum SubmissionStatus { pending, approved, rejected }
 
-/// Pengajuan kampanye/program dari pihak luar yang menunggu verifikasi admin.
+/// Pengajuan kampanye/program yang menunggu verifikasi admin
+/// (dari pihak luar atau dari Pengelola Kampanye).
 class CampaignSubmission {
   const CampaignSubmission({
     required this.id,
@@ -19,7 +20,11 @@ class CampaignSubmission {
     required this.durationDays,
     required this.submittedAt,
     this.imageAsset,
+    this.imageBytes,
     this.subType,
+    this.supportingInfo,
+    this.ownerId,
+    this.campaignId,
     this.status = SubmissionStatus.pending,
     this.note,
   });
@@ -34,11 +39,27 @@ class CampaignSubmission {
   final int durationDays;
   final DateTime submittedAt;
   final String? imageAsset;
+
+  /// Foto sampul dari galeri pengelola (hanya untuk pratinjau verifikasi).
+  final Uint8List? imageBytes;
   final String? subType;
+
+  /// Penanggung jawab, kontak, dan dokumen pendukung dari pengelola.
+  final String? supportingInfo;
+
+  /// Id akun pengelola yang mengajukan (null = pihak luar).
+  final String? ownerId;
+
+  /// Id program yang terbentuk setelah pengajuan disetujui.
+  final String? campaignId;
   final SubmissionStatus status;
   final String? note;
 
-  CampaignSubmission copyWith({SubmissionStatus? status, String? note}) =>
+  CampaignSubmission copyWith({
+    SubmissionStatus? status,
+    String? note,
+    String? campaignId,
+  }) =>
       CampaignSubmission(
         id: id,
         title: title,
@@ -50,7 +71,11 @@ class CampaignSubmission {
         durationDays: durationDays,
         submittedAt: submittedAt,
         imageAsset: imageAsset,
+        imageBytes: imageBytes,
         subType: subType,
+        supportingInfo: supportingInfo,
+        ownerId: ownerId,
+        campaignId: campaignId ?? this.campaignId,
         status: status ?? this.status,
         note: note ?? this.note,
       );
@@ -68,6 +93,20 @@ class AdminVerificationStore extends ChangeNotifier {
   int get pendingCount =>
       _items.where((s) => s.status == SubmissionStatus.pending).length;
 
+  String nextId() => 'v${_items.length + 1}';
+
+  /// Pengajuan baru dari pengelola.
+  void submit(CampaignSubmission s) {
+    _items = [s, ..._items];
+    notifyListeners();
+  }
+
+  /// Pengelola memperbaiki pengajuan yang dikembalikan admin, lalu antre ulang.
+  void resubmit(CampaignSubmission s) {
+    _items = [s, ..._items.where((x) => x.id != s.id)];
+    notifyListeners();
+  }
+
   /// Mengembalikan id program baru yang dibuat.
   String approve(String id) {
     final i = _items.indexWhere((s) => s.id == id);
@@ -83,12 +122,16 @@ class AdminVerificationStore extends ChangeNotifier {
         collectedAmount: 0,
         deadline: DateTime.now().add(Duration(days: s.durationDays)),
         location: s.location,
-        imageAsset: s.imageAsset,
+        imageAsset: s.imageAsset ?? _defaultCover(s.category),
         subType: s.subType,
       ),
     );
     _items = List.of(_items)
-      ..[i] = s.copyWith(status: SubmissionStatus.approved, note: 'Disetujui, program $newId aktif');
+      ..[i] = s.copyWith(
+        status: SubmissionStatus.approved,
+        note: 'Disetujui, program $newId aktif',
+        campaignId: newId,
+      );
     notifyListeners();
     return newId;
   }
@@ -98,6 +141,23 @@ class AdminVerificationStore extends ChangeNotifier {
     _items = List.of(_items)
       ..[i] = _items[i].copyWith(status: SubmissionStatus.rejected, note: reason);
     notifyListeners();
+  }
+
+  /// Gambar bawaan sementara untuk pengajuan yang fotonya dari galeri
+  /// (sampai ada upload ke backend).
+  static String? _defaultCover(ProgramCategory c) {
+    switch (c) {
+      case ProgramCategory.masjid:
+        return AppAssets.masjid('masjid_al_azzam.jpg');
+      case ProgramCategory.sosial:
+        return AppAssets.sosial('banjir.jpg');
+      case ProgramCategory.duafa:
+        return AppAssets.duafa('panti_asuhan.jpg');
+      case ProgramCategory.qurban:
+        return AppAssets.qurban('kambing.jpg');
+      case ProgramCategory.zakat:
+        return null;
+    }
   }
 
   static List<CampaignSubmission> _seed() {

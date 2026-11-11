@@ -9,6 +9,7 @@ class UserModel extends AppUser {
     super.phone,
     super.gender,
     super.isAdmin,
+    super.isManager, 
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {

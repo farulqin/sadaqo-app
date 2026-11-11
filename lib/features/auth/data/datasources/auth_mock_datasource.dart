@@ -5,6 +5,7 @@ import 'package:sadaqo/core/error/exceptions.dart';
 import 'package:sadaqo/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:sadaqo/features/auth/data/models/user_model.dart';
 import 'package:sadaqo/features/auth/domain/entities/gender.dart';
+import 'package:sadaqo/pengelola/core/pengelola_config.dart';
 
 /// Data dummy selama backend Laravel belum siap.
 /// - Login: email apa saja dan password >= 6 karakter dianggap berhasil.
@@ -61,22 +62,60 @@ class AuthMockDataSource implements AuthRemoteDataSource {
         isAdmin: true,
       );
     }
+    if (PengelolaConfig.isPengelolaEmail(email)) {
+      if (password != PengelolaConfig.password) {
+        throw const ServerException('Email atau password pengelola salah');
+      }
+      return const UserModel(
+        id: PengelolaConfig.accountId,
+        name: PengelolaConfig.name,
+        email: PengelolaConfig.email,
+        isManager: true,
+      );
+    }
     return _build(email);
   }
 
-  @override
-  Future<UserModel> register(String name, String email, String password) async {
-    await Future<void>.delayed(const Duration(milliseconds: 900));
-    final key = email.trim().toLowerCase();
-    if (_adminGate?.isAdminEmail(email) ?? false) {
-      throw const ServerException('Email ini tidak dapat didaftarkan');
-    }
-    if (_names.containsKey(key)) {
-      throw const ServerException('Email sudah terdaftar, silakan masuk');
-    }
-    _names[key] = name;
-    return _build(email);
+  
+@override
+Future<UserModel> register(
+  String name,
+  String email,
+  String password,
+) async {
+  await Future<void>.delayed(
+    const Duration(milliseconds: 900),
+  );
+
+  final key = email.trim().toLowerCase();
+
+  // Email Admin tidak boleh digunakan untuk registrasi.
+  if (_adminGate?.isAdminEmail(email) ?? false) {
+    throw const ServerException(
+      'Email Admin tidak dapat didaftarkan',
+    );
   }
+
+  // Email Pengelola Kampanye tidak boleh registrasi sebagai pengguna biasa.
+  if (PengelolaConfig.isPengelolaEmail(email)) {
+    throw const ServerException(
+      'Email ini tidak dapat didaftarkan',
+    );
+  }
+
+  // Periksa apakah email sudah terdaftar.
+  if (_names.containsKey(key)) {
+    throw const ServerException(
+      'Email sudah terdaftar, silakan masuk',
+    );
+  }
+
+  // Simpan nama pengguna.
+  _names[key] = name;
+
+  // Kembalikan data pengguna.
+  return _build(email);
+}
 
   @override
   Future<UserModel> loginWithProvider(String provider) async {

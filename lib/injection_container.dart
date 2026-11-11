@@ -58,9 +58,12 @@ import 'package:sadaqo/features/community/data/repositories/community_repository
 import 'package:sadaqo/features/community/domain/repositories/community_repository.dart';
 import 'package:sadaqo/features/community/domain/usecases/community_usecases.dart';
 import 'package:sadaqo/features/community/presentation/cubit/community_cubit.dart';
+import 'package:sadaqo/features/report/data/repositories/report_repository_impl.dart';
+import 'package:sadaqo/features/report/domain/repositories/report_repository.dart';
+import 'package:sadaqo/pengelola/pengelola.dart';
 
-/// Service locator: semua dependency didaftarkan di sini.
-/// Urutan per fitur: datasource -> repository -> usecase -> cubit.
+// Service locator: semua dependency didaftarkan di sini.
+// Urutan per fitur: datasource -> repository -> usecase -> cubit.
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -69,6 +72,12 @@ Future<void> init() async {
 
   // ===== Admin (semua kode admin ada di lib/admin/) =====
   registerAdminDependencies(sl);
+
+  // ===== Laporan & dokumentasi penyaluran (dipakai pengelola, admin, donatur) =====
+  sl.registerLazySingleton<ReportRepository>(() => ReportRepositoryImpl());
+
+  // ===== Pengelola Kampanye (semua kode ada di lib/pengelola/) =====
+  registerPengelolaDependencies(sl);
 
   // ===== Auth =====
   // Saat backend Laravel siap, ganti AuthMockDataSource dengan

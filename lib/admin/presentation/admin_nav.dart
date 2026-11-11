@@ -4,6 +4,7 @@ enum AdminPage {
   dashboard('Dashboard', Icons.home_rounded),
   programs('Kelola Program', Icons.campaign_rounded),
   verification('Verifikasi Kampanye', Icons.verified_user_rounded),
+  reports('Pemeriksaan Laporan', Icons.fact_check_rounded),
   users('Kelola Pengguna', Icons.people_alt_rounded),
   community('Komunitas', Icons.forum_rounded),
   statistics('Statistik Donasi', Icons.insights_rounded),

@@ -8,6 +8,8 @@ import 'package:sadaqo/core/widgets/state_views.dart';
 import 'package:sadaqo/features/donation/domain/entities/donation.dart';
 import 'package:sadaqo/features/donation/presentation/cubit/donation_history_cubit.dart';
 import 'package:sadaqo/features/donation/presentation/cubit/donation_history_state.dart';
+import 'package:sadaqo/features/report/presentation/pages/report_history_view.dart';
+import 'package:sadaqo/features/report/presentation/widgets/report_widgets.dart';
 
 enum _Filter {
   semua('Semua'),
@@ -29,79 +31,111 @@ enum _Filter {
   }
 }
 
-class DonationHistoryPage extends StatefulWidget {
+/// Riwayat: 2 sub page, yaitu Riwayat Transaksi dan Laporan & Dokumentasi.
+class DonationHistoryPage extends StatelessWidget {
   const DonationHistoryPage({super.key});
 
   @override
-  State<DonationHistoryPage> createState() => _DonationHistoryPageState();
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Riwayat'),
+          bottom: const TabBar(
+            indicatorColor: AppColors.limeGreen,
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white70,
+            labelStyle: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+            tabs: [
+              Tab(text: 'Riwayat Transaksi'),
+              Tab(
+                child: ReportUnreadBadge(child: Text('Laporan & Dokumentasi')),
+              ),
+            ],
+          ),
+        ),
+        body: const TabBarView(
+          children: [
+            _TransactionsView(),
+            ReportHistoryView(),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
-class _DonationHistoryPageState extends State<DonationHistoryPage> {
+class _TransactionsView extends StatefulWidget {
+  const _TransactionsView();
+
+  @override
+  State<_TransactionsView> createState() => _TransactionsViewState();
+}
+
+class _TransactionsViewState extends State<_TransactionsView> {
   _Filter _filter = _Filter.semua;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Riwayat Donasi')),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-            child: Row(
-              children: [
-                for (final f in _Filter.values)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: ChoiceChip(
-                      label: Text(f.label),
-                      selected: _filter == f,
-                      showCheckmark: false,
-                      onSelected: (_) => setState(() => _filter = f),
-                      selectedColor: AppColors.forestGreen,
-                      backgroundColor: Colors.white,
-                      labelStyle: TextStyle(
-                        color: _filter == f ? Colors.white : AppColors.textDark,
-                        fontWeight: FontWeight.w600,
-                      ),
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+          child: Row(
+            children: [
+              for (final f in _Filter.values)
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: ChoiceChip(
+                    label: Text(f.label),
+                    selected: _filter == f,
+                    showCheckmark: false,
+                    onSelected: (_) => setState(() => _filter = f),
+                    selectedColor: AppColors.forestGreen,
+                    backgroundColor: Colors.white,
+                    labelStyle: TextStyle(
+                      color: _filter == f ? Colors.white : AppColors.textDark,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
-          Expanded(
-            child: BlocBuilder<DonationHistoryCubit, DonationHistoryState>(
-              builder: (context, state) {
-                if (state is DonationHistoryError) {
-                  return ErrorView(
-                    message: state.message,
-                    onRetry: () => context.read<DonationHistoryCubit>().load(),
-                  );
-                }
-                if (state is! DonationHistoryLoaded) return const LoadingView();
-
-                final items = state.donations.where(_filter.matches).toList();
-                return RefreshIndicator(
-                  onRefresh: () => context.read<DonationHistoryCubit>().refresh(),
-                  child: items.isEmpty
-                      ? ListView(
-                          children: const [
-                            SizedBox(height: 120),
-                            Center(child: Text('Belum ada donasi')),
-                          ],
-                        )
-                      : ListView.separated(
-                          padding: const EdgeInsets.all(16),
-                          itemCount: items.length,
-                          separatorBuilder: (context, index) =>
-                              const SizedBox(height: 10),
-                          itemBuilder: (context, i) => _DonationTile(donation: items[i]),
-                        ),
+        ),
+        Expanded(
+          child: BlocBuilder<DonationHistoryCubit, DonationHistoryState>(
+            builder: (context, state) {
+              if (state is DonationHistoryError) {
+                return ErrorView(
+                  message: state.message,
+                  onRetry: () => context.read<DonationHistoryCubit>().load(),
                 );
-              },
-            ),
+              }
+              if (state is! DonationHistoryLoaded) return const LoadingView();
+
+              final items = state.donations.where(_filter.matches).toList();
+              return RefreshIndicator(
+                onRefresh: () => context.read<DonationHistoryCubit>().refresh(),
+                child: items.isEmpty
+                    ? ListView(
+                        children: const [
+                          SizedBox(height: 120),
+                          Center(child: Text('Belum ada donasi')),
+                        ],
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: items.length,
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 10),
+                        itemBuilder: (context, i) => _DonationTile(donation: items[i]),
+                      ),
+              );
+            },
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

@@ -11,6 +11,7 @@ import 'package:sadaqo/features/donation/presentation/pages/donation_page.dart';
 import 'package:sadaqo/features/home/presentation/pages/home_page.dart';
 import 'package:sadaqo/features/news/presentation/cubit/news_cubit.dart';
 import 'package:sadaqo/injection_container.dart';
+import 'package:sadaqo/features/report/presentation/widgets/report_widgets.dart';
 
 /// Kerangka utama aplikasi: 5 tab navigasi bawah (ikon dari assets/icons).
 /// Profil tidak lagi menjadi tab: dibuka dari ikon foto di bagian atas.
@@ -67,7 +68,9 @@ class _MainShellState extends State<MainShell> {
               label: 'Donasi',
             ),
             NavigationDestination(
-              icon: ImageIcon(AssetImage(AppAssets.iconRiwayat)),
+              icon: ReportUnreadBadge(
+                child: ImageIcon(AssetImage(AppAssets.iconRiwayat)),
+              ),
               label: 'Riwayat',
             ),
             NavigationDestination(

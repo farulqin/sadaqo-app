@@ -8,6 +8,7 @@ import 'package:sadaqo/features/auth/presentation/cubit/auth_state.dart';
 import 'package:sadaqo/features/home/presentation/pages/main_shell.dart';
 import 'package:sadaqo/features/notification/presentation/cubit/notification_cubit.dart';
 import 'package:sadaqo/features/splash/presentation/pages/pages/kindness_splash_page.dart';
+import 'package:sadaqo/pengelola/pengelola.dart';
 
 /// Halaman masuk dan daftar. Setelah berhasil: splash ucapan selamat datang
 /// (juga dicatat di notifikasi), lalu masuk ke beranda.
@@ -92,14 +93,21 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  /// Admin langsung ke dashboard admin (tanpa splash ucapan dan notifikasi donatur).
+  // Admin langsung ke dashboard admin (tanpa splash ucapan dan notifikasi donatur).
   void _openAdmin(BuildContext context) {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute<void>(builder: (_) => const AdminShell()),
     );
   }
 
-  /// Berhasil masuk/daftar: catat notifikasi sambutan, tampilkan splash, lalu beranda.
+  // Pengelola langsung ke dashboard pengelola (tanpa splash donatur).
+  void _openPengelola(BuildContext context) {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute<void>(builder: (_) => const PengelolaShell()),
+    );
+  }
+
+  // Berhasil masuk/daftar: catat notifikasi sambutan, tampilkan splash, lalu beranda.
   void _onAuthenticated(BuildContext context) {
     context.read<NotificationCubit>().addWelcome();
     Navigator.of(context).pushReplacement(
@@ -120,18 +128,21 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AuthCubit, AuthState>(
-      listener: (context, state) {
-        if (state is AuthAuthenticated) {
-          if (state.user.isAdmin) {
-            _openAdmin(context);
-          } else {
-            _onAuthenticated(context);
-          }
-        } else if (state is AuthError) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(state.message)));
+    listener: (context, state) {
+      if (state is AuthAuthenticated) {
+        if (state.user.isAdmin) {
+          _openAdmin(context);
+        } else if (PengelolaConfig.isPengelolaEmail(state.user.email)) {
+        _openPengelola(context);
+        } else {
+        _onAuthenticated(context);
         }
-      },
+      } else if (state is AuthError) {
+        ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(state.message)));
+      }
+    },
+
       builder: (context, state) {
         final loading = state is AuthLoading;
         return Scaffold(
