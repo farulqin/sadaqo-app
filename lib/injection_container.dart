@@ -1,20 +1,17 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:sadaqo/core/network/dio_client.dart';
-import 'package:sadaqo/features/auth/data/datasources/auth_mock_datasource.dart';
 import 'package:sadaqo/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:sadaqo/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:sadaqo/features/auth/domain/repositories/auth_repository.dart';
 import 'package:sadaqo/features/auth/domain/usecases/login_user.dart';
 import 'package:sadaqo/features/auth/domain/usecases/logout_user.dart';
 import 'package:sadaqo/features/auth/presentation/cubit/auth_cubit.dart';
-import 'package:sadaqo/features/campaign/data/datasources/campaign_mock_datasource.dart';
 import 'package:sadaqo/features/campaign/data/datasources/campaign_remote_datasource.dart';
 import 'package:sadaqo/features/campaign/data/repositories/campaign_repository_impl.dart';
 import 'package:sadaqo/features/campaign/domain/repositories/campaign_repository.dart';
 import 'package:sadaqo/features/campaign/domain/usecases/get_campaigns.dart';
 import 'package:sadaqo/features/campaign/presentation/cubit/campaign_cubit.dart';
-import 'package:sadaqo/features/donation/data/datasources/donation_mock_datasource.dart';
 import 'package:sadaqo/features/donation/data/datasources/donation_remote_datasource.dart';
 import 'package:sadaqo/features/donation/data/repositories/donation_repository_impl.dart';
 import 'package:sadaqo/features/donation/domain/repositories/donation_repository.dart';
@@ -48,8 +45,6 @@ import 'package:sadaqo/features/notification/domain/repositories/notification_re
 import 'package:sadaqo/features/notification/domain/usecases/notification_usecases.dart';
 import 'package:sadaqo/features/notification/presentation/cubit/notification_cubit.dart';
 import 'package:sadaqo/admin/admin.dart';
-import 'package:sadaqo/admin/data/admin_credentials_store.dart';
-import 'package:sadaqo/admin/data/admin_user_store.dart';
 import 'package:sadaqo/core/navigation/main_tab_controller.dart';
 import 'package:sadaqo/features/auth/domain/usecases/update_profile.dart';
 import 'package:sadaqo/features/profile/presentation/cubit/settings_cubit.dart';
@@ -61,7 +56,10 @@ import 'package:sadaqo/features/community/presentation/cubit/community_cubit.dar
 import 'package:sadaqo/features/report/data/repositories/report_repository_impl.dart';
 import 'package:sadaqo/features/report/domain/repositories/report_repository.dart';
 import 'package:sadaqo/pengelola/pengelola.dart';
-import 'package:sadaqo/pengelola/data/pengelola_account_store.dart';
+import 'package:sadaqo/core/network/token_storage.dart';
+import 'package:sadaqo/features/auth/data/datasources/auth_remote_datasource_impl.dart';
+import 'package:sadaqo/features/campaign/data/datasources/campaign_remote_datasource_impl.dart';
+import 'package:sadaqo/features/donation/data/datasources/donation_remote_datasource_impl.dart';
 
 // Service locator: semua dependency didaftarkan di sini.
 // Urutan per fitur: datasource -> repository -> usecase -> cubit.
@@ -69,8 +67,10 @@ final sl = GetIt.instance;
 
 Future<void> init() async {
   // ===== Core =====
-  sl.registerLazySingleton<Dio>(() => DioClient.create());
-
+  sl.registerLazySingleton<TokenStorage>(() => TokenStorage());
+  sl.registerLazySingleton<Dio>(
+    () => DioClient.create(tokenStorage: sl<TokenStorage>()),
+  );
   // ===== Admin (semua kode admin ada di lib/admin/) =====
   registerAdminDependencies(sl);
 
@@ -81,14 +81,9 @@ Future<void> init() async {
   registerPengelolaDependencies(sl);
 
   // ===== Auth =====
-  // Saat backend Laravel siap, ganti AuthMockDataSource dengan
-  // implementasi Dio (AuthRemoteDataSourceImpl(sl())). Layer lain tidak berubah.
+  // Auth memakai backend Laravel. Admin dan pengelola login dengan akun di database.
   sl.registerLazySingleton<AuthRemoteDataSource>(
-    () => AuthMockDataSource(
-      adminGate: sl<AdminCredentialsStore>(),
-      directory: sl<AdminUserStore>(),
-      pengelolaGate: sl<PengelolaAccountStore>(),
-    ),
+    () => AuthRemoteDataSourceImpl(sl<Dio>(), sl<TokenStorage>()),
   );
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl()));
   sl.registerLazySingleton<LoginUser>(() => LoginUser(sl()));
@@ -110,7 +105,7 @@ Future<void> init() async {
   // Penyimpanan data contoh bersama (hapus saat API asli dipakai).
   sl.registerLazySingleton<MockCampaignStore>(() => MockCampaignStore());
   sl.registerLazySingleton<CampaignRemoteDataSource>(
-    () => CampaignMockDataSource(sl()),
+    () => CampaignRemoteDataSourceImpl(sl<Dio>()),
   );
   sl.registerLazySingleton<CampaignRepository>(
     () => CampaignRepositoryImpl(sl()),
@@ -120,7 +115,7 @@ Future<void> init() async {
 
   // ===== Donation =====
   sl.registerLazySingleton<DonationRemoteDataSource>(
-    () => DonationMockDataSource(sl()),
+    () => DonationRemoteDataSourceImpl(sl<Dio>()),
   );
   sl.registerLazySingleton<DonationRepository>(
     () => DonationRepositoryImpl(sl()),

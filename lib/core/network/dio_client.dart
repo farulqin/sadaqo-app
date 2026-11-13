@@ -1,19 +1,20 @@
 import 'package:dio/dio.dart';
-import '../constants/api_constants.dart';
 
-/// Pembuat instance Dio. Token autentikasi akan ditambahkan
-/// lewat interceptor saat fitur auth dibuat.
+import 'api_client.dart';
+import 'token_storage.dart';
+
+/// Pembuat instance Dio. Sekarang sudah memakai interceptor token
+/// (lihat api_client.dart) dan base URL dari api_config.dart.
 class DioClient {
   DioClient._();
 
-  static Dio create() {
-    return Dio(
-      BaseOptions(
-        baseUrl: ApiConstants.baseUrl,
-        connectTimeout: const Duration(seconds: 10),
-        receiveTimeout: const Duration(seconds: 10),
-        headers: {'Accept': 'application/json'},
-      ),
-    );
+  static Dio create({
+    TokenStorage? tokenStorage,
+    void Function()? onUnauthorized,
+  }) {
+    return ApiClient(
+      tokenStorage: tokenStorage ?? TokenStorage(),
+      onUnauthorized: onUnauthorized,
+    ).dio;
   }
 }
