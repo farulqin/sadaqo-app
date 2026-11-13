@@ -44,6 +44,12 @@ class _AdminShellState extends State<AdminShell> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
+  void initState() {
+    super.initState();
+    sl<AdminVerificationStore>().loadForAdmin();
+  }
+
+  @override
   void dispose() {
     _nav.dispose();
     super.dispose();

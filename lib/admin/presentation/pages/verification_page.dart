@@ -5,6 +5,7 @@ import 'package:sadaqo/admin/data/admin_verification_store.dart';
 import 'package:sadaqo/admin/presentation/widgets/admin_widgets.dart';
 import 'package:sadaqo/features/campaign/presentation/cubit/campaign_cubit.dart';
 import 'package:sadaqo/injection_container.dart';
+import 'package:sadaqo/core/error/exceptions.dart';
 
 /// Antrean verifikasi kampanye. Menyetujui = program langsung tampil di aplikasi.
 class VerificationPage extends StatefulWidget {
@@ -19,6 +20,12 @@ class _VerificationPageState extends State<VerificationPage> {
   final _log = sl<AdminActivityLog>();
   SubmissionStatus? _filter = SubmissionStatus.pending;
 
+  @override
+  void initState() {
+    super.initState();
+    _store.loadForAdmin();
+  }
+
   Future<void> _approve(CampaignSubmission s) async {
     final ok = await confirmDialog(
       context,
@@ -27,10 +34,16 @@ class _VerificationPageState extends State<VerificationPage> {
       confirmLabel: 'Setujui',
     );
     if (!ok || !mounted) return;
-    final id = _store.approve(s.id);
+    try {
+      await _store.approve(s.id);
+    } on ServerException catch (e) {
+      if (mounted) adminToast(context, e.message);
+      return;
+    }
     sl<CampaignCubit>().refresh();
     _log.add(ActivityKind.verified, 'Program "${s.title}" berhasil diverifikasi');
-    adminToast(context, 'Disetujui. Program $id sudah aktif.');
+    if (!mounted) return;
+    adminToast(context, 'Disetujui. Program sudah aktif di aplikasi donatur.');
   }
 
   Future<void> _reject(CampaignSubmission s) async {
@@ -61,10 +74,16 @@ class _VerificationPageState extends State<VerificationPage> {
     );
     controller.dispose();
     if (reason == null || !mounted) return;
-    _store.reject(s.id, reason);
+    try {
+      await _store.reject(s.id, reason);
+    } on ServerException catch (e) {
+      if (mounted) adminToast(context, e.message);
+      return;
+    }
     _log.add(ActivityKind.verified, 'Pengajuan "${s.title}" ditolak');
+    if (!mounted) return;
     adminToast(context, 'Pengajuan ditolak');
-  }
+}
 
   @override
   Widget build(BuildContext context) {

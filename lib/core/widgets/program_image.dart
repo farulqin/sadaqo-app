@@ -57,6 +57,7 @@ class ProgramImage extends StatelessWidget {
     return Image.network(
       url,
       fit: BoxFit.cover,
+      webHtmlElementStrategy: WebHtmlElementStrategy.prefer,
       loadingBuilder: (context, child, progress) =>
           progress == null ? child : _placeholder(),
       errorBuilder: (context, error, stackTrace) => _placeholder(),

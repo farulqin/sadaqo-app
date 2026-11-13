@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
-import 'package:sadaqo/core/constants/app_assets.dart';
 import 'package:sadaqo/core/constants/program_category.dart';
-import 'package:sadaqo/features/campaign/data/datasources/mock_campaign_store.dart';
+import 'package:sadaqo/core/error/exceptions.dart';
+import 'package:sadaqo/features/campaign/data/datasources/campaign_manage_api.dart';
 import 'package:sadaqo/features/campaign/data/models/campaign_model.dart';
 
 enum SubmissionStatus { pending, approved, rejected }
@@ -38,9 +38,11 @@ class CampaignSubmission {
   final int targetAmount;
   final int durationDays;
   final DateTime submittedAt;
+
+  /// Gambar bawaan ("assets/...") atau URL gambar unggahan dari server.
   final String? imageAsset;
 
-  /// Foto sampul dari galeri pengelola (hanya untuk pratinjau verifikasi).
+  /// Foto sampul dari galeri pengelola (hanya untuk pratinjau lokal).
   final Uint8List? imageBytes;
   final String? subType;
 
@@ -50,7 +52,7 @@ class CampaignSubmission {
   /// Id akun pengelola yang mengajukan (null = pihak luar).
   final String? ownerId;
 
-  /// Id program yang terbentuk setelah pengajuan disetujui.
+  /// Id program setelah pengajuan disetujui.
   final String? campaignId;
   final SubmissionStatus status;
   final String? note;
@@ -81,144 +83,148 @@ class CampaignSubmission {
       );
 }
 
-/// Antrean verifikasi kampanye (di memori; isi awal adalah contoh fiktif).
-/// Menyetujui pengajuan langsung menambahkan program ke aplikasi pengguna.
+/// Pengajuan program, sekarang bersumber dari backend Laravel.
+/// - Sisi admin: antrean (pending) dan yang ditolak dari GET /api/admin/campaigns.
+/// - Sisi pengelola: semua program miliknya dari GET /api/campaigns/mine.
 class AdminVerificationStore extends ChangeNotifier {
-  AdminVerificationStore(this._campaigns) : _items = _seed();
+  AdminVerificationStore(this._api);
 
-  final MockCampaignStore _campaigns;
-  List<CampaignSubmission> _items;
+  final CampaignManageApi _api;
 
-  List<CampaignSubmission> get all => List.unmodifiable(_items);
+  List<CampaignSubmission> _admin = const [];
+  final List<CampaignSubmission> _approvedThisSession = [];
+  List<CampaignSubmission> _mine = const [];
+  List<CampaignModel> _mineActive = const [];
+
+  // ---------- Sisi admin ----------
+  List<CampaignSubmission> get all =>
+      List.unmodifiable([..._admin, ..._approvedThisSession]);
+
   int get pendingCount =>
-      _items.where((s) => s.status == SubmissionStatus.pending).length;
+      _admin.where((s) => s.status == SubmissionStatus.pending).length;
 
-  String nextId() => 'v${_items.length + 1}';
-
-  /// Pengajuan baru dari pengelola.
-  void submit(CampaignSubmission s) {
-    _items = [s, ..._items];
-    notifyListeners();
-  }
-
-  /// Pengelola memperbaiki pengajuan yang dikembalikan admin, lalu antre ulang.
-  void resubmit(CampaignSubmission s) {
-    _items = [s, ..._items.where((x) => x.id != s.id)];
-    notifyListeners();
-  }
-
-  /// Mengembalikan id program baru yang dibuat.
-  String approve(String id) {
-    final i = _items.indexWhere((s) => s.id == id);
-    final s = _items[i];
-    final newId = _campaigns.adminNextId(s.category);
-    _campaigns.adminSave(
-      CampaignModel(
-        id: newId,
-        title: s.title,
-        description: s.description,
-        category: s.category,
-        targetAmount: s.targetAmount,
-        collectedAmount: 0,
-        deadline: DateTime.now().add(Duration(days: s.durationDays)),
-        location: s.location,
-        imageAsset: s.imageAsset ?? _defaultCover(s.category),
-        subType: s.subType,
-      ),
-    );
-    _items = List.of(_items)
-      ..[i] = s.copyWith(
-        status: SubmissionStatus.approved,
-        note: 'Disetujui, program $newId aktif',
-        campaignId: newId,
-      );
-    notifyListeners();
-    return newId;
-  }
-
-  void reject(String id, String reason) {
-    final i = _items.indexWhere((s) => s.id == id);
-    _items = List.of(_items)
-      ..[i] = _items[i].copyWith(status: SubmissionStatus.rejected, note: reason);
-    notifyListeners();
-  }
-
-  /// Gambar bawaan sementara untuk pengajuan yang fotonya dari galeri
-  /// (sampai ada upload ke backend).
-  static String? _defaultCover(ProgramCategory c) {
-    switch (c) {
-      case ProgramCategory.masjid:
-        return AppAssets.masjid('masjid_al_azzam.jpg');
-      case ProgramCategory.sosial:
-        return AppAssets.sosial('banjir.jpg');
-      case ProgramCategory.duafa:
-        return AppAssets.duafa('panti_asuhan.jpg');
-      case ProgramCategory.qurban:
-        return AppAssets.qurban('kambing.jpg');
-      case ProgramCategory.zakat:
-        return null;
+  Future<void> loadForAdmin() async {
+    try {
+      final pending = await _api.list('/admin/campaigns', query: {'status': 'pending'});
+      final rejected = await _api.list('/admin/campaigns', query: {'status': 'rejected'});
+      _admin = [...pending, ...rejected].map(_toSubmission).toList()
+        ..sort((a, b) => b.submittedAt.compareTo(a.submittedAt));
+      notifyListeners();
+    } on ServerException {
+      // Biarkan data lama; admin bisa membuka ulang halaman untuk mencoba lagi.
     }
   }
 
-  static List<CampaignSubmission> _seed() {
-    final now = DateTime.now();
-    return [
-      CampaignSubmission(
-        id: 'v1',
-        title: 'Bantuan Air Bersih Desa Sukamaju',
-        category: ProgramCategory.sosial,
-        organizer: 'Karang Taruna Sukamaju',
-        location: 'Cianjur, Jawa Barat',
-        description:
-            'Pengadaan sumur bor dan tandon air bersih bagi 120 keluarga yang selama musim kemarau harus berjalan jauh mengambil air.',
-        targetAmount: 85000000,
-        durationDays: 45,
-        submittedAt: now.subtract(const Duration(hours: 2)),
-        imageAsset: AppAssets.sosial('banjir.jpg'),
-        subType: 'Banjir',
-      ),
-      CampaignSubmission(
-        id: 'v2',
-        title: 'Renovasi Mushola Al-Hikmah',
-        category: ProgramCategory.masjid,
-        organizer: 'Takmir Mushola Al-Hikmah',
-        location: 'Kediri, Jawa Timur',
-        description:
-            'Perbaikan atap bocor, penggantian lantai, dan penambahan tempat wudhu untuk jamaah lingkungan RW 05.',
-        targetAmount: 38000000,
-        durationDays: 30,
-        submittedAt: now.subtract(const Duration(hours: 9)),
-        imageAsset: AppAssets.masjid('mushola_al_ihsan.jpg'),
-        subType: 'Mushola',
-      ),
-      CampaignSubmission(
-        id: 'v3',
-        title: 'Santunan Anak Yatim Panti Al-Amin',
-        category: ProgramCategory.duafa,
-        organizer: 'Yayasan Al-Amin',
-        location: 'Bekasi, Jawa Barat',
-        description:
-            'Biaya sekolah, seragam, dan kebutuhan gizi untuk 35 anak yatim dan dhuafa selama satu tahun ajaran.',
-        targetAmount: 52000000,
-        durationDays: 40,
-        submittedAt: now.subtract(const Duration(days: 1, hours: 3)),
-        imageAsset: AppAssets.duafa('panti_asuhan.jpg'),
-        subType: 'Panti Asuhan',
-      ),
-      CampaignSubmission(
-        id: 'v4',
-        title: 'Qurban Kambing Desa Binaan',
-        category: ProgramCategory.qurban,
-        organizer: 'Komunitas Peduli Desa',
-        location: 'Wonosobo, Jawa Tengah',
-        description:
-            'Pengadaan kambing qurban untuk dibagikan kepada warga desa binaan yang jarang menerima daging qurban.',
-        targetAmount: 45000000,
-        durationDays: 120,
-        submittedAt: now.subtract(const Duration(days: 2)),
-        imageAsset: AppAssets.qurban('kambing.jpg'),
-        subType: 'Bersama',
-      ),
-    ];
+  Future<void> approve(String id) async {
+    await _api.review(id, approve: true);
+    final i = _admin.indexWhere((s) => s.id == id);
+    if (i >= 0) {
+      final s = _admin[i];
+      _approvedThisSession.insert(
+        0,
+        s.copyWith(
+          status: SubmissionStatus.approved,
+          note: 'Disetujui, program $id aktif',
+          campaignId: id,
+        ),
+      );
+      _admin = List.of(_admin)..removeAt(i);
+    }
+    notifyListeners();
+  }
+
+  Future<void> reject(String id, String reason) async {
+    await _api.review(id, approve: false, note: reason);
+    final i = _admin.indexWhere((s) => s.id == id);
+    if (i >= 0) {
+      _admin = List.of(_admin)
+        ..[i] = _admin[i].copyWith(status: SubmissionStatus.rejected, note: reason);
+    }
+    notifyListeners();
+  }
+
+  // ---------- Sisi pengelola ----------
+  List<CampaignSubmission> get mine => List.unmodifiable(_mine);
+
+  /// Program milik pengelola yang sudah aktif.
+  List<CampaignModel> get mineActivePrograms => List.unmodifiable(_mineActive);
+
+  Future<void> loadForPengelola() async {
+    try {
+      final rows = await _api.list('/campaigns/mine');
+      _mine = rows.map(_toSubmission).toList();
+      _mineActive = [
+        for (final j in rows)
+          if (j['status'] == 'active') CampaignModel.fromJson(j),
+      ];
+      notifyListeners();
+    } on ServerException {
+      // Biarkan data lama.
+    }
+  }
+
+  /// Mengirim pengajuan baru, atau memperbaiki pengajuan yang ditolak ([editingId]).
+  /// Melempar ServerException bila server menolak.
+  Future<void> submit({
+    required String title,
+    required ProgramCategory category,
+    required String location,
+    required String description,
+    required int targetAmount,
+    required int durationDays,
+    required String supportingInfo,
+    Uint8List? cover,
+    String? editingId,
+  }) async {
+    final body = <String, dynamic>{
+      'title': title,
+      'category': category.key,
+      'description': description,
+      'location': location,
+      'target_amount': targetAmount,
+      'supporting_info': supportingInfo,
+    };
+    if (cover != null) {
+      body['image_asset_id'] = await _api.uploadImage(cover);
+    }
+    if (editingId == null) {
+      body['duration_days'] = durationDays;
+      await _api.create(body);
+    } else {
+      body['deadline'] =
+          DateTime.now().add(Duration(days: durationDays)).toUtc().toIso8601String();
+      await _api.update(editingId, body);
+    }
+    await loadForPengelola();
+  }
+
+  // ---------- Pemetaan ----------
+  CampaignSubmission _toSubmission(Map<String, dynamic> j) {
+    final m = CampaignModel.fromJson(j);
+    final created = DateTime.tryParse('${j['created_at']}') ?? DateTime.now();
+    final days = m.deadline.difference(created).inDays;
+    final status = switch (j['status']) {
+      'pending' => SubmissionStatus.pending,
+      'rejected' => SubmissionStatus.rejected,
+      _ => SubmissionStatus.approved, // active / closed
+    };
+    return CampaignSubmission(
+      id: m.id,
+      title: m.title,
+      category: m.category,
+      organizer: 'Pengelola Kampanye',
+      location: m.location,
+      description: m.description,
+      targetAmount: m.targetAmount,
+      durationDays: days < 1 ? 1 : days,
+      submittedAt: created,
+      imageAsset: m.imageAsset,
+      subType: m.subType,
+      supportingInfo: j['supporting_info'] as String?,
+      ownerId: j['owner_id']?.toString(),
+      campaignId: status == SubmissionStatus.approved ? m.id : null,
+      status: status,
+      note: j['review_note'] as String?,
+    );
   }
 }

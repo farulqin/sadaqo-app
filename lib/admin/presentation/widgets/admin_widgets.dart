@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sadaqo/admin/data/asset_library.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
 import 'package:sadaqo/core/constants/program_category.dart';
+import 'package:sadaqo/core/network/api_config.dart';
 
 /// Warna khusus dashboard admin (mengikuti palet SADAQO + nuansa krem desain admin).
 class AdminColors {
@@ -373,19 +374,30 @@ class AssetThumb extends StatelessWidget {
       color: AdminColors.limeSoft,
       child: const Icon(Icons.image_outlined, color: AdminColors.green),
     );
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(radius),
-      child: path == null
-          ? fallback
-          : Image.asset(
-              path!,
-              width: width,
-              height: height,
-              fit: fit,
-              cacheWidth: (width != null && width!.isFinite) ? (width! * 2).round() : 640,
-              errorBuilder: (context, error, stack) => fallback,
-            ),
-    );
+    final p = path;
+    Widget child;
+    if (p == null || p.isEmpty) {
+      child = fallback;
+    } else if (p.startsWith('http://') || p.startsWith('https://')) {
+      child = Image.network(
+        ApiConfig.resolveMediaUrl(p),
+        width: width,
+        height: height,
+        fit: fit,
+        webHtmlElementStrategy: WebHtmlElementStrategy.prefer,
+        errorBuilder: (context, error, stack) => fallback,
+      );
+    } else {
+      child = Image.asset(
+        p,
+        width: width,
+        height: height,
+        fit: fit,
+        cacheWidth: (width != null && width!.isFinite) ? (width! * 2).round() : 640,
+        errorBuilder: (context, error, stack) => fallback,
+      );
+    }
+    return ClipRRect(borderRadius: BorderRadius.circular(radius), child: child);
   }
 }
 

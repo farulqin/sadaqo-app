@@ -51,6 +51,12 @@ class _PengelolaEditProfilePageState extends State<PengelolaEditProfilePage> {
       messenger.showSnackBar(SnackBar(content: Text(error)));
       return;
     }
+    // Data tersimpan di server, samakan juga dengan data akun lokal.
+    final saved = context.read<AuthCubit>().user;
+    _account.saveProfile(
+      name: saved?.name ?? _name.text.trim(),
+      phone: saved?.phone ?? _phone.text.trim(),
+    );
     Navigator.of(context).pop(true);
     messenger.showSnackBar(
       const SnackBar(content: Text('Profil disimpan. Admin dapat melihat data ini.')),

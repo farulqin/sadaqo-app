@@ -6,8 +6,8 @@ import 'package:sadaqo/admin/data/admin_verification_store.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
 import 'package:sadaqo/core/constants/program_category.dart';
 import 'package:sadaqo/injection_container.dart';
-import 'package:sadaqo/pengelola/core/pengelola_config.dart';
 import 'package:sadaqo/pengelola/core/pengelola_layout.dart';
+import 'package:sadaqo/core/error/exceptions.dart';
 
 /// Formulir buat kampanye (alur pengelola nomor 1-2): isi data, lalu kirim ke
 /// Admin untuk diverifikasi. Jika [editing] diisi, formulir terisi data lama
@@ -86,35 +86,34 @@ class _CreateCampaignPageState extends State<CreateCampaignPage> {
   Future<void> _submit() async {
     if (!_form.currentState!.validate()) return;
     setState(() => _sending = true);
-    await Future<void>.delayed(const Duration(milliseconds: 700)); // simulasi kirim
+
+    final base = widget.editing;
+    final title = _title.text.trim();
+    try {
+      await sl<AdminVerificationStore>().submit(
+        title: title,
+        category: _category,
+        location: _location.text.trim(),
+        description: _description.text.trim(),
+        targetAmount: int.parse(_target.text.trim()),
+        durationDays: _days,
+        supportingInfo: _info.text.trim(),
+        cover: _cover,
+        editingId: base?.id,
+      );
+    } on ServerException catch (e) {
+      if (!mounted) return;
+      setState(() => _sending = false);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+      return;
+    }
     if (!mounted) return;
 
-    final store = sl<AdminVerificationStore>();
-    final base = widget.editing;
-    final submission = CampaignSubmission(
-      id: base?.id ?? store.nextId(),
-      title: _title.text.trim(),
-      category: _category,
-      organizer: PengelolaConfig.name,
-      location: _location.text.trim(),
-      description: _description.text.trim(),
-      targetAmount: int.parse(_target.text.trim()),
-      durationDays: _days,
-      submittedAt: DateTime.now(),
-      imageBytes: _cover,
-      supportingInfo: _info.text.trim(),
-      ownerId: PengelolaConfig.accountId,
-    );
-    if (base == null) {
-      store.submit(submission);
-    } else {
-      store.resubmit(submission);
-    }
     sl<AdminActivityLog>().add(
       ActivityKind.verified,
       base == null
-          ? 'Pengajuan baru "${submission.title}" dari pengelola'
-          : 'Pengajuan "${submission.title}" diperbaiki pengelola',
+          ? 'Pengajuan baru "$title" dari pengelola'
+          : 'Pengajuan "$title" diperbaiki pengelola',
     );
     Navigator.of(context).pop(true);
   }

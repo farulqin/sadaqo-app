@@ -9,7 +9,8 @@ import 'package:sadaqo/features/community/data/datasources/community_admin_datas
 import 'package:sadaqo/features/community/data/datasources/community_local_datasource.dart';
 import 'package:sadaqo/features/donation/data/datasources/donation_remote_datasource.dart';
 import 'package:sadaqo/features/news/data/datasources/news_mock_datasource.dart';
-import 'package:sadaqo/features/news/data/datasources/news_remote_datasource.dart';
+import 'package:dio/dio.dart';
+import 'package:sadaqo/features/campaign/data/datasources/campaign_manage_api.dart';
 
 /// Semua dependency dashboard admin didaftarkan di sini (dipanggil SEKALI dari
 /// injection_container.dart). Semuanya lazy, jadi tidak membebani aplikasi pengguna.
@@ -24,8 +25,11 @@ void registerAdminDependencies(GetIt sl) {
   sl.registerLazySingleton<AdminAnalyticsStore>(
     () => AdminAnalyticsStore(sl<MockCampaignStore>(), sl<DonationRemoteDataSource>()),
   );
+    sl.registerLazySingleton<CampaignManageApi>(
+    () => CampaignManageApi(sl<Dio>()),
+  );
   sl.registerLazySingleton<AdminVerificationStore>(
-    () => AdminVerificationStore(sl<MockCampaignStore>()),
+    () => AdminVerificationStore(sl<CampaignManageApi>()),
   );
 
   // Komunitas: sumber data yang sama dengan aplikasi, dilihat dari sisi admin.
@@ -33,9 +37,7 @@ void registerAdminDependencies(GetIt sl) {
     () => sl<CommunityLocalDataSource>() as CommunityAdminDataSource,
   );
 
-  // Berita: sumber data contoh yang bisa diubah admin.
-  // Saat memakai API sungguhan, ganti dengan repository admin berbasis Dio.
-  sl.registerLazySingleton<NewsMockDataSource>(
-    () => sl<NewsRemoteDataSource>() as NewsMockDataSource,
-  );
+  // Berita untuk halaman admin: masih data contoh sendiri (belum ke API).
+  // Perubahan admin belum tampil di aplikasi donatur sampai disambungkan ke Dio.
+  sl.registerLazySingleton<NewsMockDataSource>(() => NewsMockDataSource());
 }
