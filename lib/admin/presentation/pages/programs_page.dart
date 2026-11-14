@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:sadaqo/admin/core/admin_utils.dart';
 import 'package:sadaqo/admin/data/admin_activity_log.dart';
+import 'package:sadaqo/admin/data/admin_program_store.dart';
 import 'package:sadaqo/admin/presentation/pages/program_form_dialog.dart';
 import 'package:sadaqo/admin/presentation/widgets/admin_widgets.dart';
 import 'package:sadaqo/core/constants/program_category.dart';
-import 'package:sadaqo/features/campaign/data/datasources/mock_campaign_store.dart';
+import 'package:sadaqo/core/error/exceptions.dart';
 import 'package:sadaqo/features/campaign/domain/entities/campaign.dart';
 import 'package:sadaqo/features/campaign/presentation/cubit/campaign_cubit.dart';
 import 'package:sadaqo/injection_container.dart';
 
-/// Tambah, ubah, dan hapus program. Perubahan langsung terlihat di aplikasi pengguna.
+/// Tambah, ubah, tutup, dan hapus program. Data tersimpan di server, jadi
+/// perubahan langsung terlihat di aplikasi pengguna.
 class ProgramsPage extends StatefulWidget {
   const ProgramsPage({super.key, this.initialQuery, this.startCreate = false});
 
@@ -21,7 +23,7 @@ class ProgramsPage extends StatefulWidget {
 }
 
 class _ProgramsPageState extends State<ProgramsPage> {
-  final _store = sl<MockCampaignStore>();
+  final _store = sl<AdminProgramStore>();
   final _log = sl<AdminActivityLog>();
   late final TextEditingController _search;
   ProgramCategory? _category;
@@ -29,6 +31,7 @@ class _ProgramsPageState extends State<ProgramsPage> {
   @override
   void initState() {
     super.initState();
+    _store.load();
     _search = TextEditingController(text: widget.initialQuery ?? '');
     if (widget.startCreate) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -46,25 +49,46 @@ class _ProgramsPageState extends State<ProgramsPage> {
   void _refreshApp() => sl<CampaignCubit>().refresh();
 
   Future<void> _openForm({Campaign? existing}) async {
-    final result = await showProgramForm(
+    final saved = await showProgramForm(
       context,
       store: _store,
       existing: existing == null ? null : _store.byId(existing.id),
     );
-    if (result == null || !mounted) return;
-    _store.adminSave(result);
+    if (saved == null || !mounted) return;
     _refreshApp();
     _log.add(
       ActivityKind.content,
-      existing == null ? 'Program baru ditambahkan: "${result.title}"' : 'Program diperbarui: "${result.title}"',
+      existing == null ? 'Program baru ditambahkan: "${saved.title}"' : 'Program diperbarui: "${saved.title}"',
     );
-    setState(() {});
     adminToast(context, existing == null ? 'Program ditambahkan' : 'Perubahan disimpan');
+  }
+
+  Future<void> _toggleClosed(Campaign c) async {
+    final closed = _store.isClosed(c.id);
+    final ok = await confirmDialog(
+      context,
+      title: closed ? 'Buka kembali program?' : 'Tutup program?',
+      message: closed
+          ? '"${c.title}" akan tampil lagi di aplikasi pengguna.'
+          : '"${c.title}" tidak lagi tampil di aplikasi pengguna. Riwayat donasinya tetap tersimpan.',
+      confirmLabel: closed ? 'Buka' : 'Tutup',
+    );
+    if (!ok || !mounted) return;
+    try {
+      await _store.setClosed(c.id, !closed);
+    } on ServerException catch (e) {
+      if (mounted) adminToast(context, e.message);
+      return;
+    }
+    _refreshApp();
+    _log.add(ActivityKind.content, closed ? 'Program dibuka kembali: "${c.title}"' : 'Program ditutup: "${c.title}"');
+    if (!mounted) return;
+    adminToast(context, closed ? 'Program dibuka kembali' : 'Program ditutup');
   }
 
   Future<void> _delete(Campaign c) async {
     final extra = c.collectedAmount > 0
-        ? '\n\nProgram ini sudah menerima ${AdminFmt.rupiah(c.collectedAmount)}. Riwayat transaksi donatur tetap tersimpan dan tidak ikut terhapus.'
+        ? '\n\nProgram ini sudah menerima ${AdminFmt.rupiah(c.collectedAmount)}. Program yang sudah punya donasi tidak bisa dihapus, gunakan Tutup program.'
         : '';
     final ok = await confirmDialog(
       context,
@@ -74,15 +98,24 @@ class _ProgramsPageState extends State<ProgramsPage> {
       danger: true,
     );
     if (!ok || !mounted) return;
-    _store.adminRemove(c.id);
+    try {
+      await _store.remove(c.id);
+    } on ServerException catch (e) {
+      if (mounted) adminToast(context, e.message);
+      return;
+    }
     _refreshApp();
     _log.add(ActivityKind.content, 'Program dihapus: "${c.title}"');
-    setState(() {});
+    if (!mounted) return;
     adminToast(context, 'Program dihapus');
   }
 
   @override
   Widget build(BuildContext context) {
+    return ListenableBuilder(listenable: _store, builder: (context, _) => _body());
+  }
+
+  Widget _body() {
     final q = _search.text.trim().toLowerCase();
     final all = _store.all;
     final items = all.where((c) {
@@ -132,7 +165,22 @@ class _ProgramsPageState extends State<ProgramsPage> {
               ),
             ),
             const SizedBox(height: 14),
-            if (items.isEmpty)
+            if (_store.loading && all.isEmpty)
+              const Padding(
+                padding: EdgeInsets.all(40),
+                child: Center(child: CircularProgressIndicator(color: AdminColors.green)),
+              )
+            else if (_store.error != null && all.isEmpty)
+              AdminCard(
+                child: Column(
+                  children: [
+                    EmptyState(icon: Icons.cloud_off_rounded, text: _store.error!),
+                    const SizedBox(height: 8),
+                    AdminButton(label: 'Coba lagi', icon: Icons.refresh_rounded, onPressed: _store.load),
+                  ],
+                ),
+              )
+            else if (items.isEmpty)
               const AdminCard(child: EmptyState(icon: Icons.search_off_rounded, text: 'Tidak ada program yang cocok'))
             else
               for (final p in items)
@@ -140,8 +188,10 @@ class _ProgramsPageState extends State<ProgramsPage> {
                   padding: const EdgeInsets.only(bottom: 12),
                   child: _ProgramRow(
                     campaign: p,
+                    closed: _store.isClosed(p.id),
                     compact: c.maxWidth < 760,
                     onEdit: () => _openForm(existing: p),
+                    onToggle: () => _toggleClosed(p),
                     onDelete: () => _delete(p),
                   ),
                 ),
@@ -173,20 +223,26 @@ class _ProgramsPageState extends State<ProgramsPage> {
 class _ProgramRow extends StatelessWidget {
   const _ProgramRow({
     required this.campaign,
+    required this.closed,
     required this.compact,
     required this.onEdit,
+    required this.onToggle,
     required this.onDelete,
   });
 
   final Campaign campaign;
+  final bool closed;
   final bool compact;
   final VoidCallback onEdit;
+  final VoidCallback onToggle;
   final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
     final c = campaign;
-    final status = c.isFull
+    final status = closed
+        ? const Pill('Ditutup', color: AdminColors.muted)
+        : c.isFull
         ? const Pill('Penuh', color: AdminColors.warn)
         : (c.progress >= 1
             ? const Pill('Target tercapai', color: AdminColors.green)
@@ -237,6 +293,12 @@ class _ProgramRow extends StatelessWidget {
           tooltip: 'Ubah',
           onPressed: onEdit,
           icon: const Icon(Icons.edit_rounded, size: 20),
+        ),
+        const SizedBox(width: 6),
+        IconButton.filledTonal(
+          tooltip: closed ? 'Buka kembali' : 'Tutup program',
+          onPressed: onToggle,
+          icon: Icon(closed ? Icons.lock_open_rounded : Icons.lock_outline_rounded, size: 20),
         ),
         const SizedBox(width: 6),
         IconButton.filledTonal(

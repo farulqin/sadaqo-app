@@ -8,9 +8,10 @@ import 'package:sadaqo/features/campaign/data/datasources/mock_campaign_store.da
 import 'package:sadaqo/features/community/data/datasources/community_admin_datasource.dart';
 import 'package:sadaqo/features/community/data/datasources/community_local_datasource.dart';
 import 'package:sadaqo/features/donation/data/datasources/donation_remote_datasource.dart';
-import 'package:sadaqo/features/news/data/datasources/news_mock_datasource.dart';
 import 'package:dio/dio.dart';
 import 'package:sadaqo/features/campaign/data/datasources/campaign_manage_api.dart';
+import 'package:sadaqo/admin/data/admin_program_store.dart';
+import 'package:sadaqo/admin/data/admin_news_store.dart';
 
 /// Semua dependency dashboard admin didaftarkan di sini (dipanggil SEKALI dari
 /// injection_container.dart). Semuanya lazy, jadi tidak membebani aplikasi pengguna.
@@ -28,6 +29,9 @@ void registerAdminDependencies(GetIt sl) {
     sl.registerLazySingleton<CampaignManageApi>(
     () => CampaignManageApi(sl<Dio>()),
   );
+  sl.registerLazySingleton<AdminProgramStore>(
+    () => AdminProgramStore(sl<CampaignManageApi>()),
+  );
   sl.registerLazySingleton<AdminVerificationStore>(
     () => AdminVerificationStore(sl<CampaignManageApi>()),
   );
@@ -37,7 +41,9 @@ void registerAdminDependencies(GetIt sl) {
     () => sl<CommunityLocalDataSource>() as CommunityAdminDataSource,
   );
 
-  // Berita untuk halaman admin: masih data contoh sendiri (belum ke API).
+  // Berita untuk halaman admin: data sudah disambungkan ke API.
   // Perubahan admin belum tampil di aplikasi donatur sampai disambungkan ke Dio.
-  sl.registerLazySingleton<NewsMockDataSource>(() => NewsMockDataSource());
+    sl.registerLazySingleton<AdminNewsStore>(
+    () => AdminNewsStore(sl<CampaignManageApi>()),
+  );
 }

@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:sadaqo/admin/core/admin_utils.dart';
 import 'package:sadaqo/admin/data/admin_activity_log.dart';
+import 'package:sadaqo/admin/data/admin_news_store.dart';
+import 'package:sadaqo/admin/data/admin_program_store.dart';
 import 'package:sadaqo/admin/presentation/widgets/admin_widgets.dart';
 import 'package:sadaqo/core/constants/program_category.dart';
-import 'package:sadaqo/features/campaign/data/datasources/mock_campaign_store.dart';
-import 'package:sadaqo/features/news/data/datasources/news_mock_datasource.dart';
+import 'package:sadaqo/core/error/exceptions.dart';
 import 'package:sadaqo/features/news/data/models/news_model.dart';
 import 'package:sadaqo/features/news/domain/entities/news_article.dart';
 import 'package:sadaqo/features/news/presentation/cubit/news_cubit.dart';
 import 'package:sadaqo/injection_container.dart';
 
 /// Tambah, ubah, dan hapus berita yang tampil di beranda aplikasi.
+/// Data tersimpan di server (tabel news).
 class NewsAdminPage extends StatefulWidget {
   const NewsAdminPage({super.key, this.initialQuery, this.startCreate = false});
 
@@ -22,13 +26,14 @@ class NewsAdminPage extends StatefulWidget {
 }
 
 class _NewsAdminPageState extends State<NewsAdminPage> {
-  final _news = sl<NewsMockDataSource>();
+  final _news = sl<AdminNewsStore>();
   final _log = sl<AdminActivityLog>();
   late final TextEditingController _search;
 
   @override
   void initState() {
     super.initState();
+    _news.load();
     _search = TextEditingController(text: widget.initialQuery ?? '');
     if (widget.startCreate) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -44,19 +49,17 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
   }
 
   Future<void> _openForm({NewsArticle? existing}) async {
-    final result = await showDialog<NewsModel>(
+    final saved = await showDialog<NewsModel>(
       context: context,
       barrierDismissible: false,
-      builder: (ctx) => _NewsForm(existing: existing, newId: existing?.id ?? _news.adminNextId()),
+      builder: (ctx) => _NewsForm(existing: existing, store: _news),
     );
-    if (result == null || !mounted) return;
-    _news.adminSave(result);
+    if (saved == null || !mounted) return;
     sl<NewsCubit>().load();
     _log.add(
       ActivityKind.content,
-      existing == null ? 'Berita baru diterbitkan: "${result.title}"' : 'Berita diperbarui: "${result.title}"',
+      existing == null ? 'Berita baru diterbitkan: "${saved.title}"' : 'Berita diperbarui: "${saved.title}"',
     );
-    setState(() {});
     adminToast(context, existing == null ? 'Berita diterbitkan' : 'Perubahan disimpan');
   }
 
@@ -69,16 +72,25 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
       danger: true,
     );
     if (!ok || !mounted) return;
-    _news.adminRemove(n.id);
+    try {
+      await _news.remove(n.id);
+    } on ServerException catch (e) {
+      if (mounted) adminToast(context, e.message);
+      return;
+    }
     sl<NewsCubit>().load();
     _log.add(ActivityKind.content, 'Berita dihapus: "${n.title}"');
-    setState(() {});
+    if (!mounted) return;
     adminToast(context, 'Berita dihapus');
   }
 
   @override
   Widget build(BuildContext context) {
-    final all = _news.adminAll();
+    return ListenableBuilder(listenable: _news, builder: (context, _) => _body());
+  }
+
+  Widget _body() {
+    final all = _news.all;
     final q = _search.text.trim().toLowerCase();
     final items = all
         .where((n) =>
@@ -107,7 +119,22 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 14),
-            if (items.isEmpty)
+            if (_news.loading && all.isEmpty)
+              const Padding(
+                padding: EdgeInsets.all(40),
+                child: Center(child: CircularProgressIndicator(color: AdminColors.green)),
+              )
+            else if (_news.error != null && all.isEmpty)
+              AdminCard(
+                child: Column(
+                  children: [
+                    EmptyState(icon: Icons.cloud_off_rounded, text: _news.error!),
+                    const SizedBox(height: 8),
+                    AdminButton(label: 'Coba lagi', icon: Icons.refresh_rounded, onPressed: _news.load),
+                  ],
+                ),
+              )
+            else if (items.isEmpty)
               const AdminCard(child: EmptyState(icon: Icons.newspaper_rounded, text: 'Tidak ada berita'))
             else
               for (final n in items)
@@ -185,9 +212,9 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
 }
 
 class _NewsForm extends StatefulWidget {
-  const _NewsForm({required this.newId, this.existing});
+  const _NewsForm({required this.store, this.existing});
 
-  final String newId;
+  final AdminNewsStore store;
   final NewsArticle? existing;
 
   @override
@@ -203,6 +230,9 @@ class _NewsFormState extends State<_NewsForm> {
   late ProgramCategory _category;
   String? _campaignId;
   String? _image;
+  Uint8List? _cover; // foto baru dari galeri (diunggah saat disimpan)
+  bool _saving = false;
+  String? _formError;
 
   @override
   void initState() {
@@ -238,12 +268,127 @@ class _NewsFormState extends State<_NewsForm> {
       initialGroup: 'news',
       selected: _image,
     );
-    if (p != null) setState(() => _image = p);
+    if (p != null) {
+      setState(() {
+        _image = p;
+        _cover = null;
+      });
+    }
+  }
+
+  Future<void> _pickCover() async {
+    try {
+      final file = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1600,
+        imageQuality: 80,
+      );
+      if (file == null) return;
+      final bytes = await file.readAsBytes();
+      if (!mounted) return;
+      setState(() => _cover = bytes);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _formError = 'Gagal membuka galeri. Coba lagi.');
+    }
+  }
+
+  Future<void> _save() async {
+    if (!_key.currentState!.validate()) return;
+    final draft = NewsModel(
+      id: widget.existing?.id ?? '',
+      title: _title.text.trim(),
+      summary: _summary.text.trim(),
+      content: _content.text.trim(),
+      category: _category,
+      author: _author.text.trim(),
+      publishedAt: widget.existing?.publishedAt ?? DateTime.now(),
+      campaignId: _campaignId,
+      imageAsset: _image,
+    );
+    setState(() {
+      _saving = true;
+      _formError = null;
+    });
+    try {
+      await widget.store.save(draft, cover: _cover, isNew: widget.existing == null);
+      if (!mounted) return;
+      Navigator.pop(context, draft);
+    } on ServerException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _saving = false;
+        _formError = e.message;
+      });
+    }
+  }
+
+  Widget _imageBox() {
+    Widget pill(String label, IconData icon, VoidCallback onTap) {
+      return GestureDetector(
+        onTap: _saving ? null : onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: AdminColors.green.withValues(alpha: 0.9),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 16, color: Colors.white),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w700),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      height: 140,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: AdminColors.limeSoft,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AdminColors.border),
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          if (_cover != null)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Image.memory(_cover!, fit: BoxFit.cover),
+            )
+          else if (_image != null)
+            AssetThumb(_image, radius: 16),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                alignment: WrapAlignment.end,
+                children: [
+                  pill('Pustaka', Icons.photo_library_outlined, _pickImage),
+                  pill(_cover == null ? 'Unggah foto' : 'Ganti unggahan', Icons.upload_rounded, _pickCover),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final campaigns = sl<MockCampaignStore>().all;
+    final campaigns = sl<AdminProgramStore>().all;
     final size = MediaQuery.of(context).size;
     final over = _words > NewsArticle.maxWords;
     return Dialog(
@@ -275,52 +420,29 @@ class _NewsFormState extends State<_NewsForm> {
                   key: _key,
                   child: Column(
                     children: [
-                      InkWell(
-                        borderRadius: BorderRadius.circular(16),
-                        onTap: _pickImage,
-                        child: Container(
-                          height: 140,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: AdminColors.limeSoft,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: AdminColors.border),
-                          ),
-                          child: Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              if (_image != null) AssetThumb(_image, radius: 16),
-                              Align(
-                                alignment: Alignment.bottomRight,
-                                child: Container(
-                                  margin: const EdgeInsets.all(10),
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  decoration: BoxDecoration(
-                                    color: AdminColors.green.withValues(alpha: 0.9),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Text(
-                                    _image == null ? 'Pilih gambar' : 'Ganti gambar',
-                                    style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w700),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                      _imageBox(),
                       const SizedBox(height: 14),
                       TextFormField(
                         controller: _title,
                         decoration: const InputDecoration(labelText: 'Judul berita'),
-                        validator: (v) => (v == null || v.trim().isEmpty) ? 'Judul wajib diisi' : null,
+                        validator: (v) {
+                          final t = (v ?? '').trim();
+                          if (t.isEmpty) return 'Judul wajib diisi';
+                          if (t.length < 5) return 'Judul minimal 5 karakter';
+                          return null;
+                        },
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: _summary,
                         maxLines: 2,
                         decoration: const InputDecoration(labelText: 'Ringkasan'),
-                        validator: (v) => (v == null || v.trim().isEmpty) ? 'Ringkasan wajib diisi' : null,
+                        validator: (v) {
+                          final t = (v ?? '').trim();
+                          if (t.isEmpty) return 'Ringkasan wajib diisi';
+                          if (t.length > 500) return 'Ringkasan maksimal 500 karakter';
+                          return null;
+                        },
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
@@ -383,33 +505,31 @@ class _NewsFormState extends State<_NewsForm> {
                 ),
               ),
             ),
+            if (_formError != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(22, 4, 22, 0),
+                child: Text(
+                  _formError!,
+                  style: const TextStyle(color: AdminColors.danger, fontSize: 13, fontWeight: FontWeight.w600),
+                ),
+              ),
             Padding(
               padding: const EdgeInsets.fromLTRB(22, 8, 22, 18),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  AdminButton(label: 'Batal', outlined: true, onPressed: () => Navigator.pop(context)),
+                  AdminButton(
+                    label: 'Batal',
+                    outlined: true,
+                    onPressed: _saving ? null : () => Navigator.pop(context),
+                  ),
                   const SizedBox(width: 10),
                   AdminButton(
-                    label: widget.existing == null ? 'Terbitkan' : 'Simpan Perubahan',
+                    label: _saving
+                        ? 'Menyimpan...'
+                        : (widget.existing == null ? 'Terbitkan' : 'Simpan Perubahan'),
                     icon: Icons.check_rounded,
-                    onPressed: () {
-                      if (!_key.currentState!.validate()) return;
-                      Navigator.pop(
-                        context,
-                        NewsModel(
-                          id: widget.newId,
-                          title: _title.text.trim(),
-                          summary: _summary.text.trim(),
-                          content: _content.text.trim(),
-                          category: _category,
-                          author: _author.text.trim(),
-                          publishedAt: widget.existing?.publishedAt ?? DateTime.now(),
-                          campaignId: _campaignId,
-                          imageAsset: _image,
-                        ),
-                      );
-                    },
+                    onPressed: _saving ? null : _save,
                   ),
                 ],
               ),

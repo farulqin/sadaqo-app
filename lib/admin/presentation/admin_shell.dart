@@ -21,14 +21,14 @@ import 'package:sadaqo/core/constants/app_info.dart';
 import 'package:sadaqo/core/widgets/batik_widgets.dart';
 import 'package:sadaqo/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sadaqo/features/auth/presentation/pages/login_page.dart';
-import 'package:sadaqo/features/campaign/data/datasources/mock_campaign_store.dart';
 import 'package:sadaqo/features/community/data/datasources/community_admin_datasource.dart';
-import 'package:sadaqo/features/news/data/datasources/news_mock_datasource.dart';
 import 'package:sadaqo/features/profile/presentation/widgets/user_avatar.dart';
 import 'package:sadaqo/injection_container.dart';
 import 'package:sadaqo/admin/presentation/pages/report_review_page.dart';
 import 'package:sadaqo/features/report/domain/repositories/report_repository.dart';
 import 'package:sadaqo/features/profile/presentation/pages/about_page.dart';
+import 'package:sadaqo/admin/data/admin_program_store.dart';
+import 'package:sadaqo/admin/data/admin_news_store.dart';
 
 /// Kerangka dashboard admin: sidebar hijau (tetap di layar lebar, laci di layar
 /// sempit), bilah atas dengan pencarian, notifikasi, dan profil, lalu isi halaman.
@@ -47,6 +47,8 @@ class _AdminShellState extends State<AdminShell> {
   void initState() {
     super.initState();
     sl<AdminVerificationStore>().loadForAdmin();
+    sl<AdminProgramStore>().load();
+    sl<AdminNewsStore>().load();
   }
 
   @override
@@ -479,13 +481,13 @@ class _TopBar extends StatelessWidget {
 
   List<_Hit> _hits() {
     final hits = <_Hit>[];
-    for (final c in sl<MockCampaignStore>().all) {
+    for (final c in sl<AdminProgramStore>().all) {
       hits.add(_Hit(c.title, 'Program • ${c.category.shortLabel}', AdminPage.programs, Icons.campaign_rounded));
     }
     for (final u in sl<AdminUserStore>().all) {
       hits.add(_Hit(u.name, 'Pengguna • ${u.email}', AdminPage.users, Icons.person_rounded));
     }
-    for (final n in sl<NewsMockDataSource>().adminAll()) {
+    for (final n in sl<AdminNewsStore>().all) {
       hits.add(_Hit(n.title, 'Berita • ${n.category.shortLabel}', AdminPage.news, Icons.newspaper_rounded));
     }
     return hits;

@@ -60,6 +60,7 @@ import 'package:sadaqo/features/auth/data/datasources/auth_remote_datasource_imp
 import 'package:sadaqo/features/campaign/data/datasources/campaign_remote_datasource_impl.dart';
 import 'package:sadaqo/features/donation/data/datasources/donation_remote_datasource_impl.dart';
 import 'package:sadaqo/features/news/data/datasources/news_remote_datasource_impl.dart';
+import 'package:sadaqo/features/campaign/data/datasources/campaign_manage_api.dart';
 
 // Service locator: semua dependency didaftarkan di sini.
 // Urutan per fitur: datasource -> repository -> usecase -> cubit.
@@ -194,4 +195,13 @@ Future<void> init() async {
       reportMessage: sl(),
     ),
   );
+
+  // Nama dan ikon kategori mengikuti pengaturan admin di server.
+  try {
+    await sl<CampaignManageApi>()
+        .applyCategoryOverrides()
+        .timeout(const Duration(seconds: 4));
+  } catch (_) {
+    // Server belum siap: pakai nama dan ikon bawaan.
+  }
 }

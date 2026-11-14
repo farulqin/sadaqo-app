@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:sadaqo/admin/core/admin_utils.dart';
+import 'package:sadaqo/admin/data/admin_program_store.dart';
 import 'package:sadaqo/admin/data/asset_library.dart';
 import 'package:sadaqo/admin/presentation/widgets/admin_widgets.dart';
 import 'package:sadaqo/core/constants/program_category.dart';
-import 'package:sadaqo/features/campaign/data/datasources/mock_campaign_store.dart';
+import 'package:sadaqo/core/error/exceptions.dart';
 import 'package:sadaqo/features/campaign/data/models/campaign_model.dart';
 
-/// Formulir tambah / ubah program. Mengembalikan program yang sudah disusun,
-/// atau null jika dibatalkan. Dana terkumpul TIDAK bisa diubah di sini
+/// Formulir tambah / ubah program. Data langsung disimpan ke server lewat
+/// [store]; dialog tetap terbuka bila server menolak. Mengembalikan program yang
+/// tersimpan, atau null jika dibatalkan. Dana terkumpul TIDAK bisa diubah di sini
 /// (berasal dari transaksi donatur dan bersifat hanya-baca).
 Future<CampaignModel?> showProgramForm(
   BuildContext context, {
-  required MockCampaignStore store,
+  required AdminProgramStore store,
   CampaignModel? existing,
 }) {
   return showDialog<CampaignModel>(
@@ -25,7 +28,7 @@ Future<CampaignModel?> showProgramForm(
 class _ProgramForm extends StatefulWidget {
   const _ProgramForm({required this.store, this.existing});
 
-  final MockCampaignStore store;
+  final AdminProgramStore store;
   final CampaignModel? existing;
 
   @override
@@ -46,6 +49,9 @@ class _ProgramFormState extends State<_ProgramForm> {
   late ProgramCategory _category;
   late DateTime _deadline;
   String? _image;
+  Uint8List? _cover; // foto baru dari galeri (diunggah saat disimpan)
+  bool _saving = false;
+  String? _error;
 
   bool get _isEdit => widget.existing != null;
 
@@ -91,7 +97,29 @@ class _ProgramFormState extends State<_ProgramForm> {
       initialGroup: AssetLibrary.groupFor(_category),
       selected: _image,
     );
-    if (picked != null) setState(() => _image = picked);
+    if (picked != null) {
+      setState(() {
+        _image = picked;
+        _cover = null;
+      });
+    }
+  }
+
+  Future<void> _pickCover() async {
+    try {
+      final file = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1600,
+        imageQuality: 80,
+      );
+      if (file == null) return;
+      final bytes = await file.readAsBytes();
+      if (!mounted) return;
+      setState(() => _cover = bytes);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _error = 'Gagal membuka galeri. Coba lagi.');
+    }
   }
 
   Future<void> _pickDate() async {
@@ -105,34 +133,46 @@ class _ProgramFormState extends State<_ProgramForm> {
     if (d != null) setState(() => _deadline = d);
   }
 
-  void _save() {
+  Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     final e = widget.existing;
     final price = _int(_unitPrice);
     final slotTotal = _int(_slots);
     final slotFilled = e?.slotFilled ?? 0;
-    final id = e?.id ?? widget.store.adminNextId(_category);
-    Navigator.pop(
-      context,
-      CampaignModel(
-        id: id,
-        title: _title.text.trim(),
-        description: _desc.text.trim(),
-        category: _category,
-        targetAmount: _int(_target)!,
-        collectedAmount: e?.collectedAmount ?? 0,
-        deadline: _deadline,
-        location: _location.text.trim(),
-        imageAsset: _image,
-        subType: _sub.text.trim().isEmpty ? null : _sub.text.trim(),
-        unitPrice: price,
-        unitLabel: price == null
-            ? null
-            : (_unitLabel.text.trim().isEmpty ? 'unit' : _unitLabel.text.trim()),
-        slotTotal: price == null ? null : slotTotal,
-        slotFilled: (price != null && slotTotal != null) ? slotFilled : null,
-      ),
+    final draft = CampaignModel(
+      id: e?.id ?? '',
+      title: _title.text.trim(),
+      description: _desc.text.trim(),
+      category: _category,
+      targetAmount: _int(_target)!,
+      collectedAmount: e?.collectedAmount ?? 0,
+      deadline: _deadline,
+      location: _location.text.trim(),
+      imageAsset: _image,
+      subType: _sub.text.trim().isEmpty ? null : _sub.text.trim(),
+      unitPrice: price,
+      unitLabel: price == null
+          ? null
+          : (_unitLabel.text.trim().isEmpty ? 'unit' : _unitLabel.text.trim()),
+      slotTotal: price == null ? null : slotTotal,
+      slotFilled: (price != null && slotTotal != null) ? slotFilled : null,
     );
+
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
+    try {
+      await widget.store.save(draft, cover: _cover, isNew: !_isEdit);
+      if (!mounted) return;
+      Navigator.pop(context, draft);
+    } on ServerException catch (err) {
+      if (!mounted) return;
+      setState(() {
+        _saving = false;
+        _error = err.message;
+      });
+    }
   }
 
   String? _required(String? v, String label) =>
@@ -177,7 +217,12 @@ class _ProgramFormState extends State<_ProgramForm> {
                       TextFormField(
                         controller: _title,
                         decoration: const InputDecoration(labelText: 'Judul program'),
-                        validator: (v) => _required(v, 'Judul'),
+                        validator: (v) {
+                          final t = (v ?? '').trim();
+                          if (t.isEmpty) return 'Judul wajib diisi';
+                          if (t.length < 5) return 'Judul minimal 5 karakter';
+                          return null;
+                        },
                       ),
                       const SizedBox(height: 12),
                       LayoutBuilder(
@@ -216,7 +261,7 @@ class _ProgramFormState extends State<_ProgramForm> {
                         maxLines: 4,
                         decoration: const InputDecoration(labelText: 'Deskripsi', alignLabelWithHint: true),
                         validator: (v) {
-                          if (v == null || v.trim().length < 10) return 'Deskripsi minimal 10 karakter';
+                          if (v == null || v.trim().length < 20) return 'Deskripsi minimal 20 karakter';
                           return null;
                         },
                       ),
@@ -231,7 +276,7 @@ class _ProgramFormState extends State<_ProgramForm> {
                             decoration: const InputDecoration(labelText: 'Target dana', prefixText: 'Rp '),
                             validator: (v) {
                               final n = int.tryParse((v ?? '').trim());
-                              if (n == null || n <= 0) return 'Target harus lebih dari 0';
+                              if (n == null || n < 100000) return 'Target minimal Rp 100.000';
                               return null;
                             },
                           );
@@ -291,6 +336,11 @@ class _ProgramFormState extends State<_ProgramForm> {
                               keyboardType: TextInputType.number,
                               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                               decoration: const InputDecoration(labelText: 'Harga per unit', prefixText: 'Rp '),
+                              validator: (v) {
+                                final n = int.tryParse((v ?? '').trim());
+                                if (n != null && n < 1000) return 'Minimal Rp 1.000';
+                                return null;
+                              },
                             ),
                             TextFormField(
                               controller: _unitLabel,
@@ -332,17 +382,29 @@ class _ProgramFormState extends State<_ProgramForm> {
                 ),
               ),
             ),
+            if (_error != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(22, 4, 22, 0),
+                child: Text(
+                  _error!,
+                  style: const TextStyle(color: AdminColors.danger, fontSize: 13, fontWeight: FontWeight.w600),
+                ),
+              ),
             Padding(
               padding: const EdgeInsets.fromLTRB(22, 8, 22, 18),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  AdminButton(label: 'Batal', outlined: true, onPressed: () => Navigator.pop(context)),
+                  AdminButton(
+                    label: 'Batal',
+                    outlined: true,
+                    onPressed: _saving ? null : () => Navigator.pop(context),
+                  ),
                   const SizedBox(width: 10),
                   AdminButton(
-                    label: _isEdit ? 'Simpan Perubahan' : 'Tambah Program',
+                    label: _saving ? 'Menyimpan...' : (_isEdit ? 'Simpan Perubahan' : 'Tambah Program'),
                     icon: Icons.check_rounded,
-                    onPressed: _save,
+                    onPressed: _saving ? null : _save,
                   ),
                 ],
               ),
@@ -354,45 +416,64 @@ class _ProgramFormState extends State<_ProgramForm> {
   }
 
   Widget _imageBox() {
-    return InkWell(
-      borderRadius: BorderRadius.circular(16),
-      onTap: _pickImage,
-      child: Container(
-        height: 150,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: AdminColors.limeSoft,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AdminColors.border),
+    Widget pill(String label, IconData icon, VoidCallback onTap) {
+      return GestureDetector(
+        onTap: _saving ? null : onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: AdminColors.green.withValues(alpha: 0.9),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 16, color: Colors.white),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w700),
+              ),
+            ],
+          ),
         ),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            if (_image != null) AssetThumb(_image, radius: 16),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Container(
-                margin: const EdgeInsets.all(10),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: AdminColors.green.withValues(alpha: 0.9),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.photo_library_outlined, size: 16, color: Colors.white),
-                    const SizedBox(width: 6),
-                    Text(
-                      _image == null ? 'Pilih foto program' : 'Ganti foto',
-                      style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w700),
-                    ),
-                  ],
-                ),
+      );
+    }
+
+    return Container(
+      height: 150,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: AdminColors.limeSoft,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AdminColors.border),
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          if (_cover != null)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Image.memory(_cover!, fit: BoxFit.cover),
+            )
+          else if (_image != null)
+            AssetThumb(_image, radius: 16),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                alignment: WrapAlignment.end,
+                children: [
+                  pill('Pustaka', Icons.photo_library_outlined, _pickImage),
+                  pill(_cover == null ? 'Unggah foto' : 'Ganti unggahan', Icons.upload_rounded, _pickCover),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

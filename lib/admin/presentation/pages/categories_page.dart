@@ -5,8 +5,10 @@ import 'package:sadaqo/admin/data/asset_library.dart';
 import 'package:sadaqo/admin/presentation/widgets/admin_widgets.dart';
 import 'package:sadaqo/core/constants/program_category.dart';
 import 'package:sadaqo/core/widgets/category_icon.dart';
-import 'package:sadaqo/features/campaign/data/datasources/mock_campaign_store.dart';
 import 'package:sadaqo/injection_container.dart';
+import 'package:sadaqo/admin/data/admin_program_store.dart';
+import 'package:sadaqo/core/error/exceptions.dart';
+import 'package:sadaqo/features/campaign/data/datasources/campaign_manage_api.dart';
 
 /// Kelola nama dan ikon kategori, serta lihat pustaka gambar, ikon, dan avatar aplikasi.
 class CategoriesPage extends StatefulWidget {
@@ -17,7 +19,8 @@ class CategoriesPage extends StatefulWidget {
 }
 
 class _CategoriesPageState extends State<CategoriesPage> {
-  final _campaigns = sl<MockCampaignStore>();
+  final _programs = sl<AdminProgramStore>();
+  final _api = sl<CampaignManageApi>();
   final _log = sl<AdminActivityLog>();
   Map<String, List<String>>? _library;
   String _group = 'masjid_mushola';
@@ -25,6 +28,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
   @override
   void initState() {
     super.initState();
+    _programs.load();
     AssetLibrary.load().then((d) {
       if (mounted) setState(() => _library = d);
     });
@@ -36,6 +40,17 @@ class _CategoriesPageState extends State<CategoriesPage> {
       builder: (ctx) => _CategoryDialog(category: k),
     );
     if (result == null || !mounted) return;
+    try {
+      await _api.saveCategory(
+        k.key,
+        label: result.reset ? k.defaultLabel : result.label,
+        shortLabel: result.reset ? k.defaultShortLabel : result.shortLabel,
+        iconPath: result.reset ? k.defaultIconAsset : result.icon,
+      );
+    } on ServerException catch (e) {
+      if (mounted) adminToast(context, e.message);
+      return;
+    }
     if (result.reset) {
       CategoryOverrides.labels.remove(k.key);
       CategoryOverrides.shortLabels.remove(k.key);
@@ -47,12 +62,17 @@ class _CategoriesPageState extends State<CategoriesPage> {
       if (result.icon != null) CategoryOverrides.iconAssets[k.key] = result.icon!;
       _log.add(ActivityKind.content, 'Kategori diperbarui: "${result.label}"');
     }
+    if (!mounted) return;
     setState(() {});
-    adminToast(context, 'Kategori disimpan. Tampil di aplikasi saat halaman dimuat ulang.');
+    adminToast(context, 'Kategori disimpan di server. Tampil di aplikasi saat halaman dimuat ulang.');
   }
 
-  @override
+    @override
   Widget build(BuildContext context) {
+    return ListenableBuilder(listenable: _programs, builder: (context, _) => _content());
+  }
+
+  Widget _content() {
     final lib = _library;
     return LayoutBuilder(
       builder: (context, c) {
@@ -97,7 +117,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                               children: [
                                 Text(k.label, style: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.w800)),
                                 Text(
-                                  '${_campaigns.all.where((x) => x.category == k).length} program • "${k.shortLabel}"',
+                                  '${_programs.all.where((x) => x.category == k).length} program • "${k.shortLabel}"',
                                   style: const TextStyle(fontSize: 12.5, color: AdminColors.muted),
                                 ),
                               ],
@@ -118,7 +138,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
             const SectionTitle('Pustaka Media', icon: Icons.photo_library_rounded),
             const SizedBox(height: 4),
             const Text(
-              'Gambar dibaca otomatis dari folder assets. Untuk menambah atau mengganti file, masukkan ke folder assets/ lalu jalankan ulang aplikasi. Pengunggahan langsung dari dashboard menyusul bersama backend.',
+              'Gambar bawaan dibaca dari folder assets dan sudah terdaftar di tabel assets. Foto yang diunggah lewat formulir program atau berita ikut terdaftar otomatis di database.',
               style: TextStyle(fontSize: 12.5, color: AdminColors.muted),
             ),
             const SizedBox(height: 12),
