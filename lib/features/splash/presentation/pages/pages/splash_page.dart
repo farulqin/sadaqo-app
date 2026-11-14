@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:sadaqo/core/constants/app_assets.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
 import 'package:sadaqo/features/auth/presentation/pages/login_page.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sadaqo/admin/admin.dart';
+import 'package:sadaqo/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:sadaqo/features/home/presentation/pages/main_shell.dart';
+import 'package:sadaqo/pengelola/pengelola.dart';
 
 /// Layar pembuka dengan animasi logo:
 /// 1) logo muncul dengan efek membesar + fade + naik pelan,
@@ -20,6 +25,7 @@ class _SplashPageState extends State<SplashPage>
     vsync: this,
     duration: const Duration(milliseconds: 2400),
   );
+  late final Future<bool> _session;
 
   // Logo: 0% - 60% dari durasi
   late final Animation<double> _logoScale = Tween<double>(begin: 0.4, end: 1.0)
@@ -48,18 +54,32 @@ class _SplashPageState extends State<SplashPage>
   @override
   void initState() {
     super.initState();
+    // Cek token tersimpan sambil animasi berjalan.
+    _session = context
+        .read<AuthCubit>()
+        .restoreSession()
+        .timeout(const Duration(seconds: 6), onTimeout: () => false);
     _controller.forward().whenComplete(() {
       Future<void>.delayed(const Duration(milliseconds: 400), _goNext);
     });
   }
 
-  void _goNext() {
+  Future<void> _goNext() async {
+    final restored = await _session;
     if (!mounted) return;
-    // Catatan (tahap token): langsung ke MainShell jika sudah login.
+    final user = context.read<AuthCubit>().user;
+    final Widget next;
+    if (restored && user != null) {
+      next = user.isAdmin
+          ? const AdminShell()
+          : (user.isManager ? const PengelolaShell() : const MainShell());
+    } else {
+      next = const LoginPage();
+    }
     Navigator.of(context).pushReplacement(
       PageRouteBuilder<void>(
         transitionDuration: const Duration(milliseconds: 600),
-        pageBuilder: (context, animation, secondaryAnimation) => const LoginPage(),
+        pageBuilder: (context, animation, secondaryAnimation) => next,
         transitionsBuilder: (context, animation, secondaryAnimation, child) =>
             FadeTransition(opacity: animation, child: child),
       ),

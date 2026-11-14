@@ -8,6 +8,7 @@ import 'package:sadaqo/injection_container.dart';
 import 'package:sadaqo/pengelola/data/pengelola_store.dart';
 import 'package:sadaqo/pengelola/presentation/widgets/pengelola_widgets.dart';
 import 'package:sadaqo/pengelola/core/pengelola_layout.dart';
+import 'package:sadaqo/core/widgets/state_views.dart';
 
 /// Pengajuan kampanye + daftar program milik pengelola.
 class PengelolaProgramsPage extends StatelessWidget {
@@ -42,6 +43,12 @@ class PengelolaProgramsPage extends StatelessWidget {
               .where((s) => s.status != SubmissionStatus.approved)
               .toList();
           final programs = store.programs;
+          if (store.loading && subs.isEmpty && programs.isEmpty) {
+            return const LoadingView();
+          }
+          if (store.error != null && subs.isEmpty && programs.isEmpty) {
+            return ErrorView(message: store.error!, onRetry: store.load);
+          }
           return ContentListView(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 90),
             children: [

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:sadaqo/core/navigation/session_guard.dart';
 import 'package:sadaqo/core/theme/app_theme.dart';
 import 'package:sadaqo/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:sadaqo/features/auth/presentation/cubit/auth_state.dart';
+import 'package:sadaqo/features/auth/presentation/pages/login_page.dart';
 import 'package:sadaqo/features/campaign/presentation/cubit/campaign_cubit.dart';
 import 'package:sadaqo/features/donation/presentation/cubit/donation_history_cubit.dart';
 import 'package:sadaqo/features/news/presentation/cubit/news_cubit.dart';
@@ -18,6 +21,21 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('id_ID'); // format tanggal bahasa Indonesia
   await di.init();
+
+  // Server membalas 401 (token kedaluwarsa/tidak valid): keluar dan ke halaman login.
+  SessionGuard.onExpired = () {
+    final auth = di.sl<AuthCubit>();
+    if (auth.state is! AuthAuthenticated) return;
+    auth.markLoggedOut();
+    appNavigatorKey.currentState?.pushAndRemoveUntil(
+      MaterialPageRoute<void>(builder: (_) => const LoginPage()),
+      (route) => false,
+    );
+    appMessengerKey.currentState?.showSnackBar(
+      const SnackBar(content: Text('Sesi berakhir, silakan masuk kembali.')),
+    );
+  };
+
   runApp(const SadaqoApp());
 }
 
@@ -44,6 +62,8 @@ class SadaqoApp extends StatelessWidget {
         title: 'SADAQO',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
+        navigatorKey: appNavigatorKey,
+        scaffoldMessengerKey: appMessengerKey,
         home: const SplashPage(),
       ),
     );

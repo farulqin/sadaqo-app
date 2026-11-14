@@ -6,5 +6,7 @@ abstract class AuthRemoteDataSource {
   Future<UserModel> register(String name, String email, String password);
   Future<UserModel> loginWithProvider(String provider);
   Future<void> logout();
+  /// Memulihkan sesi dari token tersimpan. null bila tidak ada atau sudah kedaluwarsa.
+  Future<UserModel?> restoreSession() async => null;
   Future<UserModel> updateProfile(String email, String name, String? phone, Gender? gender);
 }

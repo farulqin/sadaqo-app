@@ -27,4 +27,7 @@ abstract class AuthRepository {
   Future<Either<Failure, AppUser>> loginWithProvider(String provider);
 
   Future<Either<Failure, Unit>> logout();
+
+  /// Memulihkan sesi dari token tersimpan. Right(null) bila tidak ada sesi.
+  Future<Either<Failure, AppUser?>> restoreSession();
 }

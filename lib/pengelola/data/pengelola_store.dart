@@ -36,7 +36,8 @@ class PengelolaStore {
 
   /// Muat program dan pengajuan milik pengelola dari server.
   Future<void> load() => _submissions.loadForPengelola();
-
+  bool get loading => _submissions.loadingMine;
+  String? get error => _submissions.mineError;
   // ---------- Pengajuan kampanye ----------
   List<CampaignSubmission> get mySubmissions => _submissions.mine;
 

@@ -61,6 +61,7 @@ import 'package:sadaqo/features/campaign/data/datasources/campaign_remote_dataso
 import 'package:sadaqo/features/donation/data/datasources/donation_remote_datasource_impl.dart';
 import 'package:sadaqo/features/news/data/datasources/news_remote_datasource_impl.dart';
 import 'package:sadaqo/features/campaign/data/datasources/campaign_manage_api.dart';
+import 'package:sadaqo/features/auth/domain/usecases/restore_session.dart';
 
 // Service locator: semua dependency didaftarkan di sini.
 // Urutan per fitur: datasource -> repository -> usecase -> cubit.
@@ -92,6 +93,7 @@ Future<void> init() async {
   sl.registerLazySingleton<RegisterUser>(() => RegisterUser(sl()));
   sl.registerLazySingleton<LoginWithProvider>(() => LoginWithProvider(sl()));
   sl.registerLazySingleton<UpdateProfile>(() => UpdateProfile(sl()));
+  sl.registerLazySingleton<RestoreSession>(() => RestoreSession(sl()));
   sl.registerLazySingleton<AuthCubit>(
     () => AuthCubit(
       loginUser: sl(),
@@ -99,6 +101,7 @@ Future<void> init() async {
       loginWithProvider: sl(),
       updateProfile: sl(),
       logoutUser: sl(),
+      restoreSession: sl(),
     ),
   );
 

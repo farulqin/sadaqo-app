@@ -95,6 +95,15 @@ class AdminVerificationStore extends ChangeNotifier {
   final List<CampaignSubmission> _approvedThisSession = [];
   List<CampaignSubmission> _mine = const [];
   List<CampaignModel> _mineActive = const [];
+  bool _loadingAdmin = false;
+  String? _adminError;
+  bool _loadingMine = false;
+  String? _mineError;
+
+  bool get loadingAdmin => _loadingAdmin;
+  String? get adminError => _adminError;
+  bool get loadingMine => _loadingMine;
+  String? get mineError => _mineError;
 
   // ---------- Sisi admin ----------
   List<CampaignSubmission> get all =>
@@ -104,15 +113,19 @@ class AdminVerificationStore extends ChangeNotifier {
       _admin.where((s) => s.status == SubmissionStatus.pending).length;
 
   Future<void> loadForAdmin() async {
+    _loadingAdmin = true;
+    _adminError = null;
+    notifyListeners();
     try {
       final pending = await _api.list('/admin/campaigns', query: {'status': 'pending'});
       final rejected = await _api.list('/admin/campaigns', query: {'status': 'rejected'});
       _admin = [...pending, ...rejected].map(_toSubmission).toList()
         ..sort((a, b) => b.submittedAt.compareTo(a.submittedAt));
-      notifyListeners();
-    } on ServerException {
-      // Biarkan data lama; admin bisa membuka ulang halaman untuk mencoba lagi.
+    } on ServerException catch (e) {
+      _adminError = e.message;
     }
+    _loadingAdmin = false;
+    notifyListeners();
   }
 
   Future<void> approve(String id) async {
@@ -150,6 +163,9 @@ class AdminVerificationStore extends ChangeNotifier {
   List<CampaignModel> get mineActivePrograms => List.unmodifiable(_mineActive);
 
   Future<void> loadForPengelola() async {
+    _loadingMine = true;
+    _mineError = null;
+    notifyListeners();
     try {
       final rows = await _api.list('/campaigns/mine');
       _mine = rows.map(_toSubmission).toList();
@@ -157,10 +173,11 @@ class AdminVerificationStore extends ChangeNotifier {
         for (final j in rows)
           if (j['status'] == 'active') CampaignModel.fromJson(j),
       ];
-      notifyListeners();
-    } on ServerException {
-      // Biarkan data lama.
+    } on ServerException catch (e) {
+      _mineError = e.message;
     }
+    _loadingMine = false;
+    notifyListeners();
   }
 
   /// Mengirim pengajuan baru, atau memperbaiki pengajuan yang ditolak ([editingId]).

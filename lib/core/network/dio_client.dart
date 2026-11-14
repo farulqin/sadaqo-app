@@ -1,10 +1,11 @@
 import 'package:dio/dio.dart';
+import 'package:sadaqo/core/navigation/session_guard.dart';
 
 import 'api_client.dart';
 import 'token_storage.dart';
 
-/// Pembuat instance Dio. Sekarang sudah memakai interceptor token
-/// (lihat api_client.dart) dan base URL dari api_config.dart.
+/// Pembuat instance Dio: base URL dari api_config.dart, token login otomatis,
+/// dan sesi berakhir (401) diteruskan ke SessionGuard.
 class DioClient {
   DioClient._();
 
@@ -14,7 +15,7 @@ class DioClient {
   }) {
     return ApiClient(
       tokenStorage: tokenStorage ?? TokenStorage(),
-      onUnauthorized: onUnauthorized,
+      onUnauthorized: onUnauthorized ?? SessionGuard.notifyExpired,
     ).dio;
   }
 }

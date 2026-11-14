@@ -68,4 +68,13 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(ServerFailure(e.message));
     }
   }
+
+  @override
+  Future<Either<Failure, AppUser?>> restoreSession() async {
+    try {
+      return Right(await _remote.restoreSession());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
 }

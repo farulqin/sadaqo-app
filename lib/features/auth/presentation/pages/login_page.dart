@@ -67,32 +67,6 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  Future<void> _social(String provider) async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Masuk dengan $provider'),
-        content: Text(
-          'Pada versi demo, masuk dengan $provider disimulasikan memakai akun '
-          'contoh. Integrasi $provider sungguhan dikerjakan setelah backend siap.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Batal'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Lanjutkan'),
-          ),
-        ],
-      ),
-    );
-    if (ok == true && mounted) {
-      context.read<AuthCubit>().loginWithProvider(provider);
-    }
-  }
-
   // Admin langsung ke dashboard admin (tanpa splash ucapan dan notifikasi donatur).
   void _openAdmin(BuildContext context) {
     Navigator.of(context).pushReplacement(
@@ -132,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
       if (state is AuthAuthenticated) {
         if (state.user.isAdmin) {
           _openAdmin(context);
-        } else if (PengelolaConfig.isPengelolaEmail(state.user.email)) {
+        } else if (state.user.isManager || PengelolaConfig.isPengelolaEmail(state.user.email)) {
         _openPengelola(context);
         } else {
         _onAuthenticated(context);
@@ -257,13 +231,13 @@ class _LoginPageState extends State<LoginPage> {
                       style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
                     ),
                     const SizedBox(height: 12),
-                    Row(
+                                        Row(
                       children: [
                         Expanded(
                           child: _SocialButton(
                             icon: Icons.g_mobiledata,
                             label: 'Google',
-                            onTap: loading ? null : () => _social('Google'),
+                            onTap: null,
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -271,10 +245,15 @@ class _LoginPageState extends State<LoginPage> {
                           child: _SocialButton(
                             icon: Icons.apple,
                             label: 'Apple',
-                            onTap: loading ? null : () => _social('Apple'),
+                            onTap: null,
                           ),
                         ),
                       ],
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'Masuk dengan Google dan Apple segera hadir.',
+                      style: TextStyle(fontSize: 11.5, color: AppColors.textMuted),
                     ),
                     const SizedBox(height: 16),
                     Row(

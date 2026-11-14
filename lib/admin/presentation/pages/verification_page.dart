@@ -116,7 +116,26 @@ class _VerificationPageState extends State<VerificationPage> {
                   ),
                 ),
                 const SizedBox(height: 14),
-                if (items.isEmpty)
+                                if (_store.loadingAdmin && all.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.all(40),
+                    child: Center(child: CircularProgressIndicator(color: AdminColors.green)),
+                  )
+                else if (_store.adminError != null && all.isEmpty)
+                  AdminCard(
+                    child: Column(
+                      children: [
+                        EmptyState(icon: Icons.cloud_off_rounded, text: _store.adminError!),
+                        const SizedBox(height: 8),
+                        AdminButton(
+                          label: 'Coba lagi',
+                          icon: Icons.refresh_rounded,
+                          onPressed: _store.loadForAdmin,
+                        ),
+                      ],
+                    ),
+                  )
+                else if (items.isEmpty)
                   const AdminCard(
                     child: EmptyState(icon: Icons.task_alt_rounded, text: 'Tidak ada pengajuan di sini'),
                   )

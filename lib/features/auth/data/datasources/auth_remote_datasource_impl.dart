@@ -70,6 +70,22 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
+  Future<UserModel?> restoreSession() async {
+    final token = await _tokenStorage.read();
+    if (token == null || token.isEmpty) return null;
+    try {
+      final res = await _dio.get('/me');
+      return _userFrom(_userJson(res.data));
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) {
+        await _tokenStorage.clear();
+        return null;
+      }
+      throw ServerException(_messageFrom(e));
+    }
+  }
+
+  @override
   Future<UserModel> updateProfile(
     String email,
     String name,

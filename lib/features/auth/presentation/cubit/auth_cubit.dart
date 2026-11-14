@@ -5,6 +5,7 @@ import 'package:sadaqo/features/auth/domain/usecases/login_user.dart';
 import 'package:sadaqo/features/auth/domain/usecases/login_with_provider.dart';
 import 'package:sadaqo/features/auth/domain/usecases/logout_user.dart';
 import 'package:sadaqo/features/auth/domain/usecases/register_user.dart';
+import 'package:sadaqo/features/auth/domain/usecases/restore_session.dart';
 import 'package:sadaqo/features/auth/domain/usecases/update_profile.dart';
 import 'package:sadaqo/features/auth/presentation/cubit/auth_state.dart';
 import 'package:sadaqo/features/auth/domain/entities/gender.dart';
@@ -17,11 +18,13 @@ class AuthCubit extends Cubit<AuthState> {
     required LoginWithProvider loginWithProvider,
     required UpdateProfile updateProfile,
     required LogoutUser logoutUser,
+    required RestoreSession restoreSession,
   })  : _loginUser = loginUser,
         _registerUser = registerUser,
         _loginWithProvider = loginWithProvider,
         _updateProfile = updateProfile,
         _logoutUser = logoutUser,
+        _restoreSession = restoreSession,
         super(const AuthInitial());
 
   final LoginUser _loginUser;
@@ -29,11 +32,25 @@ class AuthCubit extends Cubit<AuthState> {
   final LoginWithProvider _loginWithProvider;
   final UpdateProfile _updateProfile;
   final LogoutUser _logoutUser;
+  final RestoreSession _restoreSession;
 
   AppUser? get user {
     final s = state;
     return s is AuthAuthenticated ? s.user : null;
   }
+
+  /// Dipanggil splash: true bila sesi lama masih berlaku (pengguna sudah masuk).
+  Future<bool> restoreSession() async {
+    final result = await _restoreSession(const NoParams());
+    return result.fold((_) => false, (user) {
+      if (user == null) return false;
+      emit(AuthAuthenticated(user));
+      return true;
+    });
+  }
+
+  /// Dipanggil saat server membalas 401: keluar tanpa menghubungi server lagi.
+  void markLoggedOut() => emit(const AuthUnauthenticated());
 
   Future<void> login(String email, String password) async {
     emit(const AuthLoading());
