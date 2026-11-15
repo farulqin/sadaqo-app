@@ -12,7 +12,9 @@ class ReportResource extends JsonResource
     {
         $photos = fn (string $type) => $this->photos
             ->where('type', $type)
-            ->map(fn ($p) => $p->asset?->ref)
+            ->map(fn ($p) => $p->asset
+                ? ['asset_id' => $p->asset_id, 'ref' => $p->asset->ref]
+                : null)
             ->filter()
             ->values();
 
