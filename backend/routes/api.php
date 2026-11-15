@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\NewsController;
 use App\Http\Controllers\Api\PaymentProviderController;
 use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\ReportController;
 
 // Semua rute di sini otomatis berawalan /api
 
@@ -26,6 +27,9 @@ Route::get('/campaigns/{campaign}', [CampaignController::class, 'show'])->whereN
 
 Route::get('/news', [NewsController::class, 'index']);
 Route::get('/news/{news}', [NewsController::class, 'show'])->whereNumber('news');
+
+Route::get('/reports', [ReportController::class, 'index']);
+Route::get('/reports/{report}', [ReportController::class, 'show'])->whereNumber('report');
 
 // ===== Harus login (Bearer token) =====
 Route::middleware('auth:sanctum')->group(function () {
@@ -46,6 +50,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/campaigns/mine', [CampaignController::class, 'mine']);
         Route::post('/campaigns', [CampaignController::class, 'store']);
         Route::put('/campaigns/{campaign}', [CampaignController::class, 'update'])->whereNumber('campaign');
+        
+        Route::get('/reports/mine', [ReportController::class, 'mine']);
+        Route::post('/reports', [ReportController::class, 'store']);
+        Route::put('/reports/{report}', [ReportController::class, 'update'])->whereNumber('report');
     });
 
     // ----- Admin saja -----
@@ -62,5 +70,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::delete('/assets/{asset}', [AssetController::class, 'destroy'])->whereNumber('asset');
         Route::put('/categories/{category}', [CategoryController::class, 'update'])->whereNumber('category');
+
+        Route::get('/admin/reports', [ReportController::class, 'adminIndex']);
+        Route::patch('/reports/{report}/review', [ReportController::class, 'review'])->whereNumber('report');
     });
 });
