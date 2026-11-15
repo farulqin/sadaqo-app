@@ -4,10 +4,8 @@ import 'package:sadaqo/admin/data/admin_analytics_store.dart';
 import 'package:sadaqo/admin/data/admin_credentials_store.dart';
 import 'package:sadaqo/admin/data/admin_user_store.dart';
 import 'package:sadaqo/admin/data/admin_verification_store.dart';
-import 'package:sadaqo/features/campaign/data/datasources/mock_campaign_store.dart';
 import 'package:sadaqo/features/community/data/datasources/community_admin_datasource.dart';
 import 'package:sadaqo/features/community/data/datasources/community_local_datasource.dart';
-import 'package:sadaqo/features/donation/data/datasources/donation_remote_datasource.dart';
 import 'package:dio/dio.dart';
 import 'package:sadaqo/features/campaign/data/datasources/campaign_manage_api.dart';
 import 'package:sadaqo/admin/data/admin_program_store.dart';
@@ -27,7 +25,7 @@ void registerAdminDependencies(GetIt sl) {
   );
   sl.registerLazySingleton<AdminActivityLog>(() => AdminActivityLog());
   sl.registerLazySingleton<AdminAnalyticsStore>(
-    () => AdminAnalyticsStore(sl<MockCampaignStore>(), sl<DonationRemoteDataSource>()),
+    () => AdminAnalyticsStore(sl<CampaignManageApi>()),
   );
     sl.registerLazySingleton<CampaignManageApi>(
     () => CampaignManageApi(sl<Dio>()),

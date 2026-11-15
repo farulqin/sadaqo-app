@@ -1,10 +1,8 @@
-import 'dart:math';
-
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:sadaqo/core/constants/program_category.dart';
-import 'package:sadaqo/features/campaign/data/datasources/mock_campaign_store.dart';
-import 'package:sadaqo/features/donation/data/datasources/donation_remote_datasource.dart';
+import 'package:sadaqo/core/error/exceptions.dart';
+import 'package:sadaqo/features/campaign/data/datasources/campaign_manage_api.dart';
 import 'package:sadaqo/features/donation/domain/entities/donation.dart';
 
 /// Satu transaksi donasi. HANYA-BACA: admin tidak bisa mengubah atau menghapus.
@@ -32,140 +30,63 @@ class AdminTxn {
   final String? provider;
   final DateTime at;
 
-  /// true = donasi yang benar-benar dibuat di aplikasi pada sesi ini.
+  /// true = donasi baru (kurang dari 1 jam yang lalu).
   final bool isLive;
 
   String get methodLabel =>
       provider == null ? method.label : '${method.label} • $provider';
 }
 
-/// Sumber data statistik donasi untuk dashboard admin (hanya-baca).
-///
-/// Selama backend belum ada, riwayat transaksi lama DIBANGKITKAN dari total dana
-/// terkumpul tiap program (hasil jumlahnya sama persis dengan progres program),
-/// lalu donasi baru dari aplikasi ikut masuk lewat [sync]. Setelah API Laravel
-/// siap, ganti isi [sync] dengan GET /api/admin/transactions.
+/// Sumber data statistik donasi untuk dashboard admin (hanya-baca),
+/// bersumber dari server: GET /api/admin/transactions (365 hari terakhir).
 class AdminAnalyticsStore extends ChangeNotifier {
-  AdminAnalyticsStore(this._campaigns, this._donations) {
-    _seedHistory();
-  }
+  AdminAnalyticsStore(this._api);
 
-  final MockCampaignStore _campaigns;
-  final DonationRemoteDataSource _donations;
+  final CampaignManageApi _api;
 
-  final List<AdminTxn> _items = [];
-  final Set<String> _liveIds = {};
-  late final DateTime _seededAt;
+  List<AdminTxn> _items = const [];
+  bool _loading = false;
+  String? _error;
 
   List<AdminTxn> get all => List.unmodifiable(_items);
+  bool get loading => _loading;
+  String? get error => _error;
 
-  static const List<String> _names = [
-    'Ahmad Fauzi', 'Siti Rahma', 'Budi Santoso', 'Nur Aini', 'Rizki Ramadhan',
-    'Dewi Lestari', 'Aisyah Putri', 'Fajar Nugroho', 'Laila Hidayati',
-    'Yusuf Hakim', 'Maya Anggraini', 'Hendra Wijaya', 'Putri Amelia',
-    'Imam Syafi\'i', 'Rina Marlina', 'Dimas Pratama', 'Khadijah Azzahra',
-    'Wahyu Hidayat', 'Siska Permata', 'Teguh Prasetyo', 'Zahra Salsabila',
-    'Agus Salim', 'Fitri Handayani', 'Bagus Kurniawan', 'Nadia Rahmawati',
-  ];
-  static const List<String> _wallets = ['DANA', 'GoPay', 'OVO', 'ShopeePay', 'LinkAja'];
-  static const List<String> _banks = ['BCA', 'Mandiri', 'BRI', 'BNI', 'BSI', 'CIMB Niaga', 'Permata', 'BTN'];
-
-  void _seedHistory() {
-    _seededAt = DateTime.now();
-    final rnd = Random(2026);
-    var n = 1;
-    for (final c in _campaigns.all) {
-      var left = c.collectedAmount;
-      if (left <= 0) continue;
-
-      // Jumlah transaksi kira-kira 1 per Rp 450 ribu (program harga tetap: per unit).
-      final fixed = c.unitPrice;
-      final count = fixed != null
-          ? max(1, left ~/ fixed)
-          : max(3, (left / 450000).round());
-
-      final amounts = <int>[];
-      if (fixed != null) {
-        for (var i = 0; i < count; i++) {
-          amounts.add(fixed);
-        }
-        amounts[count - 1] += left - fixed * count; // sisa pembulatan
-      } else {
-        final weights = List<double>.generate(count, (_) => 0.3 + rnd.nextDouble() * 1.7);
-        final sum = weights.fold<double>(0, (a, b) => a + b);
-        var used = 0;
-        for (var i = 0; i < count - 1; i++) {
-          var a = (left * weights[i] / sum / 5000).round() * 5000;
-          if (a < 5000) a = 5000;
-          amounts.add(a);
-          used += a;
-        }
-        final last = left - used;
-        amounts.add(last < 5000 ? 5000 : last);
-      }
-      left = 0;
-
-      for (final a in amounts) {
-        // Lebih banyak transaksi di hari-hari terakhir.
-        final days = (pow(rnd.nextDouble(), 1.8) * 364).floor();
-        final at = _seededAt
-            .subtract(Duration(days: days, hours: rnd.nextInt(24), minutes: rnd.nextInt(60)));
-        final r = rnd.nextDouble();
-        final PaymentMethod m = r < 0.3
-            ? PaymentMethod.qris
-            : (r < 0.7 ? PaymentMethod.ewallet : PaymentMethod.transfer);
-        final String? provider = m == PaymentMethod.ewallet
-            ? _wallets[rnd.nextInt(_wallets.length)]
-            : (m == PaymentMethod.transfer ? _banks[rnd.nextInt(_banks.length)] : null);
-        _items.add(
-          AdminTxn(
-            id: 'T${(n++).toString().padLeft(5, '0')}',
-            donorName: rnd.nextDouble() < 0.22
-                ? Donation.anonymousName
-                : _names[rnd.nextInt(_names.length)],
-            campaignId: c.id,
-            campaignTitle: c.title,
-            category: c.category,
-            amount: a,
-            method: m,
-            provider: provider,
-            at: at,
-          ),
-        );
-      }
+  /// Muat ulang transaksi dari server. Aman dipanggil berulang.
+  Future<void> sync() async {
+    _loading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      final rows = await _api.list('/admin/transactions');
+      final now = DateTime.now();
+      _items = rows.map((j) => _toTxn(j, now)).toList()
+        ..sort((a, b) => b.at.compareTo(a.at));
+    } on ServerException catch (e) {
+      _error = e.message;
     }
-    _items.sort((a, b) => b.at.compareTo(a.at));
+    _loading = false;
+    notifyListeners();
   }
 
-  /// Ambil donasi baru dari aplikasi (setelah dashboard dibuka). Aman dipanggil berulang.
-  Future<void> sync() async {
-    final history = await _donations.getHistory();
-    var changed = false;
-    for (final d in history) {
-      if (!d.createdAt.isAfter(_seededAt)) continue; // sudah masuk hitungan seed
-      if (_liveIds.contains(d.id)) continue;
-      _liveIds.add(d.id);
-      _items.insert(
-        0,
-        AdminTxn(
-          id: 'L-${d.id}',
-          donorName: d.donorName,
-          campaignId: d.campaignId,
-          campaignTitle: d.campaignTitle,
-          category: d.category,
-          amount: d.amount,
-          method: d.paymentMethod,
-          provider: d.paymentProvider,
-          at: d.createdAt,
-          isLive: true,
-        ),
-      );
-      changed = true;
-    }
-    if (changed) {
-      _items.sort((a, b) => b.at.compareTo(a.at));
-      notifyListeners();
-    }
+  AdminTxn _toTxn(Map<String, dynamic> j, DateTime now) {
+    final at = DateTime.tryParse('${j['created_at']}')?.toLocal() ?? now;
+    final method = PaymentMethod.values.firstWhere(
+      (m) => m.name == j['payment_method'],
+      orElse: () => PaymentMethod.qris,
+    );
+    return AdminTxn(
+      id: '${j['reference'] ?? j['id']}',
+      donorName: (j['donor_name'] ?? Donation.anonymousName) as String,
+      campaignId: '${j['campaign_id']}',
+      campaignTitle: (j['campaign_title'] ?? '') as String,
+      category: ProgramCategory.fromKey((j['category'] ?? 'masjid') as String),
+      amount: (j['amount'] as num?)?.toInt() ?? 0,
+      method: method,
+      provider: j['payment_provider'] as String?,
+      at: at,
+      isLive: now.difference(at).inMinutes < 60,
+    );
   }
 
   /// Total donasi per hari (periode <= 62 hari) atau per bulan (lebih panjang).

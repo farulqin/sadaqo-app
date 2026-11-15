@@ -4,7 +4,7 @@ import 'package:sadaqo/admin/data/admin_analytics_store.dart';
 import 'package:sadaqo/admin/presentation/widgets/admin_widgets.dart';
 import 'package:sadaqo/admin/presentation/widgets/charts.dart';
 import 'package:sadaqo/core/constants/program_category.dart';
-import 'package:sadaqo/features/campaign/data/datasources/mock_campaign_store.dart';
+import 'package:sadaqo/admin/data/admin_program_store.dart';
 import 'package:sadaqo/features/donation/domain/entities/donation.dart';
 import 'package:sadaqo/injection_container.dart';
 
@@ -25,7 +25,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
   ];
 
   final _analytics = sl<AdminAnalyticsStore>();
-  final _campaigns = sl<MockCampaignStore>();
+  final _campaigns = sl<AdminProgramStore>();
   int _range = 1;
 
   @override

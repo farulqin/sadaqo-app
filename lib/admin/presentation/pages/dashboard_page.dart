@@ -12,7 +12,7 @@ import 'package:sadaqo/admin/presentation/widgets/admin_widgets.dart';
 import 'package:sadaqo/admin/presentation/widgets/charts.dart';
 import 'package:sadaqo/core/constants/program_category.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
-import 'package:sadaqo/features/campaign/data/datasources/mock_campaign_store.dart';
+import 'package:sadaqo/admin/data/admin_program_store.dart';
 import 'package:sadaqo/features/campaign/domain/entities/campaign.dart';
 import 'package:sadaqo/features/community/data/datasources/community_admin_datasource.dart';
 import 'package:sadaqo/injection_container.dart';
@@ -48,7 +48,7 @@ class _DashboardPageState extends State<DashboardPage> {
   final _verification = sl<AdminVerificationStore>();
   final _log = sl<AdminActivityLog>();
   final _community = sl<CommunityAdminDataSource>();
-  final _campaigns = sl<MockCampaignStore>();
+  final _campaigns = sl<AdminProgramStore>();
   final _creds = sl<AdminCredentialsStore>();
 
   int _rangeIndex = 0;
@@ -61,6 +61,7 @@ class _DashboardPageState extends State<DashboardPage> {
   void initState() {
     super.initState();
     _analytics.sync();
+    _campaigns.load();
     _startAuto();
   }
 
@@ -133,7 +134,7 @@ class _DashboardPageState extends State<DashboardPage> {
     return StreamBuilder<void>(
       stream: _community.changes,
       builder: (context, _) => ListenableBuilder(
-        listenable: Listenable.merge([_analytics, _users, _verification, _log, _creds]),
+        listenable: Listenable.merge([_analytics, _campaigns, _users, _verification, _log, _creds]),
         builder: (context, _) => LayoutBuilder(
           builder: (context, c) {
             final w = c.maxWidth;
