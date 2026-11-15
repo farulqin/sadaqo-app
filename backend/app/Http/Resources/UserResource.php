@@ -21,6 +21,11 @@ class UserResource extends JsonResource
             'avatar_asset_id' => $this->avatar_asset_id,
             'avatar' => $this->avatarAsset?->ref,
             'joined_at' => $this->created_at?->toIso8601String(),
+            'strikes' => (int) $this->strikes,
+            'banned_until' => $this->banned_until
+                ? \Illuminate\Support\Carbon::parse($this->banned_until)->toIso8601String()
+                : null,
+            'is_active' => (bool) $this->is_active,
         ];
     }
 }
