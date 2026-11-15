@@ -10,6 +10,8 @@ use App\Http\Controllers\Api\PaymentProviderController;
 use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ReportController;
+use App\Http\Controllers\Api\FavoriteController;
+use App\Http\Controllers\Api\NotificationController;
 
 // Semua rute di sini otomatis berawalan /api
 
@@ -42,6 +44,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/assets', [AssetController::class, 'index']);
     Route::get('/assets/{asset}', [AssetController::class, 'show'])->whereNumber('asset');
+
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::post('/notifications', [NotificationController::class, 'store'])->middleware('throttle:30,1');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead']);
+
+    Route::get('/favorites', [FavoriteController::class, 'index']);
+    Route::post('/favorites/{campaign}', [FavoriteController::class, 'toggle'])->whereNumber('campaign');
 
     // ----- Admin & Pengelola -----
     Route::middleware(RoleMiddleware::class . ':admin,pengelola')->group(function () {

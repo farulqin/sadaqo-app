@@ -14,6 +14,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use App\Models\AppNotification;
 
 class DonationController extends Controller
 {
@@ -140,7 +141,24 @@ class DonationController extends Controller
             "Donasi Rp " . number_format($donation->amount, 0, ',', '.') . " untuk {$donation->campaign->title}",
             $user
         );
+        
+        $rupiah = 'Rp ' . number_format($donation->amount, 0, ',', '.');
 
+        AppNotification::create([
+            'user_id' => $user->id,
+            'title' => 'Alhamdulillah, donasimu berhasil',
+            'body' => "Benih kebaikanmu sudah tertanam. Pembayaran {$rupiah} untuk \"{$donation->campaign->title}\" tercatat atas nama {$donation->donor_name}.",
+        ]);
+
+        // Kabari pengelola program (bila donaturnya orang lain).
+        $ownerId = $donation->campaign->owner_id;
+        if ($ownerId && $ownerId !== $user->id) {
+            AppNotification::create([
+                'user_id' => $ownerId,
+                'title' => 'Donasi baru masuk',
+                'body' => "{$rupiah} untuk \"{$donation->campaign->title}\" dari {$donation->donor_name}.",
+            ]);
+        }
         return (new DonationResource($donation))->response()->setStatusCode(201);
     }
 }
