@@ -171,7 +171,8 @@ class AdminVerificationStore extends ChangeNotifier {
       _mine = rows.map(_toSubmission).toList();
       _mineActive = [
         for (final j in rows)
-          if (j['status'] == 'active') CampaignModel.fromJson(j),
+          if (j['status'] == 'active' || j['status'] == 'closed')
+            CampaignModel.fromJson(j),
       ];
     } on ServerException catch (e) {
       _mineError = e.message;
