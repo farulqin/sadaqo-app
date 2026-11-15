@@ -43,7 +43,15 @@ class _MainShellState extends State<MainShell> {
     context.read<NewsCubit>().load();
   }
 
-  void _goTo(int i) => _tab.index.value = i;
+  void _goTo(int i) {
+    _tab.index.value = i;
+    // Muat ulang dari server saat tab dibuka (token mati / server mati langsung terdeteksi).
+    if (i == MainTabController.history) {
+      context.read<DonationHistoryCubit>().refresh();
+    } else if (i == MainTabController.programs) {
+      context.read<CampaignCubit>().refresh();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

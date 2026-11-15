@@ -10,8 +10,9 @@ final GlobalKey<ScaffoldMessengerState> appMessengerKey =
 /// atau kedaluwarsa). Pengaturannya ada di main.dart.
 class SessionGuard {
   SessionGuard._();
-
   static VoidCallback? onExpired;
-
+  static VoidCallback? onOffline;
+  
   static void notifyExpired() => onExpired?.call();
+  static void notifyOffline() => onOffline?.call();
 }

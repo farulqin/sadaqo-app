@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
-
 import 'api_config.dart';
 import 'token_storage.dart';
+import 'package:sadaqo/core/navigation/session_guard.dart';
 
 class ApiClient {
   final Dio dio;
@@ -36,6 +36,10 @@ class ApiClient {
             await tokenStorage.clear();
             onUnauthorized?.call();
           }
+          final offline = error.type == DioExceptionType.connectionError ||
+              error.type == DioExceptionType.connectionTimeout ||
+              error.type == DioExceptionType.receiveTimeout;
+          if (offline) SessionGuard.notifyOffline();
           handler.next(error);
         },
       ),

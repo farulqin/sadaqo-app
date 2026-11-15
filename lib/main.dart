@@ -36,6 +36,20 @@ Future<void> main() async {
     );
   };
 
+  // Server tidak terjangkau: beri tahu sekali per 6 detik.
+  DateTime? lastOfflineNotice;
+  SessionGuard.onOffline = () {
+    final now = DateTime.now();
+    if (lastOfflineNotice != null &&
+        now.difference(lastOfflineNotice!) < const Duration(seconds: 6)) {
+      return;
+    }
+    lastOfflineNotice = now;
+    appMessengerKey.currentState?.showSnackBar(
+      const SnackBar(content: Text('Tidak dapat terhubung ke server. Periksa koneksi atau coba lagi.')),
+    );
+  };
+
   runApp(const SadaqoApp());
 }
 
