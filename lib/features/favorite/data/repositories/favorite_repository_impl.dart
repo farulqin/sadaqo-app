@@ -9,21 +9,20 @@ class FavoriteRepositoryImpl implements FavoriteRepository {
 
   final FavoriteLocalDataSource _local;
 
-  @override
-  Future<Either<Failure, Set<String>>> getIds() async {
+  Future<Either<Failure, Set<String>>> _guard(Future<Set<String>> Function() run) async {
     try {
-      return Right(await _local.getIds());
+      return Right(await run());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message));
     }
   }
 
   @override
-  Future<Either<Failure, Set<String>>> toggle(String campaignId) async {
-    try {
-      return Right(await _local.toggle(campaignId));
-    } on CacheException catch (e) {
-      return Left(CacheFailure(e.message));
-    }
-  }
+  Future<Either<Failure, Set<String>>> getIds() => _guard(_local.getIds);
+
+  @override
+  Future<Either<Failure, Set<String>>> toggle(String campaignId) =>
+      _guard(() => _local.toggle(campaignId));
 }

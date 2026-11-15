@@ -13,6 +13,8 @@ import 'package:sadaqo/features/news/presentation/cubit/news_cubit.dart';
 import 'package:sadaqo/injection_container.dart';
 import 'package:sadaqo/features/report/presentation/widgets/report_widgets.dart';
 import 'package:sadaqo/features/report/domain/repositories/report_repository.dart';
+import 'package:sadaqo/features/favorite/presentation/cubit/favorite_cubit.dart';
+import 'package:sadaqo/features/notification/presentation/cubit/notification_cubit.dart';
 
 /// Kerangka utama aplikasi: 5 tab navigasi bawah (ikon dari assets/icons).
 /// Profil tidak lagi menjadi tab: dibuka dari ikon foto di bagian atas.
@@ -43,10 +45,13 @@ class _MainShellState extends State<MainShell> {
     context.read<DonationHistoryCubit>().load();
     context.read<NewsCubit>().load();
     sl<ReportRepository>().loadForDonor();
+    context.read<NotificationCubit>().load();
+    context.read<FavoriteCubit>().load();
   }
 
   void _goTo(int i) {
     _tab.index.value = i;
+    context.read<NotificationCubit>().load();
     // Muat ulang dari server saat tab dibuka (token mati / server mati langsung terdeteksi).
     if (i == MainTabController.history) {
       context.read<DonationHistoryCubit>().refresh();

@@ -39,11 +39,15 @@ class NotificationCubit extends Cubit<NotificationState> {
     result.fold((_) {}, (items) => emit(NotificationState(items: items)));
   }
 
-  /// Ucapan sambutan setelah masuk atau daftar.
-  Future<void> addWelcome() => add(
-        title: 'Ahlan wa sahlan di SADAQO',
-        body: 'Bismillah, mari tebar benih kebaikan hari ini.',
-      );
+  /// Ucapan sambutan: hanya untuk pengguna yang belum punya notifikasi.
+  Future<void> addWelcome() async {
+    await load();
+    if (state.items.isNotEmpty) return;
+    await add(
+      title: 'Ahlan wa sahlan di SADAQO',
+      body: 'Bismillah, mari tebar benih kebaikan hari ini.',
+    );
+  }
 
   Future<void> add({
     required String title,

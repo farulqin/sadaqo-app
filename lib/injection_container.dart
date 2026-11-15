@@ -62,6 +62,8 @@ import 'package:sadaqo/features/donation/data/datasources/donation_remote_dataso
 import 'package:sadaqo/features/news/data/datasources/news_remote_datasource_impl.dart';
 import 'package:sadaqo/features/campaign/data/datasources/campaign_manage_api.dart';
 import 'package:sadaqo/features/auth/domain/usecases/restore_session.dart';
+import 'package:sadaqo/features/notification/data/datasources/notification_remote_datasource_impl.dart';
+import 'package:sadaqo/features/favorite/data/datasources/favorite_remote_datasource_impl.dart';
 
 // Service locator: semua dependency didaftarkan di sini.
 // Urutan per fitur: datasource -> repository -> usecase -> cubit.
@@ -150,9 +152,9 @@ Future<void> init() async {
     () => ProfileCubit(getPhoto: sl(), savePhoto: sl()),
   );
 
-    // ===== Notification =====
+  // ===== Notification =====
   sl.registerLazySingleton<NotificationLocalDataSource>(
-    () => NotificationMemoryDataSource(),
+    () => NotificationRemoteDataSourceImpl(sl<Dio>()),
   );
   sl.registerLazySingleton<NotificationRepository>(
     () => NotificationRepositoryImpl(sl()),
@@ -172,11 +174,15 @@ Future<void> init() async {
   );
 
   // ===== Favorite =====
-  sl.registerLazySingleton<FavoriteLocalDataSource>(() => FavoriteMemoryDataSource());
+  sl.registerLazySingleton<FavoriteLocalDataSource>(
+    () => FavoriteRemoteDataSourceImpl(sl<Dio>()),
+  );
   sl.registerLazySingleton<FavoriteRepository>(() => FavoriteRepositoryImpl(sl()));
   sl.registerLazySingleton<GetFavoriteIds>(() => GetFavoriteIds(sl()));
   sl.registerLazySingleton<ToggleFavorite>(() => ToggleFavorite(sl()));
-  sl.registerLazySingleton<FavoriteCubit>(() => FavoriteCubit(getIds: sl(), toggleFavorite: sl()),);
+  sl.registerLazySingleton<FavoriteCubit>(
+    () => FavoriteCubit(getIds: sl(), toggleFavorite: sl()),
+  );
 
   // ===== Pengaturan dan navigasi tab =====
   sl.registerLazySingleton<SettingsCubit>(() => SettingsCubit());

@@ -10,32 +10,29 @@ class NotificationRepositoryImpl implements NotificationRepository {
 
   final NotificationLocalDataSource _local;
 
-  @override
-  Future<Either<Failure, List<AppNotification>>> getAll() async {
+  Future<Either<Failure, T>> _guard<T>(Future<T> Function() run) async {
     try {
-      return Right(await _local.getAll());
+      return Right(await run());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message));
     }
   }
 
   @override
-  Future<Either<Failure, Unit>> add({required String title, required String body}) async {
-    try {
-      await _local.add(title, body);
-      return const Right(unit);
-    } on CacheException catch (e) {
-      return Left(CacheFailure(e.message));
-    }
-  }
+  Future<Either<Failure, List<AppNotification>>> getAll() => _guard(_local.getAll);
 
   @override
-  Future<Either<Failure, Unit>> markAllRead() async {
-    try {
-      await _local.markAllRead();
-      return const Right(unit);
-    } on CacheException catch (e) {
-      return Left(CacheFailure(e.message));
-    }
-  }
+  Future<Either<Failure, Unit>> add({required String title, required String body}) =>
+      _guard(() async {
+        await _local.add(title, body);
+        return unit;
+      });
+
+  @override
+  Future<Either<Failure, Unit>> markAllRead() => _guard(() async {
+        await _local.markAllRead();
+        return unit;
+      });
 }

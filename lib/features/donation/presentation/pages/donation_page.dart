@@ -577,12 +577,7 @@ class _DonationPageState extends State<DonationPage> {
       // 1) Catat dan segarkan data SEBELUM pindah halaman.
       context.read<DonationHistoryCubit>().refresh();
       context.read<CampaignCubit>().refresh(); // progres dana dan kuota
-      context.read<NotificationCubit>().add(
-            title: 'Alhamdulillah, donasimu berhasil',
-            body: 'Benih kebaikanmu sudah tertanam hari ini. Pembayaran '
-                '${Formatter.rupiah(donation.amount)} untuk "${donation.campaignTitle}" '
-                'telah tercatat atas nama ${donation.donorName}.',
-          );
+      context.read<NotificationCubit>().load(); // notifikasi dibuat oleh server
       context.read<DonationFormCubit>().reset();
       if (widget.campaign == null && widget.fixedAmount == null) {
         setState(() {
