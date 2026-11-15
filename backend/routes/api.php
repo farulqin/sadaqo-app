@@ -70,6 +70,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware(RoleMiddleware::class . ':admin')->group(function () {
         Route::get('/admin/campaigns', [CampaignController::class, 'adminIndex']);
         Route::get('/admin/donations', [DonationController::class, 'adminIndex']);
+        Route::get('/admin/transactions', [DonationController::class, 'adminTransactions']);
 
         Route::patch('/campaigns/{campaign}/review', [CampaignController::class, 'review'])->whereNumber('campaign');
         Route::delete('/campaigns/{campaign}', [CampaignController::class, 'destroy'])->whereNumber('campaign');

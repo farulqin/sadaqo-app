@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\DonationResource;
 use App\Models\ActivityLog;
+use App\Models\AppNotification;
 use App\Models\Campaign;
 use App\Models\Donation;
 use App\Models\PaymentProvider;
@@ -14,7 +15,6 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use App\Models\AppNotification;
 
 class DonationController extends Controller
 {
@@ -38,6 +38,21 @@ class DonationController extends Controller
             Donation::with(['campaign.category', 'paymentProvider'])
                 ->latest()
                 ->paginate(50)
+        );
+    }
+
+    /** Admin: transaksi sukses untuk statistik (default 365 hari terakhir, maksimal 5000). */
+    public function adminTransactions(Request $request): AnonymousResourceCollection
+    {
+        $days = min(max((int) $request->query('days', 365), 1), 1100);
+
+        return DonationResource::collection(
+            Donation::with(['campaign.category', 'paymentProvider'])
+                ->where('status', 'success')
+                ->where('created_at', '>=', now()->subDays($days))
+                ->latest()
+                ->limit(5000)
+                ->get()
         );
     }
 
@@ -80,8 +95,9 @@ class DonationController extends Controller
         }
 
         $user = $request->user();
+        $closedCampaign = null;
 
-        $donation = DB::transaction(function () use ($data, $providerId, $donorName, $anonymous, $user) {
+        $donation = DB::transaction(function () use ($data, $providerId, $donorName, $anonymous, $user, &$closedCampaign) {
             // Kunci baris program agar dua donasi bersamaan tidak merusak total dana dan slot.
             $campaign = Campaign::with('category')
                 ->whereKey($data['campaign_id'])
@@ -118,6 +134,16 @@ class DonationController extends Controller
             }
 
             $campaign->collected_amount += $amount;
+
+            // Program ditutup otomatis saat target tercapai (kecuali zakat, yang berjalan
+            // terus) atau saat semua slot terisi. Donasi yang melewati target tetap diterima.
+            $reachedTarget = !$isZakat && $campaign->collected_amount >= $campaign->target_amount;
+            $slotsFull = $campaign->slot_total !== null
+                && (int) $campaign->slot_filled >= (int) $campaign->slot_total;
+            if ($reachedTarget || $slotsFull) {
+                $campaign->status = Campaign::STATUS_CLOSED;
+                $closedCampaign = $campaign;
+            }
             $campaign->save();
 
             return Donation::create([
@@ -141,7 +167,22 @@ class DonationController extends Controller
             "Donasi Rp " . number_format($donation->amount, 0, ',', '.') . " untuk {$donation->campaign->title}",
             $user
         );
-        
+
+        if ($closedCampaign) {
+            ActivityLog::record(
+                'content',
+                "Program otomatis ditutup (target/slot tercapai): {$closedCampaign->title}",
+                $user
+            );
+            if ($closedCampaign->owner_id) {
+                AppNotification::create([
+                    'user_id' => $closedCampaign->owner_id,
+                    'title' => 'Program mencapai target',
+                    'body' => "Program \"{$closedCampaign->title}\" sudah mencapai target dan ditutup otomatis. Segera susun laporan penyalurannya.",
+                ]);
+            }
+        }
+
         $rupiah = 'Rp ' . number_format($donation->amount, 0, ',', '.');
 
         AppNotification::create([
@@ -159,6 +200,7 @@ class DonationController extends Controller
                 'body' => "{$rupiah} untuk \"{$donation->campaign->title}\" dari {$donation->donor_name}.",
             ]);
         }
+
         return (new DonationResource($donation))->response()->setStatusCode(201);
     }
 }
