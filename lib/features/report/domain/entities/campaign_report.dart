@@ -11,17 +11,27 @@ enum ReportStatus {
   final String label;
 }
 
-/// Foto laporan: dari aset (data contoh) atau dari galeri (bytes).
+/// Foto laporan: dari aset bawaan, dari server (punya [assetId]), atau dari galeri (bytes).
 class ReportPhoto {
   const ReportPhoto.asset(String path)
       : asset = path,
-        bytes = null;
+        bytes = null,
+        assetId = null;
   const ReportPhoto.memory(Uint8List data)
       : bytes = data,
-        asset = null;
+        asset = null,
+        assetId = null;
+
+  /// Foto yang sudah ada di server: [ref] = path aset bawaan atau URL,
+  /// [id] = id baris di tabel assets.
+  const ReportPhoto.remote(String ref, int id)
+      : asset = ref,
+        bytes = null,
+        assetId = id;
 
   final String? asset;
   final Uint8List? bytes;
+  final int? assetId;
 }
 
 /// Laporan & dokumentasi penyaluran dari pengelola. Tampil ke donatur

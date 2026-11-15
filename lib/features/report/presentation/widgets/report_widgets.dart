@@ -8,6 +8,7 @@ import 'package:sadaqo/features/donation/presentation/cubit/donation_history_sta
 import 'package:sadaqo/features/report/domain/entities/campaign_report.dart';
 import 'package:sadaqo/features/report/domain/repositories/report_repository.dart';
 import 'package:sadaqo/injection_container.dart';
+import 'package:sadaqo/core/network/api_config.dart';
 
 /// Id program yang pernah didanai donatur (laporan hanya tampil untuk program ini).
 Set<String> donatedCampaignIds(List<Donation> donations) =>
@@ -72,17 +73,30 @@ class ReportPhotoImage extends StatelessWidget {
         child: const Icon(Icons.image_not_supported_outlined, color: AppColors.textMuted),
       );
 
-  @override
+    @override
   Widget build(BuildContext context) {
-    final Widget image = photo.bytes != null
-        ? Image.memory(photo.bytes!, width: width, height: height, fit: fit)
-        : Image.asset(
-            photo.asset!,
-            width: width,
-            height: height,
-            fit: fit,
-            errorBuilder: (context, e, s) => _placeholder(),
-          );
+    final src = photo.asset;
+    final Widget image;
+    if (photo.bytes != null) {
+      image = Image.memory(photo.bytes!, width: width, height: height, fit: fit);
+    } else if (src != null && src.startsWith('http')) {
+      image = Image.network(
+        ApiConfig.resolveMediaUrl(src),
+        width: width,
+        height: height,
+        fit: fit,
+        webHtmlElementStrategy: WebHtmlElementStrategy.prefer,
+        errorBuilder: (context, e, s) => _placeholder(),
+      );
+    } else {
+      image = Image.asset(
+        src!,
+        width: width,
+        height: height,
+        fit: fit,
+        errorBuilder: (context, e, s) => _placeholder(),
+      );
+    }
     return GestureDetector(
       onTap: onTap,
       child: ClipRRect(borderRadius: BorderRadius.circular(radius), child: image),

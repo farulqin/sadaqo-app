@@ -16,6 +16,7 @@ import 'package:sadaqo/pengelola/presentation/pages/pengelola_programs_page.dart
 import 'package:sadaqo/pengelola/presentation/pages/send_report_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sadaqo/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:sadaqo/features/report/domain/repositories/report_repository.dart';
 
 /// Kerangka Dashboard Pengelola: 4 tab (Beranda, Program, Dokumentasi, Profil).
 /// - HP (< 700 px): navigasi bawah.
@@ -35,6 +36,7 @@ class _PengelolaShellState extends State<PengelolaShell> {
   void initState() {
     super.initState();
     sl<AdminVerificationStore>().loadForPengelola();
+    sl<ReportRepository>().loadForPengelola();
 
     // Samakan data akun lokal dengan data pengguna dari server.
     final user = context.read<AuthCubit>().user;

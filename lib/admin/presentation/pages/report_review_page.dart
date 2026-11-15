@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:sadaqo/admin/core/admin_utils.dart';
 import 'package:sadaqo/admin/data/admin_activity_log.dart';
 import 'package:sadaqo/admin/presentation/widgets/admin_widgets.dart';
-import 'package:sadaqo/features/donation/data/datasources/donation_remote_datasource.dart';
-import 'package:sadaqo/features/notification/presentation/cubit/notification_cubit.dart';
 import 'package:sadaqo/features/report/domain/entities/campaign_report.dart';
 import 'package:sadaqo/features/report/domain/repositories/report_repository.dart';
 import 'package:sadaqo/features/report/presentation/widgets/report_widgets.dart';
 import 'package:sadaqo/injection_container.dart';
+import 'package:sadaqo/core/error/exceptions.dart';
 
 /// Admin memeriksa dokumentasi dari pengelola. Disetujui = tampil ke donatur
 /// (di Riwayat > Laporan & Dokumentasi) disertai notifikasi.
@@ -23,17 +22,13 @@ class _ReportReviewPageState extends State<ReportReviewPage> {
   final _log = sl<AdminActivityLog>();
   ReportStatus? _filter = ReportStatus.pending;
 
-  /// Kabari donatur yang pernah mendanai program ini.
-  Future<void> _notifyDonors(CampaignReport r) async {
-    final history = await sl<DonationRemoteDataSource>().getHistory();
-    if (!history.any((d) => d.campaignId == r.campaignId)) return;
-    await sl<NotificationCubit>().add(
-      title: 'Laporan penyaluran baru',
-      body:
-          'Pengelola telah melaporkan penyaluran dana untuk "${r.campaignTitle}". Lihat di Riwayat > Laporan & Dokumentasi.',
-    );
+  @override
+  void initState() {
+    super.initState();
+    _repo.loadForAdmin();
   }
 
+  /// Kabari donatur yang pernah mendanai program ini.
   Future<bool> _approve(CampaignReport r) async {
     final ok = await confirmDialog(
       context,
@@ -43,11 +38,15 @@ class _ReportReviewPageState extends State<ReportReviewPage> {
       confirmLabel: 'Setujui & Tampilkan',
     );
     if (!ok || !mounted) return false;
-    final updated = _repo.approve(r.id);
-    if (updated == null) return false;
+    try {
+      await _repo.approve(r.id);
+    } on ServerException catch (e) {
+      if (mounted) adminToast(context, e.message);
+      return false;
+    }
     _log.add(ActivityKind.verified, 'Laporan "${r.title}" dipublikasikan ke donatur');
+    if (!mounted) return true;
     adminToast(context, 'Laporan dipublikasikan ke donatur');
-    await _notifyDonors(updated);
     return true;
   }
 
@@ -79,8 +78,14 @@ class _ReportReviewPageState extends State<ReportReviewPage> {
     );
     controller.dispose();
     if (note == null || !mounted) return false;
-    _repo.requestRevision(r.id, note);
+        try {
+      await _repo.requestRevision(r.id, note);
+    } on ServerException catch (e) {
+      if (mounted) adminToast(context, e.message);
+      return false;
+    }
     _log.add(ActivityKind.verified, 'Laporan "${r.title}" diminta revisi');
+    if (!mounted) return true;
     adminToast(context, 'Permintaan revisi dikirim ke pengelola');
     return true;
   }
@@ -127,7 +132,26 @@ class _ReportReviewPageState extends State<ReportReviewPage> {
                   ),
                 ),
                 const SizedBox(height: 14),
-                if (items.isEmpty)
+                                if (_repo.loading && all.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.all(40),
+                    child: Center(child: CircularProgressIndicator(color: AdminColors.green)),
+                  )
+                else if (_repo.error != null && all.isEmpty)
+                  AdminCard(
+                    child: Column(
+                      children: [
+                        EmptyState(icon: Icons.cloud_off_rounded, text: _repo.error!),
+                        const SizedBox(height: 8),
+                        AdminButton(
+                          label: 'Coba lagi',
+                          icon: Icons.refresh_rounded,
+                          onPressed: _repo.loadForAdmin,
+                        ),
+                      ],
+                    ),
+                  )
+                else if (items.isEmpty)
                   const AdminCard(
                     child: EmptyState(icon: Icons.task_alt_rounded, text: 'Tidak ada laporan di sini'),
                   )

@@ -77,8 +77,9 @@ Future<void> init() async {
   registerAdminDependencies(sl);
 
   // ===== Laporan & dokumentasi penyaluran (dipakai pengelola, admin, donatur) =====
-  sl.registerLazySingleton<ReportRepository>(() => ReportRepositoryImpl());
-
+  sl.registerLazySingleton<ReportRepository>(
+    () => ReportRepositoryImpl(sl<CampaignManageApi>()),
+  );
   // ===== Pengelola Kampanye (semua kode ada di lib/pengelola/) =====
   registerPengelolaDependencies(sl);
 

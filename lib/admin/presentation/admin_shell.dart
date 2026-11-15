@@ -49,6 +49,7 @@ class _AdminShellState extends State<AdminShell> {
     sl<AdminVerificationStore>().loadForAdmin();
     sl<AdminProgramStore>().load();
     sl<AdminNewsStore>().load();
+    sl<ReportRepository>().loadForAdmin();
   }
 
   @override

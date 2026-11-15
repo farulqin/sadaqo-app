@@ -1,12 +1,20 @@
 import 'package:flutter/foundation.dart';
 import 'package:sadaqo/features/report/domain/entities/campaign_report.dart';
 
-/// Kontrak data laporan. Saat backend Laravel siap, buat implementasi baru
-/// berbasis Dio; halaman pengelola, admin, dan donatur tidak perlu diubah.
+/// Kontrak data laporan. Daftar dimuat sesuai peran (donatur / pengelola / admin);
+/// pengiriman dan pemeriksaan melempar ServerException bila server menolak.
 abstract class ReportRepository implements Listenable {
-  /// Semua laporan, terbaru di atas.
+  /// Semua laporan yang sedang dimuat, terbaru di atas.
   List<CampaignReport> get all;
   int get pendingCount;
+  bool get loading;
+  String? get error;
+
+  /// Donatur: laporan yang sudah disetujui. Pengelola: laporan miliknya.
+  /// Admin: semua laporan.
+  Future<void> loadForDonor();
+  Future<void> loadForPengelola();
+  Future<void> loadForAdmin();
 
   CampaignReport? byId(String id);
   List<CampaignReport> byCampaign(String campaignId);
@@ -16,16 +24,14 @@ abstract class ReportRepository implements Listenable {
   /// (dipakai donatur: program yang pernah ia danai).
   List<CampaignReport> publishedFor(Set<String> campaignIds);
 
-  String nextId();
+  /// Pengelola mengirim laporan baru ([isNew]) atau mengirim ulang setelah revisi.
+  Future<void> submit(CampaignReport report, {required bool isNew});
 
-  /// Pengelola mengirim laporan baru atau kirim ulang setelah revisi.
-  void submit(CampaignReport report);
-
-  /// Admin menyetujui = laporan tampil ke donatur.
-  CampaignReport? approve(String id);
+  /// Admin menyetujui = laporan tampil ke donatur (server memberi notifikasi).
+  Future<void> approve(String id);
 
   /// Admin meminta revisi dengan catatan.
-  CampaignReport? requestRevision(String id, String note);
+  Future<void> requestRevision(String id, String note);
 
   bool isRead(String id);
   void markRead(String id);

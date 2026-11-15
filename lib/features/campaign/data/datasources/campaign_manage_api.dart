@@ -183,4 +183,37 @@ class CampaignManageApi {
       throw ServerException(ApiError.message(e));
     }
   }
+
+  // ---------- Laporan penyaluran ----------
+  Future<Map<String, dynamic>> createReport(Map<String, dynamic> body) async {
+    try {
+      final res = await _dio.post('/reports', data: body);
+      return ApiError.object(res.data);
+    } on DioException catch (e) {
+      throw ServerException(ApiError.message(e));
+    }
+  }
+
+  Future<Map<String, dynamic>> updateReport(String id, Map<String, dynamic> body) async {
+    try {
+      final res = await _dio.put('/reports/$id', data: body);
+      return ApiError.object(res.data);
+    } on DioException catch (e) {
+      throw ServerException(ApiError.message(e));
+    }
+  }
+
+  Future<void> reviewReport(String id, {required bool approve, String? note}) async {
+    try {
+      await _dio.patch(
+        '/reports/$id/review',
+        data: {
+          'decision': approve ? 'approve' : 'revision',
+          'note': ?note,
+        },
+      );
+    } on DioException catch (e) {
+      throw ServerException(ApiError.message(e));
+    }
+  }
 }

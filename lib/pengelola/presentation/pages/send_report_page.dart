@@ -8,9 +8,9 @@ import 'package:sadaqo/features/report/domain/entities/campaign_report.dart';
 import 'package:sadaqo/features/report/domain/repositories/report_repository.dart';
 import 'package:sadaqo/features/report/presentation/widgets/report_widgets.dart';
 import 'package:sadaqo/injection_container.dart';
-import 'package:sadaqo/pengelola/core/pengelola_config.dart';
 import 'package:sadaqo/pengelola/data/pengelola_store.dart';
 import 'package:sadaqo/pengelola/core/pengelola_layout.dart';
+import 'package:sadaqo/core/error/exceptions.dart';
 
 /// Formulir kirim dokumentasi: foto kegiatan, bukti penyaluran, dan laporan.
 /// Jika [revising] diisi, formulir terisi data lama untuk diperbaiki.
@@ -109,28 +109,34 @@ class _SendReportPageState extends State<SendReportPage> {
     if (!valid || noPhoto) return;
 
     final c = _campaign;
+    final base = widget.revising;
     setState(() => _sending = true);
-    await Future<void>.delayed(const Duration(milliseconds: 700)); // simulasi kirim
+    try {
+      await sl<ReportRepository>().submit(
+        CampaignReport(
+          id: base?.id ?? '',
+          campaignId: c.id,
+          campaignTitle: c.title,
+          category: c.category,
+          managerName: base?.managerName ?? 'Pengelola',
+          title: _title.text.trim(),
+          summary: _summary.text.trim(),
+          distributedAmount: int.parse(_amount.text.trim()),
+          beneficiaries: int.parse(_people.text.trim()),
+          activityDate: _date,
+          submittedAt: DateTime.now(),
+          activityPhotos: List.of(_activity),
+          proofPhotos: List.of(_proof),
+        ),
+        isNew: base == null,
+      );
+    } on ServerException catch (e) {
+      if (!mounted) return;
+      setState(() => _sending = false);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+      return;
+    }
     if (!mounted) return;
-
-    final repo = sl<ReportRepository>();
-    repo.submit(
-      CampaignReport(
-        id: widget.revising?.id ?? repo.nextId(),
-        campaignId: c.id,
-        campaignTitle: c.title,
-        category: c.category,
-        managerName: PengelolaConfig.name,
-        title: _title.text.trim(),
-        summary: _summary.text.trim(),
-        distributedAmount: int.parse(_amount.text.trim()),
-        beneficiaries: int.parse(_people.text.trim()),
-        activityDate: _date,
-        submittedAt: DateTime.now(),
-        activityPhotos: List.of(_activity),
-        proofPhotos: List.of(_proof),
-      ),
-    );
     Navigator.of(context).pop(true);
   }
 
