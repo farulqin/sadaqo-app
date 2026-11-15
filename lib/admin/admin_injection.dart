@@ -12,16 +12,19 @@ import 'package:dio/dio.dart';
 import 'package:sadaqo/features/campaign/data/datasources/campaign_manage_api.dart';
 import 'package:sadaqo/admin/data/admin_program_store.dart';
 import 'package:sadaqo/admin/data/admin_news_store.dart';
+import 'package:sadaqo/admin/data/admin_user_api.dart';
 
 /// Semua dependency dashboard admin didaftarkan di sini (dipanggil SEKALI dari
 /// injection_container.dart). Semuanya lazy, jadi tidak membebani aplikasi pengguna.
-///
 /// Admin memakai data sumber yang SAMA dengan aplikasi pengguna
 /// (MockCampaignStore, data Komunitas, data Berita), sehingga perubahan dari
 /// admin langsung terlihat di aplikasi.
 void registerAdminDependencies(GetIt sl) {
   sl.registerLazySingleton<AdminCredentialsStore>(() => AdminCredentialsStore());
-  sl.registerLazySingleton<AdminUserStore>(() => AdminUserStore());
+  sl.registerLazySingleton<AdminUserApi>(() => AdminUserApi(sl<Dio>()));
+  sl.registerLazySingleton<AdminUserStore>(
+    () => AdminUserStore(sl<AdminUserApi>(), sl<CampaignManageApi>()),
+  );
   sl.registerLazySingleton<AdminActivityLog>(() => AdminActivityLog());
   sl.registerLazySingleton<AdminAnalyticsStore>(
     () => AdminAnalyticsStore(sl<MockCampaignStore>(), sl<DonationRemoteDataSource>()),
