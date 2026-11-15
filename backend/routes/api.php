@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\FavoriteController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\AdminUserController;
 
 // Semua rute di sini otomatis berawalan /api
 
@@ -82,5 +83,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('/admin/reports', [ReportController::class, 'adminIndex']);
         Route::patch('/reports/{report}/review', [ReportController::class, 'review'])->whereNumber('report');
+
+        Route::get('/admin/users', [AdminUserController::class, 'index']);
+        Route::post('/admin/users', [AdminUserController::class, 'store']);
+        Route::put('/admin/users/{user}', [AdminUserController::class, 'update'])->whereNumber('user');
+        Route::delete('/admin/users/{user}', [AdminUserController::class, 'destroy'])->whereNumber('user');
+        Route::post('/admin/users/{user}/warn', [AdminUserController::class, 'warn'])->whereNumber('user');
+        Route::post('/admin/users/{user}/ban', [AdminUserController::class, 'ban'])->whereNumber('user');
+        Route::post('/admin/users/{user}/lift', [AdminUserController::class, 'lift'])->whereNumber('user');
     });
 });
