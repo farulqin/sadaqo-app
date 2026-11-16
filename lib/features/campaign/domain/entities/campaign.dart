@@ -17,6 +17,7 @@ class Campaign extends Equatable {
     this.unitLabel,
     this.slotTotal,
     this.slotFilled,
+    this.publishedAt,
   });
 
   final String id;
@@ -39,7 +40,8 @@ class Campaign extends Equatable {
   /// Kuota slot (qurban kolektif). Kosong = tanpa batas slot.
   final int? slotTotal;
   final int? slotFilled;
-
+  /// Waktu program tayang (disetujui admin). Dipakai untuk bagian "Program Baru".
+  final DateTime? publishedAt;
   bool get isZakat => category == ProgramCategory.zakat;
   bool get isFixedPrice => unitPrice != null;
   bool get isSlotBased => slotTotal != null;
@@ -84,5 +86,6 @@ class Campaign extends Equatable {
         unitLabel,
         slotTotal,
         slotFilled,
+        publishedAt
       ];
 }

@@ -17,6 +17,7 @@ class CampaignModel extends Campaign {
     super.unitLabel,
     super.slotTotal,
     super.slotFilled,
+    super.publishedAt,
   });
 
   /// Nama key JSON mengikuti rencana respons API Laravel.
@@ -36,6 +37,9 @@ class CampaignModel extends Campaign {
       unitLabel: json['unit_label'] as String?,
       slotTotal: (json['slot_total'] as num?)?.toInt(),
       slotFilled: (json['slot_filled'] as num?)?.toInt(),
+      publishedAt: json['published_at'] is String
+          ? DateTime.tryParse(json['published_at'] as String)
+          : null,
     );
   }
 
@@ -54,6 +58,7 @@ class CampaignModel extends Campaign {
         'unit_label': unitLabel,
         'slot_total': slotTotal,
         'slot_filled': slotFilled,
+        'published_at': publishedAt?.toIso8601String(),
       };
 
   CampaignModel copyWith({int? collectedAmount, int? slotFilled}) {
@@ -72,6 +77,7 @@ class CampaignModel extends Campaign {
       unitLabel: unitLabel,
       slotTotal: slotTotal,
       slotFilled: slotFilled ?? this.slotFilled,
+      publishedAt: publishedAt,
     );
   }
 }
