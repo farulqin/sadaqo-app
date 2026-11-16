@@ -33,6 +33,7 @@ class CampaignResource extends JsonResource
             'supporting_info' => $this->supporting_info,
             'owner_id' => $this->owner_id,
             'created_at' => $this->created_at?->toIso8601String(),
+            'published_at' => \Illuminate\Support\Carbon::parse($this->reviewed_at ?? $this->created_at)->toIso8601String(),
         ];
     }
 }

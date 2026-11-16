@@ -13,6 +13,11 @@ use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\FavoriteController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\AdminUserController;
+use App\Http\Controllers\Api\CommunityCommentController;
+use App\Http\Controllers\Api\CommunityController;
+use App\Http\Controllers\Api\CommunityEventController;
+use App\Http\Controllers\Api\CommunityModerationController;
+use App\Http\Controllers\Api\CommunityPostController;
 
 // Semua rute di sini otomatis berawalan /api
 
@@ -34,7 +39,7 @@ Route::get('/news/{news}', [NewsController::class, 'show'])->whereNumber('news')
 Route::get('/reports', [ReportController::class, 'index']);
 Route::get('/reports/{report}', [ReportController::class, 'show'])->whereNumber('report');
 
-// ===== Harus login (Bearer token) =====
+// ===== semua peran / Harus login (Bearer token) =====
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::put('/me', [AuthController::class, 'updateProfile']);
@@ -52,6 +57,30 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/favorites', [FavoriteController::class, 'index']);
     Route::post('/favorites/{campaign}', [FavoriteController::class, 'toggle'])->whereNumber('campaign');
+
+    Route::get('/community/overview', [CommunityController::class, 'overview']);
+    Route::post('/community/join', [CommunityController::class, 'join']);
+    Route::delete('/community/join', [CommunityController::class, 'leave']);
+    Route::get('/community/members', [CommunityController::class, 'members']);
+
+    Route::get('/community/posts', [CommunityPostController::class, 'index']);
+    Route::post('/community/posts', [CommunityPostController::class, 'store'])->middleware('throttle:20,1');
+    Route::get('/community/posts/{post}', [CommunityPostController::class, 'show'])->whereNumber('post');
+    Route::delete('/community/posts/{post}', [CommunityPostController::class, 'destroy'])->whereNumber('post');
+    Route::post('/community/posts/{post}/like', [CommunityPostController::class, 'like'])->whereNumber('post');
+    Route::post('/community/posts/{post}/report', [CommunityPostController::class, 'report'])->whereNumber('post');
+    Route::post('/community/polls/{poll}/vote', [CommunityPostController::class, 'vote'])->whereNumber('poll');
+
+    Route::get('/community/posts/{post}/comments', [CommunityCommentController::class, 'index'])->whereNumber('post');
+    Route::post('/community/posts/{post}/comments', [CommunityCommentController::class, 'store'])->whereNumber('post')->middleware('throttle:30,1');
+    Route::delete('/community/comments/{comment}', [CommunityCommentController::class, 'destroy'])->whereNumber('comment');
+    Route::post('/community/comments/{comment}/report', [CommunityCommentController::class, 'report'])->whereNumber('comment');
+
+    Route::get('/community/events', [CommunityEventController::class, 'index']);
+    Route::post('/community/events', [CommunityEventController::class, 'store']);
+    Route::put('/community/events/{event}', [CommunityEventController::class, 'update'])->whereNumber('event');
+    Route::delete('/community/events/{event}', [CommunityEventController::class, 'destroy'])->whereNumber('event');
+    Route::post('/community/events/{event}/interest', [CommunityEventController::class, 'interest'])->whereNumber('event');
 
     // ----- Admin & Pengelola -----
     Route::middleware(RoleMiddleware::class . ':admin,pengelola')->group(function () {
@@ -92,5 +121,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/admin/users/{user}/warn', [AdminUserController::class, 'warn'])->whereNumber('user');
         Route::post('/admin/users/{user}/ban', [AdminUserController::class, 'ban'])->whereNumber('user');
         Route::post('/admin/users/{user}/lift', [AdminUserController::class, 'lift'])->whereNumber('user');
+
+                Route::post('/community/posts/{post}/pin', [CommunityPostController::class, 'pin'])->whereNumber('post');
+        Route::get('/admin/community/reports', [CommunityModerationController::class, 'index']);
+        Route::patch('/admin/community/reports/{id}', [CommunityModerationController::class, 'review'])->whereNumber('id');
     });
 });

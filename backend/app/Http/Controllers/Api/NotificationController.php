@@ -56,6 +56,9 @@ class NotificationController extends Controller
             'body' => $n->body,
             'is_read' => (bool) $n->is_read,
             'created_at' => $n->created_at?->toIso8601String(),
+            'type' => $n->type ?? 'system',
+            'ref_type' => $n->ref_type ?? null,
+            'ref_id' => $n->ref_id ?? null,
         ];
     }
 }
