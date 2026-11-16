@@ -16,6 +16,7 @@ import 'package:sadaqo/features/favorite/presentation/cubit/favorite_cubit.dart'
 import 'package:sadaqo/features/notification/presentation/cubit/notification_cubit.dart';
 import 'package:sadaqo/features/profile/presentation/cubit/settings_cubit.dart';
 import 'package:sadaqo/features/community/presentation/cubit/community_cubit.dart';
+import 'package:flutter/gestures.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -76,10 +77,25 @@ class SadaqoApp extends StatelessWidget {
         title: 'SADAQO',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
+        scrollBehavior: const AppScrollBehavior(),
         navigatorKey: appNavigatorKey,
         scaffoldMessengerKey: appMessengerKey,
         home: const SplashPage(),
       ),
     );
   }
+}
+
+/// Mengizinkan menggeser daftar dengan sentuhan, mouse, stylus, dan trackpad.
+/// Tanpa ini, daftar horizontal hanya bisa diseret dengan jari.
+class AppScrollBehavior extends MaterialScrollBehavior {
+  const AppScrollBehavior();
+
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+        PointerDeviceKind.stylus,
+        PointerDeviceKind.trackpad,
+      };
 }
