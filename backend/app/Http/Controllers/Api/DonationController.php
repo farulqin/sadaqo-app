@@ -189,6 +189,7 @@ class DonationController extends Controller
             'user_id' => $user->id,
             'title' => 'Alhamdulillah, donasimu berhasil',
             'body' => "Benih kebaikanmu sudah tertanam. Pembayaran {$rupiah} untuk \"{$donation->campaign->title}\" tercatat atas nama {$donation->donor_name}.",
+            'type' => 'activity',
         ]);
 
         // Kabari pengelola program (bila donaturnya orang lain).
@@ -198,6 +199,7 @@ class DonationController extends Controller
                 'user_id' => $ownerId,
                 'title' => 'Donasi baru masuk',
                 'body' => "{$rupiah} untuk \"{$donation->campaign->title}\" dari {$donation->donor_name}.",
+                'type' => 'activity',
             ]);
         }
 
