@@ -64,6 +64,8 @@ import 'package:sadaqo/features/campaign/data/datasources/campaign_manage_api.da
 import 'package:sadaqo/features/auth/domain/usecases/restore_session.dart';
 import 'package:sadaqo/features/notification/data/datasources/notification_remote_datasource_impl.dart';
 import 'package:sadaqo/features/favorite/data/datasources/favorite_remote_datasource_impl.dart';
+import 'package:sadaqo/features/community_feed/data/community_feed_api.dart';
+import 'package:sadaqo/features/community_feed/presentation/cubit/community_feed_cubit.dart';
 
 // Service locator: semua dependency didaftarkan di sini.
 // Urutan per fitur: datasource -> repository -> usecase -> cubit.
@@ -205,6 +207,10 @@ Future<void> init() async {
       reportMessage: sl(),
     ),
   );
+
+  // ===== Komunitas (feed baru) =====
+  sl.registerLazySingleton<CommunityFeedApi>(() => CommunityFeedApi(sl<Dio>()));
+  sl.registerLazySingleton<CommunityFeedCubit>(() => CommunityFeedCubit(sl()));
 
   // Nama dan ikon kategori mengikuti pengaturan admin di server.
   try {

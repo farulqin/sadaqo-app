@@ -4,7 +4,8 @@ import 'package:sadaqo/core/constants/app_assets.dart';
 import 'package:sadaqo/core/navigation/main_tab_controller.dart';
 import 'package:sadaqo/features/campaign/presentation/cubit/campaign_cubit.dart';
 import 'package:sadaqo/features/campaign/presentation/pages/campaign_list_page.dart';
-import 'package:sadaqo/features/community/presentation/pages/community_page.dart';
+import 'package:sadaqo/features/community_feed/presentation/cubit/community_feed_cubit.dart';
+import 'package:sadaqo/features/community_feed/presentation/pages/community_home_page.dart';
 import 'package:sadaqo/features/donation/presentation/cubit/donation_history_cubit.dart';
 import 'package:sadaqo/features/donation/presentation/pages/donation_history_page.dart';
 import 'package:sadaqo/features/donation/presentation/pages/donation_page.dart';
@@ -33,7 +34,7 @@ class _MainShellState extends State<MainShell> {
     const CampaignListPage(),
     const DonationPage(),
     const DonationHistoryPage(),
-    const CommunityPage(),
+    const CommunityHomePage(),
   ];
 
   @override
@@ -52,6 +53,9 @@ class _MainShellState extends State<MainShell> {
   void _goTo(int i) {
     _tab.index.value = i;
     context.read<NotificationCubit>().load();
+    if (i == MainTabController.community) {
+      context.read<CommunityFeedCubit>().refreshQuiet();
+    }
     // Muat ulang dari server saat tab dibuka (token mati / server mati langsung terdeteksi).
     if (i == MainTabController.history) {
       context.read<DonationHistoryCubit>().refresh();
