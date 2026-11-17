@@ -119,4 +119,42 @@ class CommunityFeedApi {
 
   Future<void> deleteComment(String id) =>
       _run(() => _dio.delete('/community/comments/$id'));
+
+  Future<CommunityPost> post(String id) => _run(() async {
+        final res = await _dio.get('/community/posts/$id');
+        return CommunityPost.fromJson(ApiError.object(res.data));
+      });
+
+  Future<List<CommunityEvent>> events() => _run(() async {
+        final res = await _dio.get('/community/events');
+        return ApiError.list(res.data).map(CommunityEvent.fromJson).toList();
+      });
+
+  Future<({bool interested, int count})> toggleInterest(String id) => _run(() async {
+        final res = await _dio.post('/community/events/$id/interest');
+        final d = ApiError.object(res.data);
+        return (
+          interested: d['interested'] == true,
+          count: (d['interested_count'] as num?)?.toInt() ?? 0,
+        );
+      });
+
+  Future<({List<CommunityAuthor> items, int page, int lastPage})> members({
+    String filter = 'semua',
+    String q = '',
+    int page = 1,
+  }) =>
+      _run(() async {
+        final res = await _dio.get(
+          '/community/members',
+          queryParameters: {'filter': filter, 'q': q, 'page': page},
+        );
+        final body = res.data as Map<String, dynamic>;
+        final meta = body['meta'] is Map ? body['meta'] as Map : const {};
+        return (
+          items: ApiError.list(body).map(CommunityAuthor.fromJson).toList(),
+          page: (meta['page'] as num?)?.toInt() ?? page,
+          lastPage: (meta['last_page'] as num?)?.toInt() ?? 1,
+        );
+      });
 }

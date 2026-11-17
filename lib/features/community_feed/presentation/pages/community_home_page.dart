@@ -7,6 +7,9 @@ import 'package:sadaqo/features/community_feed/domain/community_models.dart';
 import 'package:sadaqo/features/community_feed/presentation/cubit/community_feed_cubit.dart';
 import 'package:sadaqo/features/community_feed/presentation/pages/create_post_page.dart';
 import 'package:sadaqo/features/community_feed/presentation/widgets/community_widgets.dart';
+import 'package:sadaqo/features/community_feed/presentation/pages/community_agenda_page.dart';
+import 'package:sadaqo/features/community_feed/presentation/pages/community_badges_page.dart';
+import 'package:sadaqo/features/community_feed/presentation/pages/community_members_page.dart';
 
 /// Halaman Komunitas: ringkasan, filter (Semua/Diskusi/Polling/Info), dan feed.
 class CommunityHomePage extends StatefulWidget {
@@ -83,6 +86,7 @@ class _CommunityHomePageState extends State<CommunityHomePage> {
           return Column(
             children: [
               _Header(overview: overview, onToggle: overview == null ? null : () => _toggleMembership(overview)),
+              const _QuickActions(),
               SizedBox(
                 height: 52,
                 child: ListView(
@@ -319,5 +323,84 @@ class _Footer extends StatelessWidget {
       return Center(child: TextButton(onPressed: onMore, child: const Text('Muat lebih banyak')));
     }
     return const SizedBox(height: 8);
+  }
+}
+
+class _QuickActions extends StatelessWidget {
+  const _QuickActions();
+
+  void _open(BuildContext context, Widget page) {
+    Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => page));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      child: Row(
+        children: [
+          Expanded(
+            child: _QuickAction(
+              icon: Icons.event_rounded,
+              label: 'Agenda',
+              onTap: () => _open(context, const CommunityAgendaPage()),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: _QuickAction(
+              icon: Icons.groups_rounded,
+              label: 'Anggota',
+              onTap: () => _open(context, const CommunityMembersPage()),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: _QuickAction(
+              icon: Icons.workspace_premium_rounded,
+              label: 'Badge Saya',
+              onTap: () => _open(context, const CommunityBadgesPage()),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QuickAction extends StatelessWidget {
+  const _QuickAction({required this.icon, required this.label, required this.onTap});
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppColors.sandBeige),
+          ),
+          child: Column(
+            children: [
+              Icon(icon, color: AppColors.forestGreen),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

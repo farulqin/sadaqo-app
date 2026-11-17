@@ -24,6 +24,9 @@ class NotificationRemoteDataSourceImpl implements NotificationLocalDataSource {
               createdAt:
                   DateTime.tryParse('${j['created_at']}')?.toLocal() ?? DateTime.now(),
               isRead: j['is_read'] == true,
+              type: (j['type'] ?? 'system') as String,
+              refType: j['ref_type'] as String?,
+              refId: j['ref_id'] == null ? null : '${j['ref_id']}',
             ),
           )
           .toList();

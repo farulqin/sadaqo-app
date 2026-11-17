@@ -28,11 +28,13 @@ class _PostDetailPageState extends State<PostDetailPage> {
   String? _error;
   bool _sending = false;
   CommunityComment? _replyTo;
+  String? _postError;
 
   @override
   void initState() {
     super.initState();
     _load();
+    _ensure();
   }
 
   @override
@@ -60,6 +62,11 @@ class _PostDetailPageState extends State<PostDetailPage> {
         _loading = false;
       });
     }
+  }
+
+  Future<void> _ensure() async {
+    final err = await context.read<CommunityFeedCubit>().ensurePost(widget.postId);
+    if (mounted && err != null) setState(() => _postError = err);
   }
 
   Future<void> _send() async {
@@ -138,12 +145,9 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final post = context.select<CommunityFeedCubit, CommunityPost?>((c) {
-      for (final p in c.state.posts) {
-        if (p.id == widget.postId) return p;
-      }
-      return null;
-    });
+    final post = context.select<CommunityFeedCubit, CommunityPost?>(
+      (c) => c.state.postById(widget.postId),
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -152,7 +156,11 @@ class _PostDetailPageState extends State<PostDetailPage> {
         title: Text(post?.category == 'info' ? 'Pengumuman' : 'Diskusi'),
       ),
       body: post == null
-          ? const Center(child: Text('Post tidak ditemukan atau sudah dihapus.'))
+          ? Center(
+              child: _postError == null
+                  ? const CircularProgressIndicator()
+                  : Text(_postError!, textAlign: TextAlign.center),
+            )
           : Column(
               children: [
                 Expanded(

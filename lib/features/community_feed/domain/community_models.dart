@@ -311,3 +311,67 @@ class PostPage {
   final int page;
   final int lastPage;
 }
+
+class CommunityEvent {
+  const CommunityEvent({
+    required this.id,
+    required this.title,
+    required this.location,
+    required this.startsAt,
+    this.description,
+    this.isOnline = false,
+    this.endsAt,
+    this.image,
+    this.interestedCount = 0,
+    this.interested = false,
+    this.creator,
+    this.canManage = false,
+  });
+
+  final String id;
+  final String title;
+  final String? description;
+  final String location;
+  final bool isOnline;
+  final DateTime startsAt;
+  final DateTime? endsAt;
+  final String? image;
+  final int interestedCount;
+  final bool interested;
+  final String? creator;
+  final bool canManage;
+
+  /// Sudah lewat bila kegiatan berakhir (atau 3 jam setelah mulai bila tak ada jam selesai).
+  bool get isPast =>
+      (endsAt ?? startsAt.add(const Duration(hours: 3))).isBefore(DateTime.now());
+
+  CommunityEvent copyWith({bool? interested, int? interestedCount}) => CommunityEvent(
+        id: id,
+        title: title,
+        description: description,
+        location: location,
+        isOnline: isOnline,
+        startsAt: startsAt,
+        endsAt: endsAt,
+        image: image,
+        interestedCount: interestedCount ?? this.interestedCount,
+        interested: interested ?? this.interested,
+        creator: creator,
+        canManage: canManage,
+      );
+
+  factory CommunityEvent.fromJson(Map<String, dynamic> j) => CommunityEvent(
+        id: '${j['id']}',
+        title: (j['title'] ?? '') as String,
+        description: j['description'] as String?,
+        location: (j['location'] ?? '') as String,
+        isOnline: j['is_online'] == true,
+        startsAt: _dt(j['starts_at']),
+        endsAt: j['ends_at'] is String ? _dt(j['ends_at']) : null,
+        image: j['image'] as String?,
+        interestedCount: (j['interested_count'] as num?)?.toInt() ?? 0,
+        interested: j['interested'] == true,
+        creator: j['creator'] as String?,
+        canManage: j['can_manage'] == true,
+      );
+}

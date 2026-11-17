@@ -10,6 +10,7 @@ class CommunityFeedState {
     this.viewerId,
     this.filter = 'all',
     this.posts = const [],
+    this.extra = const [],
     this.page = 1,
     this.lastPage = 1,
     this.loading = false,
@@ -21,6 +22,9 @@ class CommunityFeedState {
   final String? viewerId;
   final String filter; // all | diskusi | polling | info
   final List<CommunityPost> posts;
+
+  /// Post yang dibuka dari luar feed (mis. lewat notifikasi).
+  final List<CommunityPost> extra;
   final int page;
   final int lastPage;
   final bool loading;
@@ -30,10 +34,21 @@ class CommunityFeedState {
 
   bool get hasMore => page < lastPage;
 
+  CommunityPost? postById(String id) {
+    for (final p in posts) {
+      if (p.id == id) return p;
+    }
+    for (final p in extra) {
+      if (p.id == id) return p;
+    }
+    return null;
+  }
+
   CommunityFeedState copyWith({
     String? viewerId,
     String? filter,
     List<CommunityPost>? posts,
+    List<CommunityPost>? extra,
     int? page,
     int? lastPage,
     bool? loading,
@@ -46,6 +61,7 @@ class CommunityFeedState {
         viewerId: viewerId ?? this.viewerId,
         filter: filter ?? this.filter,
         posts: posts ?? this.posts,
+        extra: extra ?? this.extra,
         page: page ?? this.page,
         lastPage: lastPage ?? this.lastPage,
         loading: loading ?? this.loading,
@@ -60,6 +76,8 @@ class CommunityFeedCubit extends Cubit<CommunityFeedState> {
   CommunityFeedCubit(this._api) : super(const CommunityFeedState());
 
   final CommunityFeedApi _api;
+
+  static const String _readError = 'Data Komunitas tidak dapat dibaca. Coba lagi.';
 
   /// Muat ringkasan dan feed. Bila pengguna berganti akun, data lama dibuang.
   Future<void> load({String? viewerId}) async {
@@ -86,6 +104,8 @@ class CommunityFeedCubit extends Cubit<CommunityFeedState> {
       ));
     } on ServerException catch (e) {
       emit(state.copyWith(loading: false, error: e.message));
+    } catch (_) {
+      emit(state.copyWith(loading: false, error: _readError));
     }
   }
 
@@ -107,6 +127,8 @@ class CommunityFeedCubit extends Cubit<CommunityFeedState> {
       ));
     } on ServerException {
       // Biarkan data lama.
+    } catch (_) {
+      // Biarkan data lama.
     }
   }
 
@@ -123,6 +145,8 @@ class CommunityFeedCubit extends Cubit<CommunityFeedState> {
       ));
     } on ServerException catch (e) {
       emit(state.copyWith(loading: false, error: e.message));
+    } catch (_) {
+      emit(state.copyWith(loading: false, error: _readError));
     }
   }
 
@@ -150,6 +174,19 @@ class CommunityFeedCubit extends Cubit<CommunityFeedState> {
     }
   }
 
+  /// Memastikan sebuah post tersedia (untuk halaman detail yang dibuka dari
+  /// notifikasi). Mengembalikan pesan error, atau null bila sudah ada/berhasil.
+  Future<String?> ensurePost(String id) async {
+    if (state.postById(id) != null) return null;
+    try {
+      final p = await _api.post(id);
+      emit(state.copyWith(extra: [p, ...state.extra]));
+      return null;
+    } on ServerException catch (e) {
+      return e.message;
+    }
+  }
+
   Future<String?> join() async {
     try {
       await _api.join();
@@ -171,7 +208,10 @@ class CommunityFeedCubit extends Cubit<CommunityFeedState> {
   }
 
   void _replace(CommunityPost p) => emit(
-        state.copyWith(posts: [for (final x in state.posts) x.id == p.id ? p : x]),
+        state.copyWith(
+          posts: [for (final x in state.posts) x.id == p.id ? p : x],
+          extra: [for (final x in state.extra) x.id == p.id ? p : x],
+        ),
       );
 
   /// Apresiasi: berubah di layar dulu, dikembalikan bila server menolak.
@@ -234,7 +274,10 @@ class CommunityFeedCubit extends Cubit<CommunityFeedState> {
   Future<String?> deletePost(CommunityPost post) async {
     try {
       await _api.deletePost(post.id);
-      emit(state.copyWith(posts: [for (final x in state.posts) if (x.id != post.id) x]));
+      emit(state.copyWith(
+        posts: [for (final x in state.posts) if (x.id != post.id) x],
+        extra: [for (final x in state.extra) if (x.id != post.id) x],
+      ));
       _refreshOverview();
       return null;
     } on ServerException catch (e) {
@@ -253,11 +296,12 @@ class CommunityFeedCubit extends Cubit<CommunityFeedState> {
 
   /// Dipanggil halaman detail saat komentar ditambah (+) atau dihapus (-).
   void adjustCommentCount(String postId, int delta) {
-    emit(state.copyWith(posts: [
-      for (final p in state.posts)
-        p.id == postId
-            ? p.copyWith(commentCount: (p.commentCount + delta).clamp(0, 1 << 30))
-            : p,
-    ]));
+    CommunityPost fix(CommunityPost p) => p.id == postId
+        ? p.copyWith(commentCount: (p.commentCount + delta).clamp(0, 1 << 30))
+        : p;
+    emit(state.copyWith(
+      posts: [for (final p in state.posts) fix(p)],
+      extra: [for (final p in state.extra) fix(p)],
+    ));
   }
 }
