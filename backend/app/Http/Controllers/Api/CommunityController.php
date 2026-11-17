@@ -22,7 +22,8 @@ class CommunityController extends Controller
         }
     }
 
-    private function members()
+    /** Query dasar anggota aktif (termasuk admin dan pengelola). */
+    private function memberQuery()
     {
         return User::query()
             ->where('is_active', true)
@@ -42,8 +43,8 @@ class CommunityController extends Controller
         $earnedKeys = array_column($earned, 'key');
 
         return response()->json(['data' => [
-            'member_count' => $this->members()->count(),
-            'online_count' => $this->members()->where('last_seen_at', '>=', now()->subMinutes(5))->count(),
+            'member_count' => $this->memberQuery()->count(),
+            'online_count' => $this->memberQuery()->where('last_seen_at', '>=', now()->subMinutes(5))->count(),
             'joined' => CommunityGuard::isMember($user),
             'active_polls' => DB::table('community_polls AS po')
                 ->join('community_posts AS p', 'p.id', '=', 'po.post_id')
@@ -90,7 +91,7 @@ class CommunityController extends Controller
     {
         self::touch($request->user());
 
-        $query = $this->members()->with('avatarAsset');
+        $query = $this->memberQuery()->with('avatarAsset');
         $filter = $request->query('filter', 'semua');
         if ($filter === 'online') {
             $query->where('last_seen_at', '>=', now()->subMinutes(5));

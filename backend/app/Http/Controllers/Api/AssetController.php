@@ -109,4 +109,12 @@ class AssetController extends Controller
 
         return response()->json(['message' => 'Gambar dihapus']);
     }
+
+    /** Unggah gambar oleh pengguna biasa (foto post komunitas, avatar). Grup dibatasi. */
+    public function storeMine(Request $request): JsonResponse
+    {
+        $request->validate(['group' => ['required', 'in:avatar,other']]);
+
+        return $this->store($request);
+    }
 }

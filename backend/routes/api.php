@@ -82,6 +82,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/community/events/{event}', [CommunityEventController::class, 'destroy'])->whereNumber('event');
     Route::post('/community/events/{event}/interest', [CommunityEventController::class, 'interest'])->whereNumber('event');
 
+    Route::post('/uploads', [AssetController::class, 'storeMine'])->middleware('throttle:20,1');
+    
     // ----- Admin & Pengelola -----
     Route::middleware(RoleMiddleware::class . ':admin,pengelola')->group(function () {
         Route::post('/assets', [AssetController::class, 'store']);
