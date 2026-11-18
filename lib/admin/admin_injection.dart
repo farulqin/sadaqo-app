@@ -4,8 +4,7 @@ import 'package:sadaqo/admin/data/admin_analytics_store.dart';
 import 'package:sadaqo/admin/data/admin_credentials_store.dart';
 import 'package:sadaqo/admin/data/admin_user_store.dart';
 import 'package:sadaqo/admin/data/admin_verification_store.dart';
-import 'package:sadaqo/features/community/data/datasources/community_admin_datasource.dart';
-import 'package:sadaqo/features/community/data/datasources/community_local_datasource.dart';
+import 'package:sadaqo/admin/data/admin_community_store.dart';
 import 'package:dio/dio.dart';
 import 'package:sadaqo/features/campaign/data/datasources/campaign_manage_api.dart';
 import 'package:sadaqo/admin/data/admin_program_store.dart';
@@ -37,10 +36,8 @@ void registerAdminDependencies(GetIt sl) {
     () => AdminVerificationStore(sl<CampaignManageApi>()),
   );
 
-  // Komunitas: sumber data yang sama dengan aplikasi, dilihat dari sisi admin.
-  sl.registerLazySingleton<CommunityAdminDataSource>(
-    () => sl<CommunityLocalDataSource>() as CommunityAdminDataSource,
-  );
+  // Moderasi Komunitas: laporan diambil dari API.
+  sl.registerLazySingleton<AdminCommunityStore>(() => AdminCommunityStore(sl<Dio>()));
 
   // Berita untuk halaman admin: data sudah disambungkan ke API.
   // Perubahan admin belum tampil di aplikasi donatur sampai disambungkan ke Dio.

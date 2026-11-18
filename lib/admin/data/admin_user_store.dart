@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:sadaqo/admin/data/admin_user_api.dart';
 import 'package:sadaqo/core/error/exceptions.dart';
 import 'package:sadaqo/features/campaign/data/datasources/campaign_manage_api.dart';
-import 'package:sadaqo/features/community/domain/entities/moderation.dart';
+import 'package:sadaqo/features/community_feed/domain/moderation.dart';
 
 class AdminUser {
   const AdminUser({

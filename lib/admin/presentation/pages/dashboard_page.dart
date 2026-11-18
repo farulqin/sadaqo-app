@@ -14,7 +14,6 @@ import 'package:sadaqo/core/constants/program_category.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
 import 'package:sadaqo/admin/data/admin_program_store.dart';
 import 'package:sadaqo/features/campaign/domain/entities/campaign.dart';
-import 'package:sadaqo/features/community/data/datasources/community_admin_datasource.dart';
 import 'package:sadaqo/injection_container.dart';
 
 class _Range {
@@ -47,7 +46,6 @@ class _DashboardPageState extends State<DashboardPage> {
   final _users = sl<AdminUserStore>();
   final _verification = sl<AdminVerificationStore>();
   final _log = sl<AdminActivityLog>();
-  final _community = sl<CommunityAdminDataSource>();
   final _campaigns = sl<AdminProgramStore>();
   final _creds = sl<AdminCredentialsStore>();
 
@@ -131,9 +129,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<void>(
-      stream: _community.changes,
-      builder: (context, _) => ListenableBuilder(
+    return ListenableBuilder(
         listenable: Listenable.merge([_analytics, _campaigns, _users, _verification, _log, _creds]),
         builder: (context, _) => LayoutBuilder(
           builder: (context, c) {
@@ -153,8 +149,7 @@ class _DashboardPageState extends State<DashboardPage> {
             );
           },
         ),
-      ),
-    );
+      );
   }
 
   // ---------------- Header ----------------
@@ -570,13 +565,6 @@ class _DashboardPageState extends State<DashboardPage> {
     }
     for (final u in _users.all.where((u) => inRange(u.joinedAt)).take(4)) {
       items.add(AdminActivity(ActivityKind.user, 'Pengguna baru mendaftar: ${u.name}', u.joinedAt));
-    }
-    for (final e in _community.events.where((e) => inRange(e.at)).take(4)) {
-      items.add(AdminActivity(
-        e.action.isAuto ? ActivityKind.report : ActivityKind.community,
-        '${e.action.label}: ${e.userName}',
-        e.at,
-      ));
     }
     for (final s in _verification.all.where((s) => s.status == SubmissionStatus.pending && inRange(s.submittedAt))) {
       items.add(AdminActivity(ActivityKind.verified, 'Pengajuan kampanye baru: "${s.title}"', s.submittedAt));

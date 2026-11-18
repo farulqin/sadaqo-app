@@ -6,7 +6,7 @@ import 'package:sadaqo/admin/data/admin_user_store.dart';
 import 'package:sadaqo/admin/data/admin_verification_store.dart';
 import 'package:sadaqo/admin/presentation/admin_nav.dart';
 import 'package:sadaqo/admin/presentation/pages/categories_page.dart';
-import 'package:sadaqo/admin/presentation/pages/community_monitor_page.dart';
+import 'package:sadaqo/admin/presentation/pages/community_moderation_page.dart';
 import 'package:sadaqo/admin/presentation/pages/dashboard_page.dart';
 import 'package:sadaqo/admin/presentation/pages/news_admin_page.dart';
 import 'package:sadaqo/admin/presentation/pages/programs_page.dart';
@@ -21,7 +21,7 @@ import 'package:sadaqo/core/constants/app_info.dart';
 import 'package:sadaqo/core/widgets/batik_widgets.dart';
 import 'package:sadaqo/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sadaqo/features/auth/presentation/pages/login_page.dart';
-import 'package:sadaqo/features/community/data/datasources/community_admin_datasource.dart';
+import 'package:sadaqo/admin/data/admin_community_store.dart';
 import 'package:sadaqo/features/profile/presentation/widgets/user_avatar.dart';
 import 'package:sadaqo/injection_container.dart';
 import 'package:sadaqo/admin/presentation/pages/report_review_page.dart';
@@ -51,6 +51,7 @@ class _AdminShellState extends State<AdminShell> {
     sl<AdminNewsStore>().load();
     sl<ReportRepository>().loadForAdmin();
     sl<AdminUserStore>().load();
+    sl<AdminCommunityStore>().load();
   }
 
   @override
@@ -90,7 +91,7 @@ class _AdminShellState extends State<AdminShell> {
       case AdminPage.users:
         return UsersPage(initialQuery: q, startCreate: create);
       case AdminPage.community:
-        return const CommunityMonitorPage();
+        return const CommunityModerationPage();
       case AdminPage.statistics:
         return const StatisticsPage();
       case AdminPage.transactions:
@@ -499,7 +500,7 @@ class _TopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final creds = sl<AdminCredentialsStore>();
     final verification = sl<AdminVerificationStore>();
-    final community = sl<CommunityAdminDataSource>();
+    final community = sl<AdminCommunityStore>();
 
     return Container(
       padding: EdgeInsets.fromLTRB(compact ? 8 : 24, 12, compact ? 8 : 24, 12),
@@ -582,14 +583,11 @@ class _TopBar extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
             // ----- Notifikasi -----
-            StreamBuilder<void>(
-              stream: community.changes,
-              builder: (context, _) => ListenableBuilder(
-                listenable: Listenable.merge([verification, sl<ReportRepository>()]),
+            ListenableBuilder(
+                listenable: Listenable.merge([verification, community, sl<ReportRepository>()]),
                 builder: (context, _) {
                   final pending = verification.pendingCount;
-                  final reports = community.reports.length;
-                  final banned = community.allStatuses.values.where((s) => s.isBanned()).length;
+                  final reports = community.pendingCount;
                   final docs = sl<ReportRepository>().pendingCount;
                   final total = pending + reports + docs;
                   return PopupMenuButton<AdminPage>(
@@ -597,7 +595,7 @@ class _TopBar extends StatelessWidget {
                     onSelected: (p) => nav.go(p),
                     offset: const Offset(0, 46),
                     itemBuilder: (context) => [
-                      if (pending == 0 && reports == 0 && banned == 0 && docs == 0)
+                      if (pending == 0 && reports == 0 && docs == 0)
                         const PopupMenuItem<AdminPage>(
                           enabled: false,
                           child: Text('Tidak ada pemberitahuan baru'),
@@ -615,12 +613,7 @@ class _TopBar extends StatelessWidget {
                       if (reports > 0)
                         PopupMenuItem(
                           value: AdminPage.community,
-                          child: Text('$reports laporan pesan di Komunitas'),
-                        ),
-                      if (banned > 0)
-                        PopupMenuItem(
-                          value: AdminPage.community,
-                          child: Text('$banned pengguna sedang dibanned'),
+                          child: Text('$reports laporan menunggu di Komunitas'),
                         ),
                     ],
                     child: Padding(
@@ -635,7 +628,6 @@ class _TopBar extends StatelessWidget {
                   );
                 },
               ),
-            ),
             const SizedBox(width: 4),
             // ----- Profil admin -----
             ListenableBuilder(

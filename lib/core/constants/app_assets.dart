@@ -7,6 +7,11 @@ class AppAssets {
   static const String logo = '$_images/logo_sadaqo.png';
   static const String logoEmblem = '$_images/logo_sadaqo_emblem.png';
 
+  // ===== Komunitas =====
+  static const String masjidModel = '$_images/masjid_model.jpg';
+  static const String daunKiri = '$_images/daun_kiri.png';
+  static const String daunKanan = '$_images/daun_kanan.png';
+
   // ===== Foto program, satu folder per fitur =====
   static String masjid(String file) => '$_images/masjid_mushola/$file';
   static String sosial(String file) => '$_images/bantuan_sosial/$file';

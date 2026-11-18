@@ -130,6 +130,39 @@ class CommunityFeedApi {
         return ApiError.list(res.data).map(CommunityEvent.fromJson).toList();
       });
 
+  /// Sematkan atau lepas sematan (admin). Mengembalikan status sematan terbaru.
+  Future<bool> togglePin(String id) => _run(() async {
+        final res = await _dio.post('/community/posts/$id/pin');
+        return ApiError.object(res.data)['is_pinned'] == true;
+      });
+
+  Future<void> saveEvent({
+    String? id,
+    required String title,
+    required String location,
+    required bool isOnline,
+    required DateTime startsAt,
+    DateTime? endsAt,
+    String? description,
+  }) =>
+      _run(() async {
+        final body = {
+          'title': title,
+          'location': location,
+          'is_online': isOnline,
+          'starts_at': startsAt.toIso8601String(),
+          'ends_at': endsAt?.toIso8601String(),
+          'description': (description == null || description.isEmpty) ? null : description,
+        };
+        if (id == null) {
+          await _dio.post('/community/events', data: body);
+        } else {
+          await _dio.put('/community/events/$id', data: body);
+        }
+      });
+
+  Future<void> deleteEvent(String id) => _run(() => _dio.delete('/community/events/$id'));
+
   Future<({bool interested, int count})> toggleInterest(String id) => _run(() async {
         final res = await _dio.post('/community/events/$id/interest');
         final d = ApiError.object(res.data);

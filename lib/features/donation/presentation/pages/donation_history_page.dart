@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sadaqo/core/widgets/sadaqo_logo.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
 import 'package:sadaqo/core/constants/program_category.dart';
@@ -42,6 +43,8 @@ class DonationHistoryPage extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Riwayat'),
+          leading: sadaqoLeading(context),
+          leadingWidth: sadaqoLeadingWidth(context),
           bottom: const TabBar(
             indicatorColor: AppColors.limeGreen,
             labelColor: Colors.white,

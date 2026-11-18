@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sadaqo/core/constants/app_assets.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
+import 'package:sadaqo/core/widgets/sadaqo_logo.dart';
+import 'package:sadaqo/features/home/presentation/widgets/top_bar_actions.dart';
 import 'package:sadaqo/core/widgets/state_views.dart';
 import 'package:sadaqo/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sadaqo/features/community_feed/domain/community_models.dart';
@@ -21,13 +24,6 @@ class CommunityHomePage extends StatefulWidget {
 
 class _CommunityHomePageState extends State<CommunityHomePage> {
   final _scroll = ScrollController();
-
-  static const _filters = [
-    ('all', 'Semua'),
-    ('diskusi', 'Diskusi'),
-    ('polling', 'Polling'),
-    ('info', 'Info'),
-  ];
 
   @override
   void initState() {
@@ -80,70 +76,135 @@ class _CommunityHomePageState extends State<CommunityHomePage> {
   Widget build(BuildContext context) {
     final cubit = context.read<CommunityFeedCubit>();
     return Scaffold(
-      body: BlocBuilder<CommunityFeedCubit, CommunityFeedState>(
-        builder: (context, state) {
-          final overview = state.overview;
-          return Column(
-            children: [
-              _Header(overview: overview, onToggle: overview == null ? null : () => _toggleMembership(overview)),
-              const _QuickActions(),
-              SizedBox(
-                height: 52,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  children: [
-                    for (final f in _filters)
+      body: Stack(
+        children: [
+          // Hiasan daun di dua sudut bawah (sesuai referensi).
+          const Positioned(left: -20, bottom: -10, child: _Leaf(AppAssets.daunKiri, width: 150)),
+          const Positioned(right: -20, bottom: -10, child: _Leaf(AppAssets.daunKanan, width: 140)),
+          BlocBuilder<CommunityFeedCubit, CommunityFeedState>(
+            builder: (context, state) {
+              final overview = state.overview;
+              return RefreshIndicator(
+                onRefresh: cubit.load,
+                edgeOffset: MediaQuery.of(context).padding.top + 60,
+                child: ListView.builder(
+                  controller: _scroll,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.only(bottom: 24),
+                  itemCount: state.posts.length + 5,
+                  itemBuilder: (context, i) {
+                    if (i == 0) {
+                      return _Header(
+                        overview: overview,
+                        onToggle: overview == null ? null : () => _toggleMembership(overview),
+                      );
+                    }
+                    if (i == 1) return const _QuickActions();
+                    if (i == 2) return _FilterBar(current: state.filter, onSelected: cubit.setFilter);
+                    if (i == 3) return _padded(_Composer(onTap: _compose));
+                    if (i == state.posts.length + 4) return _body(state, cubit);
+                    final post = state.posts[i - 4];
+                    return _padded(
                       Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: ChoiceChip(
-                          label: Text(f.$2),
-                          selected: state.filter == f.$1,
-                          showCheckmark: false,
-                          selectedColor: AppColors.forestGreen,
-                          backgroundColor: Colors.white,
-                          labelStyle: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            color: state.filter == f.$1 ? Colors.white : AppColors.textDark,
-                          ),
-                          onSelected: (_) => cubit.setFilter(f.$1),
-                        ),
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: PostCard(post: post, onOpen: () => openPostDetail(context, post)),
                       ),
-                  ],
+                    );
+                  },
                 ),
-              ),
-              Expanded(child: _feed(state, cubit)),
-            ],
-          );
-        },
+              );
+            },
+          ),
+        ],
       ),
     );
   }
 
-  Widget _feed(CommunityFeedState state, CommunityFeedCubit cubit) {
-    if (state.loading && state.posts.isEmpty) return const LoadingView();
+  Widget _padded(Widget child) => Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: child);
+
+  /// Bagian bawah daftar: loading awal, error, kosong, atau muat lebih banyak.
+  Widget _body(CommunityFeedState state, CommunityFeedCubit cubit) {
     if (state.error != null && state.posts.isEmpty) {
-      return ErrorView(message: state.error!, onRetry: cubit.load);
+      return SizedBox(height: 260, child: ErrorView(message: state.error!, onRetry: cubit.load));
     }
-    return RefreshIndicator(
-      onRefresh: cubit.load,
-      child: ListView.builder(
-        controller: _scroll,
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
-        itemCount: state.posts.length + 2,
-        itemBuilder: (context, i) {
-          if (i == 0) return _Composer(onTap: _compose);
-          if (i == state.posts.length + 1) return _Footer(state: state, onMore: cubit.loadMore);
-          final post = state.posts[i - 1];
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: PostCard(post: post, onOpen: () => openPostDetail(context, post)),
-          );
-        },
+    return _Footer(state: state, onMore: cubit.loadMore);
+  }
+}
+
+class _Leaf extends StatelessWidget {
+  const _Leaf(this.asset, {required this.width});
+
+  final String asset;
+  final double width;
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Opacity(opacity: 0.55, child: Image.asset(asset, width: width, fit: BoxFit.contain)),
+    );
+  }
+}
+
+class _FilterBar extends StatelessWidget {
+  const _FilterBar({required this.current, required this.onSelected});
+
+  final String current;
+  final ValueChanged<String> onSelected;
+
+  static const _filters = [
+    ('all', 'Semua'),
+    ('diskusi', 'Diskusi'),
+    ('polling', 'Polling'),
+    ('info', 'Info'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: AppColors.sandBeige.withValues(alpha: 0.55),
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Row(
+          children: [
+            for (final f in _filters)
+              Expanded(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => onSelected(f.$1),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    padding: const EdgeInsets.symmetric(vertical: 9),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: current == f.$1 ? AppColors.forestGreen : Colors.transparent,
+                      borderRadius: BorderRadius.circular(26),
+                    ),
+                    child: Text(
+                      f.$2,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: current == f.$1 ? Colors.white : AppColors.forestGreen,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
+}
+
+String _compact(int n) {
+  if (n >= 1000000) return '${(n / 1000000).toStringAsFixed(1)}M';
+  if (n >= 1000) return '${(n / 1000).toStringAsFixed(1)}K';
+  return '$n';
 }
 
 class _Header extends StatelessWidget {
@@ -158,84 +219,168 @@ class _Header extends StatelessWidget {
     final o = overview;
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.fromLTRB(16, top + 14, 16, 16),
+      padding: EdgeInsets.fromLTRB(16, top + 8, 8, 16),
       decoration: const BoxDecoration(
         color: AppColors.forestGreen,
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Baris atas: logo kiri, judul, notifikasi + profil kanan.
           Row(
             children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.15),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.groups_rounded, color: Colors.white, size: 28),
-              ),
+              const SadaqoLogo(size: 42),
               const SizedBox(width: 12),
               const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Text(
+                  'Komunitas',
+                  style: TextStyle(color: Colors.white, fontSize: 21, fontWeight: FontWeight.w800),
+                ),
+              ),
+              const TopBarActions(),
+            ],
+          ),
+          const SizedBox(height: 12),
+          // Banner masjid.
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: SizedBox(
+                height: 158,
+                width: double.infinity,
+                child: Stack(
+                  fit: StackFit.expand,
                   children: [
-                    Text(
-                      'Komunitas SADAQO',
-                      style: TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.w800),
+                    Image.asset(AppAssets.masjidModel, fit: BoxFit.cover, alignment: Alignment.centerRight),
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                          colors: [
+                            AppColors.forestGreen.withValues(alpha: 0.92),
+                            AppColors.forestGreen.withValues(alpha: 0.55),
+                            Colors.transparent,
+                          ],
+                          stops: const [0.0, 0.45, 0.85],
+                        ),
+                      ),
                     ),
-                    Text(
-                      'Bersama berbagi, menebar manfaat',
-                      style: TextStyle(color: Colors.white70, fontSize: 12),
+                    const Positioned(
+                      left: 16,
+                      top: 0,
+                      bottom: 0,
+                      width: 170,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Komunitas\nSADAQO',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              height: 1.1,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Bersama berbagi,\nmenebar manfaat',
+                            style: TextStyle(color: Colors.white, fontSize: 13, height: 1.3),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
               ),
-            ],
+            ),
           ),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      o == null ? 'Memuat...' : '${o.memberCount} Anggota',
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 15),
-                    ),
-                    if (o != null)
+          const SizedBox(height: 12),
+          // Anggota + tombol gabung.
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: Row(
+              children: [
+                const _AvatarStack(),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        '${o.onlineCount} online • ${o.activePolls} polling aktif',
-                        style: const TextStyle(color: AppColors.limeGreen, fontSize: 12, fontWeight: FontWeight.w600),
+                        o == null ? 'Memuat...' : '${_compact(o.memberCount)} Anggota',
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 14),
                       ),
-                  ],
+                      if (o != null)
+                        Text(
+                          '${o.onlineCount} online • ${o.activePolls} polling aktif',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(color: AppColors.limeGreen, fontSize: 11.5, fontWeight: FontWeight.w600),
+                        ),
+                    ],
+                  ),
                 ),
-              ),
-              if (o != null)
-                o.joined
-                    ? OutlinedButton.icon(
-                        onPressed: onToggle,
-                        icon: const Icon(Icons.check_rounded, size: 18),
-                        label: const Text('Tergabung'),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          side: const BorderSide(color: Colors.white54),
+                if (o != null)
+                  o.joined
+                      ? OutlinedButton.icon(
+                          onPressed: onToggle,
+                          icon: const Icon(Icons.check_rounded, size: 18),
+                          label: const Text('Tergabung'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            side: const BorderSide(color: Colors.white54),
+                          ),
+                        )
+                      : FilledButton.icon(
+                          onPressed: onToggle,
+                          icon: const Icon(Icons.add_rounded, size: 18),
+                          label: const Text('Gabung'),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: AppColors.forestGreen,
+                          ),
                         ),
-                      )
-                    : FilledButton.icon(
-                        onPressed: onToggle,
-                        icon: const Icon(Icons.add_rounded, size: 18),
-                        label: const Text('Gabung'),
-                        style: FilledButton.styleFrom(
-                          backgroundColor: AppColors.limeGreen,
-                          foregroundColor: AppColors.forestGreen,
-                        ),
-                      ),
-            ],
+              ],
+            ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Tumpukan foto anggota kecil (hiasan, memakai avatar bawaan aplikasi).
+class _AvatarStack extends StatelessWidget {
+  const _AvatarStack();
+
+  @override
+  Widget build(BuildContext context) {
+    const size = 30.0;
+    const overlap = 20.0;
+    final shown = AppAssets.avatars.take(4).toList();
+    return SizedBox(
+      width: size + overlap * (shown.length - 1),
+      height: size,
+      child: Stack(
+        children: [
+          for (var i = 0; i < shown.length; i++)
+            Positioned(
+              left: i * overlap,
+              child: Container(
+                width: size,
+                height: size,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.forestGreen, width: 2),
+                ),
+                child: ClipOval(child: Image.asset(shown[i], fit: BoxFit.cover)),
+              ),
+            ),
         ],
       ),
     );

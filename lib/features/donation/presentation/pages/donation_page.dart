@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sadaqo/core/widgets/sadaqo_logo.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
@@ -116,7 +117,11 @@ class _DonationPageState extends State<DonationPage> {
               (!needsProvider || _provider != null);
 
           return Scaffold(
-            appBar: AppBar(title: Text(fixed ? 'Bayar Zakat' : 'Donasi')),
+            appBar: AppBar(
+              title: Text(fixed ? 'Bayar Zakat' : 'Donasi'),
+              leading: sadaqoLeading(context),
+              leadingWidth: sadaqoLeadingWidth(context),
+            ),
             body: ListView(
               padding: const EdgeInsets.all(16),
               children: selected == null

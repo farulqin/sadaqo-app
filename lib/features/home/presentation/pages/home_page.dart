@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sadaqo/core/widgets/sadaqo_logo.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
 import 'package:sadaqo/core/constants/program_category.dart';
@@ -323,6 +324,8 @@ class _Header extends StatelessWidget {
         children: [
           Row(
             children: [
+              const SadaqoLogo(size: 42),
+              const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

@@ -4,7 +4,7 @@ import 'package:sadaqo/admin/core/admin_config.dart';
 import 'package:sadaqo/admin/data/admin_credentials_store.dart';
 import 'package:sadaqo/admin/presentation/widgets/admin_widgets.dart';
 import 'package:sadaqo/features/auth/presentation/cubit/auth_cubit.dart';
-import 'package:sadaqo/features/community/domain/entities/moderation.dart';
+import 'package:sadaqo/features/community_feed/domain/moderation.dart';
 import 'package:sadaqo/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:sadaqo/features/profile/presentation/widgets/user_avatar.dart';
 import 'package:sadaqo/injection_container.dart';
@@ -235,7 +235,6 @@ class _SettingsPageState extends State<SettingsPage> {
           const SizedBox(height: 10),
           line(Icons.security_rounded,
               'Banned otomatis: pelanggaran ke-${CommunityPolicy.strikesBeforeBan} dibanned ${CommunityPolicy.banDays} hari. Admin bisa mengubah durasi atau membebaskannya kapan saja.'),
-          line(Icons.edit_note_rounded, 'Panjang pesan Komunitas maksimal ${CommunityPolicy.maxMessageLength} karakter.'),
           line(Icons.receipt_long_rounded, 'Transaksi donatur hanya bisa dilihat. Admin tidak bisa mengubah atau menghapusnya.'),
           line(Icons.sync_rounded, 'Data dashboard sama untuk kedua email admin (satu akun, dua pintu masuk).'),
         ],

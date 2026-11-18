@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sadaqo/core/widgets/sadaqo_logo.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
 import 'package:sadaqo/core/constants/program_category.dart';
@@ -39,7 +40,11 @@ class _CampaignListPageState extends State<CampaignListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.initialCategory?.label ?? 'Program Donasi')),
+      appBar: AppBar(
+        title: Text(widget.initialCategory?.label ?? 'Program Donasi'),
+        leading: sadaqoLeading(context),
+        leadingWidth: sadaqoLeadingWidth(context),
+      ),
       body: Column(
         children: [
           SingleChildScrollView(

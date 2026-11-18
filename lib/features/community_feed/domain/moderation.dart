@@ -1,27 +1,27 @@
 import 'package:equatable/equatable.dart';
-import 'package:sadaqo/core/error/failures.dart';
 
-/// Jenis pelanggaran di fitur Komunitas.
+/// Jenis pelanggaran di fitur Komunitas (sama dengan nilai di backend).
 enum ViolationType {
-  hoax('Berita bohong (hoaks)'),
-  hate('Ujaran kebencian'),
-  scam('Penipuan / scam'),
-  porn('Pornografi'),
-  blasphemy('Penistaan agama'),
-  profanity('Kata-kata kotor');
+  hoax('hoax', 'Berita bohong (hoaks)'),
+  hate('hate', 'Ujaran kebencian'),
+  scam('scam', 'Penipuan / scam'),
+  porn('porn', 'Pornografi'),
+  blasphemy('blasphemy', 'Penistaan agama'),
+  profanity('profanity', 'Kata-kata kotor');
 
-  const ViolationType(this.label);
+  const ViolationType(this.code, this.label);
+  final String code;
   final String label;
 }
 
-/// Aturan sanksi. Ubah angka di sini jika kebijakan berubah.
+/// Aturan sanksi. Ubah angka di sini jika kebijakan berubah
+/// (harus sama dengan CommunityGuard di backend).
 class CommunityPolicy {
   CommunityPolicy._();
 
   /// Pelanggaran ke-1 = peringatan keras, ke-2 = banned.
   static const int strikesBeforeBan = 2;
   static const int banDays = 30;
-  static const int maxMessageLength = 300;
 }
 
 class ModerationStatus extends Equatable {
@@ -44,19 +44,4 @@ class ModerationStatus extends Equatable {
 
   @override
   List<Object?> get props => [strikes, bannedUntil];
-}
-
-/// Pesan mengandung konten terlarang. [status] = status SETELAH pelanggaran dicatat.
-class ViolationFailure extends Failure {
-  const ViolationFailure(this.type, this.status, super.message);
-
-  final ViolationType type;
-  final ModerationStatus status;
-}
-
-/// Pengguna sedang dibanned dari Komunitas.
-class BannedFailure extends Failure {
-  const BannedFailure(this.status, super.message);
-
-  final ModerationStatus status;
 }

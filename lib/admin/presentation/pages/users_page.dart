@@ -8,7 +8,7 @@ import 'package:sadaqo/admin/presentation/pages/moderation_dialogs.dart';
 import 'package:sadaqo/admin/presentation/widgets/admin_widgets.dart';
 import 'package:sadaqo/core/error/exceptions.dart';
 import 'package:sadaqo/core/network/api_config.dart';
-import 'package:sadaqo/features/community/domain/entities/moderation.dart';
+import 'package:sadaqo/features/community_feed/domain/moderation.dart';
 import 'package:sadaqo/injection_container.dart';
 
 enum _UserFilter { all, active, warned, banned }

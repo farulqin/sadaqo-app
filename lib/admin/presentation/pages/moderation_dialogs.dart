@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:sadaqo/admin/presentation/widgets/admin_widgets.dart';
-import 'package:sadaqo/features/community/data/datasources/community_admin_datasource.dart';
-import 'package:sadaqo/features/notification/presentation/cubit/notification_cubit.dart';
-import 'package:sadaqo/injection_container.dart';
 
 /// Pilihan banned dari admin: lamanya dan alasan.
 class BanChoice {
@@ -173,62 +170,5 @@ class _BanDialogState extends State<_BanDialog> {
         ),
       ],
     );
-  }
-}
-
-/// Aksi moderasi yang dipakai halaman Pengguna dan Komunitas.
-class ModerationActions {
-  ModerationActions._();
-
-  static CommunityAdminDataSource get _ds => sl<CommunityAdminDataSource>();
-
-  static Future<bool> warn(BuildContext context, String userId, String userName) async {
-    final note = await showWarnDialog(context, userName);
-    if (note == null) return false;
-    _ds.warnUser(userId, userName, note: note);
-    // Pada demo satu perangkat, peringatan dicatat di notifikasi aplikasi.
-    // Dengan backend, kirim sebagai push notification ke pengguna terkait.
-    sl<NotificationCubit>().add(
-      title: 'Peringatan dari admin',
-      body: note,
-      important: true,
-    );
-    return true;
-  }
-
-  static Future<bool> ban(BuildContext context, String userId, String userName) async {
-    final choice = await showBanDialog(context, userName);
-    if (choice == null) return false;
-    _ds.banUser(
-      userId,
-      userName,
-      choice.duration,
-      note: choice.reason.isEmpty ? null : choice.reason,
-    );
-    sl<NotificationCubit>().add(
-      title: 'Akunmu dibanned dari Komunitas',
-      body: choice.permanent
-          ? 'Kamu dibanned permanen dari Komunitas.${choice.reason.isEmpty ? '' : ' Alasan: ${choice.reason}'}'
-          : 'Kamu dibanned ${choice.duration.inDays} hari dari Komunitas.${choice.reason.isEmpty ? '' : ' Alasan: ${choice.reason}'}',
-      important: true,
-    );
-    return true;
-  }
-
-  static Future<bool> lift(BuildContext context, String userId, String userName) async {
-    final ok = await confirmDialog(
-      context,
-      title: 'Bebaskan banned?',
-      message: '$userName bisa mengirim pesan lagi dan catatan pelanggarannya direset.',
-      confirmLabel: 'Bebaskan',
-    );
-    if (!ok) return false;
-    _ds.liftBan(userId, userName);
-    sl<NotificationCubit>().add(
-      title: 'Banned dibebaskan',
-      body: 'Akunmu sudah bisa kembali berpartisipasi di Komunitas. Mohon patuhi ketentuan komunitas.',
-      important: true,
-    );
-    return true;
   }
 }
