@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\PaymentProviderController;
 use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ReportController;
+use App\Http\Controllers\Api\SocialAuthController;
 use App\Http\Controllers\Api\FavoriteController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\AdminUserController;
@@ -26,6 +27,8 @@ Route::get('/ping', fn () => ['status' => 'ok', 'app' => 'SADAQO']);
 // ===== Publik =====
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,1');
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
+Route::post('/auth/google', [SocialAuthController::class, 'google'])->middleware('throttle:20,1');
+Route::post('/auth/apple', [SocialAuthController::class, 'apple'])->middleware('throttle:20,1');
 
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/payment-providers', [PaymentProviderController::class, 'index']);

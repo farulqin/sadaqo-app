@@ -170,7 +170,7 @@ class HomePage extends StatelessWidget {
                           const SizedBox(height: 20),
                         ],
                         SectionHeader(
-                          title: 'Program Pilihan',
+                          title: 'Program Unggulan',
                           actionLabel: 'Lihat Semua',
                           onAction: () => onNavigateTab(MainTabController.programs),
                         ),

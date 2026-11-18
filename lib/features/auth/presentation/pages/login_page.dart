@@ -237,7 +237,7 @@ class _LoginPageState extends State<LoginPage> {
                           child: _SocialButton(
                             icon: Icons.g_mobiledata,
                             label: 'Google',
-                            onTap: null,
+                            onTap: loading ? null : () => context.read<AuthCubit>().loginWithProvider('Google'),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -245,15 +245,10 @@ class _LoginPageState extends State<LoginPage> {
                           child: _SocialButton(
                             icon: Icons.apple,
                             label: 'Apple',
-                            onTap: null,
+                            onTap: loading ? null : () => context.read<AuthCubit>().loginWithProvider('Apple'),
                           ),
                         ),
                       ],
-                    ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'Masuk dengan Google dan Apple segera hadir.',
-                      style: TextStyle(fontSize: 11.5, color: AppColors.textMuted),
                     ),
                     const SizedBox(height: 16),
                     Row(

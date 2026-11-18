@@ -238,7 +238,7 @@ class _Bell extends StatelessWidget {
               isLabelVisible: account.notificationsEnabled && total > 0,
               smallSize: 10,
               backgroundColor: AppColors.error,
-              child: const Icon(Icons.notifications_none_rounded, size: 28, color: AppColors.forestGreen),
+              child: Image.asset(AppAssets.iconNotifikasi, width: 28, height: 28),
             ),
           ),
         );

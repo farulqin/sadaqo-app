@@ -15,7 +15,10 @@ import 'package:sadaqo/features/donation/domain/usecases/create_donation.dart';
 import 'package:sadaqo/features/donation/presentation/cubit/donation_form_cubit.dart';
 import 'package:sadaqo/features/donation/presentation/cubit/donation_form_state.dart';
 import 'package:sadaqo/features/donation/presentation/cubit/donation_history_cubit.dart';
+import 'package:sadaqo/features/donation/presentation/widgets/donation_explore.dart';
 import 'package:sadaqo/features/donation/presentation/widgets/payment_sheet.dart';
+import 'package:sadaqo/core/widgets/payment_logo.dart';
+import 'package:sadaqo/features/home/presentation/widgets/top_bar_actions.dart';
 import 'package:sadaqo/features/donation/presentation/widgets/program_picker_sheet.dart';
 import 'package:sadaqo/injection_container.dart';
 import 'package:sadaqo/features/splash/presentation/pages/pages/kindness_splash_page.dart';
@@ -121,20 +124,16 @@ class _DonationPageState extends State<DonationPage> {
               title: Text(fixed ? 'Bayar Zakat' : 'Donasi'),
               leading: sadaqoLeading(context),
               leadingWidth: sadaqoLeadingWidth(context),
+              actions: isMainTab(context) ? const [TopBarActions()] : null,
             ),
             body: ListView(
               padding: const EdgeInsets.all(16),
               children: selected == null
                   ? [
-                      _PickProgramCard(
+                      DonationExplore(
+                        campaigns: pickable,
                         loading: pickable.isEmpty,
-                        onTap: () => _pickCampaign(context, pickable),
-                      ),
-                      const SizedBox(height: 10),
-                      const Text(
-                        'Cari berdasarkan nama program, lokasi, atau kategori. '
-                        'Untuk zakat, gunakan menu Zakat di beranda.',
-                        style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                        onPick: (c) => setState(() => _selected = c),
                       ),
                     ]
                   : _formChildren(
@@ -282,24 +281,50 @@ class _DonationPageState extends State<DonationPage> {
         children: [
           Text(hint, style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
           const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 4,
-            children: [
-              for (final p in options)
-                ChoiceChip(
-                  label: Text(p),
-                  selected: _provider == p,
-                  showCheckmark: false,
-                  onSelected: (_) => setState(() => _provider = p),
-                  selectedColor: AppColors.forestGreen,
-                  backgroundColor: Colors.white,
-                  labelStyle: TextStyle(
-                    color: _provider == p ? Colors.white : AppColors.textDark,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-            ],
+          LayoutBuilder(
+            builder: (context, c) {
+              final cols = c.maxWidth >= 520 ? 4 : 3;
+              const gap = 8.0;
+              final w = (c.maxWidth - gap * (cols - 1)) / cols;
+              return Wrap(
+                spacing: gap,
+                runSpacing: gap,
+                children: [
+                  for (final p in options)
+                    SizedBox(
+                      width: w,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () => setState(() => _provider = p),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
+                          decoration: BoxDecoration(
+                            color: _provider == p ? AppColors.successSoft : Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: _provider == p ? AppColors.forestGreen : AppColors.sandBeige,
+                              width: _provider == p ? 2 : 1,
+                            ),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              PaymentLogo(p, height: 28),
+                              const SizedBox(height: 6),
+                              Text(
+                                p,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -608,42 +633,6 @@ class _DonationPageState extends State<DonationPage> {
         ),
       );
     }
-  }
-}
-
-class _PickProgramCard extends StatelessWidget {
-  const _PickProgramCard({required this.loading, required this.onTap});
-
-  final bool loading;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(16),
-      onTap: loading ? null : onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.sandBeige),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.search, color: AppColors.forestGreen),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                loading ? 'Memuat program...' : 'Cari dan pilih program donasi',
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-            ),
-            const Icon(Icons.chevron_right),
-          ],
-        ),
-      ),
-    );
   }
 }
 

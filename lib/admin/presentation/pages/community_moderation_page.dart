@@ -287,8 +287,8 @@ class _PostsTabState extends State<_PostsTab> {
       setState(() {
         _loading = true;
         _error = null;
-      });
-    }
+    });
+  } 
     try {
       final next = more ? _page + 1 : 1;
       final res = await _api.posts(page: next);

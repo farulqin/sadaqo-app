@@ -14,6 +14,16 @@ return [
     |
     */
 
+    'google' => [
+        // Boleh lebih dari satu (web, Android), pisahkan dengan koma.
+        'client_ids' => array_filter(array_map('trim', explode(',', (string) env('GOOGLE_CLIENT_ID', '')))),
+    ],
+
+    'apple' => [
+        // Bundle ID aplikasi iOS dan/atau Services ID untuk web/Android.
+        'client_ids' => array_filter(array_map('trim', explode(',', (string) env('APPLE_CLIENT_ID', '')))),
+    ],
+
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
     ],

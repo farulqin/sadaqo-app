@@ -5,6 +5,7 @@ import 'package:sadaqo/features/notification/presentation/cubit/notification_cub
 import 'package:sadaqo/features/notification/presentation/pages/notification_page.dart';
 import 'package:sadaqo/features/profile/presentation/pages/profile_page.dart';
 import 'package:sadaqo/features/profile/presentation/widgets/user_avatar.dart';
+import 'package:sadaqo/core/constants/app_assets.dart';
 
 /// Bagian kanan atas: lonceng notifikasi + foto profil (membuka halaman Profil).
 /// Bisa dipasang di AppBar halaman lain: `actions: const [TopBarActions()]`.
@@ -27,7 +28,7 @@ class TopBarActions extends StatelessWidget {
             icon: Badge(
               isLabelVisible: state.unread > 0,
               label: Text('${state.unread}'),
-              child: Icon(Icons.notifications_none, color: color),
+              child: Image.asset(AppAssets.iconNotifikasi, width: 26, height: 26),
             ),
           ),
         ),

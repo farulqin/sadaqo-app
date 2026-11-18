@@ -1,4 +1,8 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:sadaqo/core/error/exceptions.dart';
 import 'package:sadaqo/core/network/api_client.dart';
 import 'package:sadaqo/core/network/token_storage.dart';
@@ -50,12 +54,88 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     }
   }
 
+  // Konfigurasi dikirim saat menjalankan aplikasi:
+  // flutter run -d chrome --dart-define=GOOGLE_CLIENT_ID=xxxx.apps.googleusercontent.com
+  static const _googleClientId = String.fromEnvironment('GOOGLE_CLIENT_ID');
+  static const _appleServiceId = String.fromEnvironment('APPLE_SERVICE_ID');
+  static const _appleRedirectUri = String.fromEnvironment('APPLE_REDIRECT_URI');
+
   @override
   Future<UserModel> loginWithProvider(String provider) async {
-    // Backend belum punya endpoint Google/Apple.
-    throw const ServerException(
-      'Masuk lewat Google/Apple belum tersedia di server. Gunakan email dan password.',
+    try {
+      switch (provider) {
+        case 'Google':
+          return await _loginGoogle();
+        case 'Apple':
+          return await _loginApple();
+      }
+      throw ServerException('Penyedia login $provider tidak dikenal');
+    } on DioException catch (e) {
+      throw ServerException(_messageFrom(e));
+    } on PlatformException catch (e) {
+      throw ServerException('Gagal masuk dengan $provider: ${e.message ?? e.code}');
+    }
+  }
+
+  Future<UserModel> _loginGoogle() async {
+    if (_googleClientId.isEmpty) {
+      throw const ServerException(
+        'Login Google belum dikonfigurasi. Jalankan aplikasi dengan --dart-define=GOOGLE_CLIENT_ID=<client id>.',
+      );
+    }
+    final google = GoogleSignIn(
+      scopes: const ['email', 'profile'],
+      clientId: kIsWeb ? _googleClientId : null,
+      serverClientId: kIsWeb ? null : _googleClientId,
     );
+    final account = await google.signIn();
+    if (account == null) throw const ServerException('Masuk dengan Google dibatalkan');
+    final auth = await account.authentication;
+    if (auth.idToken == null && auth.accessToken == null) {
+      throw const ServerException('Google tidak mengirim token. Coba lagi.');
+    }
+    final res = await _dio.post(
+      '/auth/google',
+      data: {
+        if (auth.idToken != null) 'id_token': auth.idToken,
+        if (auth.accessToken != null) 'access_token': auth.accessToken,
+      },
+    );
+    return _saveSession(res.data);
+  }
+
+  Future<UserModel> _loginApple() async {
+    final native = !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.macOS);
+    if (!native && (_appleServiceId.isEmpty || _appleRedirectUri.isEmpty)) {
+      throw const ServerException(
+        'Login Apple langsung tersedia di iPhone/iPad/Mac. Di Android dan web perlu APPLE_SERVICE_ID dan APPLE_REDIRECT_URI.',
+      );
+    }
+    try {
+      final cred = await SignInWithApple.getAppleIDCredential(
+        scopes: const [AppleIDAuthorizationScopes.email, AppleIDAuthorizationScopes.fullName],
+        webAuthenticationOptions: native
+            ? null
+            : WebAuthenticationOptions(clientId: _appleServiceId, redirectUri: Uri.parse(_appleRedirectUri)),
+      );
+      final token = cred.identityToken;
+      if (token == null) throw const ServerException('Apple tidak mengirim token. Coba lagi.');
+      final res = await _dio.post(
+        '/auth/apple',
+        data: {
+          'identity_token': token,
+          if (cred.givenName != null) 'given_name': cred.givenName,
+          if (cred.familyName != null) 'family_name': cred.familyName,
+        },
+      );
+      return await _saveSession(res.data);
+    } on SignInWithAppleAuthorizationException catch (e) {
+      if (e.code == AuthorizationErrorCode.canceled) {
+        throw const ServerException('Masuk dengan Apple dibatalkan');
+      }
+      throw ServerException('Gagal masuk dengan Apple: ${e.message}');
+    }
   }
 
   @override

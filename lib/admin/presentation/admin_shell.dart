@@ -622,7 +622,7 @@ class _TopBar extends StatelessWidget {
                         isLabelVisible: total > 0,
                         label: Text('$total'),
                         backgroundColor: AdminColors.danger,
-                        child: const Icon(Icons.notifications_none_rounded, size: 28, color: AdminColors.green),
+                        child: Image.asset(AppAssets.iconNotifikasi, width: 28, height: 28),
                       ),
                     ),
                   );

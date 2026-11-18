@@ -55,5 +55,6 @@ class AppAssets {
   static const String iconDonasi = '$_icons/ikon_donasi.png';
   static const String iconRiwayat = '$_icons/ikon_riwayat.png';
   static const String iconProfil = '$_icons/ikon_profil.png';
-    static const String iconKomunitas = '$_icons/ikon_komunitas.png';
+  static const String iconKomunitas = '$_icons/ikon_komunitas.png';
+  static const String iconNotifikasi = '$_icons/ikon_notifikasi.png';
 }
