@@ -7,6 +7,7 @@ import 'package:sadaqo/features/auth/domain/repositories/auth_repository.dart';
 import 'package:sadaqo/features/auth/domain/usecases/login_user.dart';
 import 'package:sadaqo/features/auth/domain/usecases/logout_user.dart';
 import 'package:sadaqo/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:sadaqo/features/auth/presentation/cubit/auth_state.dart';
 import 'package:sadaqo/features/campaign/data/datasources/campaign_remote_datasource.dart';
 import 'package:sadaqo/features/campaign/data/repositories/campaign_repository_impl.dart';
 import 'package:sadaqo/features/campaign/domain/repositories/campaign_repository.dart';
@@ -141,13 +142,24 @@ Future<void> init() async {
   sl.registerLazySingleton<NewsCubit>(() => NewsCubit(sl()));
 
   // ===== Profile (foto profil) =====
-  sl.registerLazySingleton<ProfileLocalDataSource>(() => ProfileMemoryDataSource());
+  sl.registerLazySingleton<ProfileLocalDataSource>(
+    () => ProfilePrefsDataSource(() => sl<AuthCubit>().user?.id),
+  );
   sl.registerLazySingleton<ProfileRepository>(() => ProfileRepositoryImpl(sl()));
   sl.registerLazySingleton<GetProfilePhoto>(() => GetProfilePhoto(sl()));
   sl.registerLazySingleton<SaveProfilePhoto>(() => SaveProfilePhoto(sl()));
   sl.registerLazySingleton<ProfileCubit>(
     () => ProfileCubit(getPhoto: sl(), savePhoto: sl()),
   );
+
+  // Foto profil dimuat ulang setiap akun masuk (termasuk pulih sesi saat aplikasi dibuka lagi).
+  sl<AuthCubit>().stream.listen((s) {
+    if (s is AuthAuthenticated) {
+      sl<ProfileCubit>().load();
+    } else if (s is AuthUnauthenticated) {
+      sl<ProfileCubit>().clear();
+    }
+  });
 
   // ===== Notification =====
   sl.registerLazySingleton<NotificationLocalDataSource>(

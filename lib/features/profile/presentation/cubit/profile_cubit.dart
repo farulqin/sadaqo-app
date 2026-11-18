@@ -32,6 +32,8 @@ class ProfileCubit extends Cubit<ProfileState> {
     result.fold((_) {}, (photo) => emit(ProfileState(photo: photo)));
   }
 
+  /// Dipanggil saat keluar akun: kosongkan foto di memori (data tersimpan tetap ada).
+  void clear() => emit(const ProfileState());
   Future<void> setAvatar(String asset) => _persist(ProfilePhoto.avatar(asset));
 
   Future<void> setGalleryPhoto(Uint8List bytes) =>

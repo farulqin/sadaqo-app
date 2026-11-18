@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sadaqo/admin/data/admin_community_store.dart';
+import 'package:sadaqo/admin/presentation/pages/community_live_tab.dart';
 import 'package:sadaqo/admin/presentation/widgets/admin_widgets.dart';
 import 'package:sadaqo/core/error/exceptions.dart';
 import 'package:sadaqo/features/community_feed/data/community_feed_api.dart';
@@ -50,7 +51,7 @@ class _CommunityModerationPageState extends State<CommunityModerationPage> {
               children: [
                 const PageHeader(
                   title: 'Moderasi Komunitas',
-                  subtitle: 'Tinjau laporan, sematkan atau hapus post, dan kelola agenda.',
+                  subtitle: 'Pantau Komunitas secara live, tulis pengumuman dan polling, beri peringatan atau banned, serta kelola agenda.',
                 ),
                 ListenableBuilder(
                   listenable: _store,
@@ -63,7 +64,7 @@ class _CommunityModerationPageState extends State<CommunityModerationPage> {
                     labelStyle: const TextStyle(fontWeight: FontWeight.w800),
                     tabs: [
                       Tab(text: _store.pendingCount > 0 ? 'Laporan (${_store.pendingCount})' : 'Laporan'),
-                      const Tab(text: 'Post'),
+                      const Tab(text: 'Live'),
                       const Tab(text: 'Agenda'),
                     ],
                   ),
@@ -73,7 +74,7 @@ class _CommunityModerationPageState extends State<CommunityModerationPage> {
                   child: TabBarView(
                     children: [
                       _ReportsTab(store: _store),
-                      const _PostsTab(),
+                      const CommunityLiveTab(),
                       const _AgendaTab(),
                     ],
                   ),
@@ -253,170 +254,6 @@ class _ReportCard extends StatelessWidget {
               ],
             ),
           ],
-        ],
-      ),
-    );
-  }
-}
-
-// ===================== Post =====================
-
-class _PostsTab extends StatefulWidget {
-  const _PostsTab();
-
-  @override
-  State<_PostsTab> createState() => _PostsTabState();
-}
-
-class _PostsTabState extends State<_PostsTab> {
-  final _api = sl<CommunityFeedApi>();
-  List<CommunityPost> _posts = const [];
-  int _page = 1;
-  int _lastPage = 1;
-  bool _loading = true;
-  String? _error;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load({bool more = false}) async {
-    if (!more) {
-      setState(() {
-        _loading = true;
-        _error = null;
-    });
-  } 
-    try {
-      final next = more ? _page + 1 : 1;
-      final res = await _api.posts(page: next);
-      if (!mounted) return;
-      setState(() {
-        _posts = more ? [..._posts, ...res.items] : res.items;
-        _page = res.page;
-        _lastPage = res.lastPage;
-        _loading = false;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _error = _err(e);
-        _loading = false;
-      });
-    }
-  }
-
-  Future<void> _pin(CommunityPost p) async {
-    try {
-      final pinned = await _api.togglePin(p.id);
-      if (!mounted) return;
-      adminToast(context, pinned ? 'Post disematkan' : 'Sematan dilepas');
-      await _load();
-    } catch (e) {
-      if (mounted) adminToast(context, _err(e));
-    }
-  }
-
-  Future<void> _delete(CommunityPost p) async {
-    final ok = await confirmDialog(
-      context,
-      title: 'Hapus post?',
-      message: 'Post dari ${p.author.name} beserta komentarnya dihapus permanen.',
-      confirmLabel: 'Hapus',
-      danger: true,
-    );
-    if (!ok || !mounted) return;
-    try {
-      await _api.deletePost(p.id);
-      if (!mounted) return;
-      setState(() => _posts = _posts.where((e) => e.id != p.id).toList());
-      adminToast(context, 'Post dihapus');
-    } catch (e) {
-      if (mounted) adminToast(context, _err(e));
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_loading && _posts.isEmpty) return const Center(child: CircularProgressIndicator());
-    if (_error != null && _posts.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(_error!),
-            const SizedBox(height: 12),
-            AdminButton(label: 'Coba lagi', icon: Icons.refresh_rounded, outlined: true, onPressed: _load),
-          ],
-        ),
-      );
-    }
-    if (_posts.isEmpty) return const EmptyState(icon: Icons.forum_outlined, text: 'Belum ada post.');
-    return RefreshIndicator(
-      onRefresh: _load,
-      child: ListView(
-        padding: const EdgeInsets.only(bottom: 24),
-        children: [
-          for (final p in _posts)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: AdminCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(p.author.name, style: const TextStyle(fontWeight: FontWeight.w800)),
-                        ),
-                        Text(_ago(p.createdAt), style: const TextStyle(fontSize: 12, color: AdminColors.muted)),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: [
-                        Pill(p.category == 'info' ? 'Pengumuman' : 'Diskusi'),
-                        if (p.isPinned) const Pill('Disematkan', color: AdminColors.warn, icon: Icons.push_pin_rounded),
-                        if (p.poll != null) const Pill('Polling', color: AdminColors.gold, icon: Icons.poll_rounded),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(p.body, maxLines: 4, overflow: TextOverflow.ellipsis),
-                    const SizedBox(height: 10),
-                    Text(
-                      '${p.likeCount} apresiasi • ${p.commentCount} komentar',
-                      style: const TextStyle(fontSize: 12, color: AdminColors.muted),
-                    ),
-                    const SizedBox(height: 10),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        AdminButton(
-                          label: p.isPinned ? 'Lepas sematan' : 'Sematkan',
-                          icon: Icons.push_pin_outlined,
-                          outlined: true,
-                          onPressed: () => _pin(p),
-                        ),
-                        AdminButton(
-                          label: 'Hapus',
-                          icon: Icons.delete_outline_rounded,
-                          danger: true,
-                          outlined: true,
-                          onPressed: () => _delete(p),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          if (_page < _lastPage)
-            Center(child: TextButton(onPressed: () => _load(more: true), child: const Text('Muat lebih banyak'))),
         ],
       ),
     );

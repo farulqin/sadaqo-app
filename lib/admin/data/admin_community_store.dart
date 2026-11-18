@@ -95,4 +95,45 @@ class AdminCommunityStore extends ChangeNotifier {
       return ServerException(ApiError.message(e)).message;
     }
   }
+
+  /// Peringatan ke seorang anggota. Endpoint: POST /admin/users/{id}/warn
+  /// (peringatan ke-2 otomatis banned 30 hari, diatur backend).
+  Future<String?> warnUser(String userId, {String message = '', ViolationType? violation}) async {
+    final note = [
+      if (violation != null) violation.label,
+      if (message.isNotEmpty) message,
+    ].join(': ');
+    try {
+      await _dio.post(
+        '/admin/users/$userId/warn',
+        data: {if (note.isNotEmpty) 'note': note},
+      );
+      return null;
+    } on DioException catch (e) {
+      return ServerException(ApiError.message(e)).message;
+    }
+  }
+
+  /// Banned dari Komunitas selama [days] hari. Endpoint: POST /admin/users/{id}/ban
+  Future<String?> banUser(String userId, {required int days, String reason = ''}) async {
+    try {
+      await _dio.post(
+        '/admin/users/$userId/ban',
+        data: {'days': days, if (reason.isNotEmpty) 'reason': reason},
+      );
+      return null;
+    } on DioException catch (e) {
+      return ServerException(ApiError.message(e)).message;
+    }
+  }
+
+  /// Cabut banned dan reset pelanggaran. Endpoint: POST /admin/users/{id}/lift
+  Future<String?> unbanUser(String userId) async {
+    try {
+      await _dio.post('/admin/users/$userId/lift');
+      return null;
+    } on DioException catch (e) {
+      return ServerException(ApiError.message(e)).message;
+    }
+  }
 }
