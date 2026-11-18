@@ -139,3 +139,12 @@ LEFT JOIN users u ON u.avatar_asset_id = a.id
 LEFT JOIN report_photos r ON r.asset_id = a.id
 WHERE c.id IS NULL AND n.id IS NULL AND k.id IS NULL AND u.id IS NULL AND r.id IS NULL;
 ```
+## Diagram ERD (gambar)
+
+![ERD 1: Pengguna, Program, Donasi, Berita, Laporan](erd/ERD_1_inti.png)
+
+![ERD 2: Komunitas dan Moderasi](erd/ERD_2_komunitas.png)
+
+## Query contoh
+
+Kumpulan query untuk pelaporan ada di [`query_sadaqo.sql`](query_sadaqo.sql).
