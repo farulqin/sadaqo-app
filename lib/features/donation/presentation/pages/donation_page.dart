@@ -26,6 +26,7 @@ import 'package:sadaqo/core/navigation/main_tab_controller.dart';
 import 'package:sadaqo/features/notification/presentation/cubit/notification_cubit.dart';
 import 'package:sadaqo/features/profile/presentation/cubit/settings_cubit.dart';
 import 'package:sadaqo/core/widgets/pressable_scale.dart';
+import 'package:sadaqo/core/widgets/success_celebration.dart';
 
 /// Form donasi dengan 3 mode nominal:
 /// 1) nominal bebas (minimal Rp 5.000),
@@ -584,24 +585,12 @@ class _DonationPageState extends State<DonationPage> {
     }
     if (state is DonationFormSuccess) {
       final donation = state.donation;
-      await showDialog<void>(
-        context: context,
-        builder: (dialogContext) => AlertDialog(
-          icon: const Icon(Icons.check_circle, color: AppColors.success, size: 56),
-          title: const Text('Pembayaran Berhasil'),
-          content: Text(
-            'Terima kasih! Pembayaran ${Formatter.rupiah(donation.amount)} '
+      await showCelebrationDialog(
+        context,
+        title: 'Pembayaran Berhasil',
+        message: 'Terima kasih! Pembayaran ${Formatter.rupiah(donation.amount)} '
             'untuk "${donation.campaignTitle}" tercatat atas nama '
             '${donation.donorName} (simulasi, tidak ada uang sungguhan).',
-            textAlign: TextAlign.center,
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Tutup'),
-            ),
-          ],
-        ),
       );
       if (!context.mounted) return;
 
