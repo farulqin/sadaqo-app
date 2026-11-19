@@ -3,6 +3,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
 import 'package:sadaqo/core/utils/formatter.dart';
 import 'package:sadaqo/features/donation/domain/entities/donation.dart';
+import 'package:sadaqo/core/widgets/pressable_scale.dart';
 
 /// Langkah pembayaran (SIMULASI). Mengembalikan true jika donatur menekan
 /// "Saya Sudah Membayar", false jika dibatalkan.
@@ -81,7 +82,7 @@ class _PaymentSheetState extends State<PaymentSheet> {
             ElevatedButton(
               onPressed: () => Navigator.pop(context, true),
               child: const Text('Saya Sudah Membayar (Simulasi)'),
-            ),
+            ).pressable(),
             TextButton(
               onPressed: () => Navigator.pop(context, false),
               child: const Text('Batal'),
@@ -134,7 +135,8 @@ class _PaymentSheetState extends State<PaymentSheet> {
         return _panel(
           icon: Icons.account_balance_wallet_outlined,
           title: 'Bayar dengan ${widget.provider}',
-          text: 'Buka aplikasi ${widget.provider}, lalu konfirmasi pembayaran '
+          text:
+              'Buka aplikasi ${widget.provider}, lalu konfirmasi pembayaran '
               'sesuai nominal di atas.',
         );
       case PaymentMethod.transfer:
@@ -165,9 +167,16 @@ class _PaymentSheetState extends State<PaymentSheet> {
         children: [
           Icon(icon, size: 36, color: AppColors.forestGreen),
           const SizedBox(height: 8),
-          Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+          ),
           const SizedBox(height: 6),
-          Text(text, textAlign: TextAlign.center, style: const TextStyle(height: 1.4)),
+          Text(
+            text,
+            textAlign: TextAlign.center,
+            style: const TextStyle(height: 1.4),
+          ),
           if (code != null) ...[
             const SizedBox(height: 10),
             SelectableText(

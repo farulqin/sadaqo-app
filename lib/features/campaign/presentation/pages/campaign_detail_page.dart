@@ -12,6 +12,7 @@ import 'package:sadaqo/features/campaign/presentation/cubit/campaign_state.dart'
 import 'package:sadaqo/features/donation/presentation/pages/donation_page.dart';
 import 'package:sadaqo/features/zakat/presentation/pages/zakat_page.dart';
 import 'package:sadaqo/features/favorite/presentation/widgets/favorite_button.dart';
+import 'package:sadaqo/core/widgets/pressable_scale.dart';
 
 class CampaignDetailPage extends StatelessWidget {
   const CampaignDetailPage({super.key, required this.campaign});
@@ -189,7 +190,7 @@ class CampaignDetailPage extends StatelessWidget {
             top: false,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-              child: ElevatedButton(onPressed: onAction, child: Text(actionLabel)),
+              child: ElevatedButton(onPressed: onAction, child: Text(actionLabel)).pressable(),
             ),
           ),
         ],

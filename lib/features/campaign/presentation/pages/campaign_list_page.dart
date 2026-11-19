@@ -113,7 +113,7 @@ class _CampaignListPageState extends State<CampaignListPage> {
               child: ErrorView(message: state.message, onRetry: () => context.read<CampaignCubit>().load()),
             ));
           } else if (state is! CampaignLoaded) {
-            children.add(const SizedBox(height: 300, child: LoadingView()));
+           children.add(const LoadingView(variant: LoadingVariant.programList));
           } else {
             final all = state.campaigns;
             Campaign? top;

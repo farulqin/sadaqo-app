@@ -1,13 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
+import 'package:sadaqo/core/widgets/skeleton.dart';
 
+export 'package:sadaqo/core/widgets/skeleton.dart' show LoadingVariant;
+
+/// Tampilan saat memuat: kerangka berkilau (shimmer) yang bentuknya mengikuti
+/// [variant]. Dapat dipakai di area dengan tinggi terbatas maupun tidak.
 class LoadingView extends StatelessWidget {
-  const LoadingView({super.key});
+  const LoadingView({super.key, this.variant = LoadingVariant.list});
+
+  final LoadingVariant variant;
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: CircularProgressIndicator(color: AppColors.forestGreen),
+    return Semantics(
+      label: 'Memuat',
+      child: Shimmer(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final content = SkeletonLayouts.of(variant);
+            if (constraints.hasBoundedHeight) {
+              // Potong kerangka yang melebihi tinggi area.
+              return ClipRect(
+                child: OverflowBox(
+                  alignment: Alignment.topCenter,
+                  minHeight: 0,
+                  maxHeight: double.infinity,
+                  child: content,
+                ),
+              );
+            }
+            return content;
+          },
+        ),
+      ),
     );
   }
 }

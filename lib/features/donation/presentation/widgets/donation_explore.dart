@@ -15,6 +15,7 @@ import 'package:sadaqo/features/favorite/presentation/cubit/favorite_cubit.dart'
 import 'package:sadaqo/features/favorite/presentation/widgets/favorite_button.dart';
 import 'package:sadaqo/injection_container.dart';
 import 'package:sadaqo/core/widgets/category_icon.dart';
+import 'package:sadaqo/core/widgets/state_views.dart';
 
 enum _Sort {
   relevant('Paling relevan'),
@@ -116,7 +117,7 @@ class _DonationExploreState extends State<DonationExplore> {
         _chips(),
         const SizedBox(height: 14),
         if (widget.loading)
-          const Padding(padding: EdgeInsets.all(32), child: Center(child: CircularProgressIndicator()))
+          const LoadingView(variant: LoadingVariant.programList)
         else if (_filtering) ...[
           _sectionTitle(Icons.search_rounded, 'Hasil pencarian (${results.length})'),
           const SizedBox(height: 10),

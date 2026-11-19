@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
+import 'package:sadaqo/core/widgets/pressable_scale.dart';
 import 'package:sadaqo/features/favorite/presentation/cubit/favorite_cubit.dart';
 
 /// Tombol hati bulat untuk menandai program favorit.
@@ -15,29 +16,38 @@ class FavoriteButton extends StatelessWidget {
     return BlocBuilder<FavoriteCubit, FavoriteState>(
       builder: (context, state) {
         final fav = state.isFavorite(campaignId);
-        return Material(
-          color: Colors.white,
-          shape: const CircleBorder(),
-          child: InkWell(
-            customBorder: const CircleBorder(),
-            onTap: () {
-              context.read<FavoriteCubit>().toggle(campaignId);
-              ScaffoldMessenger.of(context)
-                ..hideCurrentSnackBar()
-                ..showSnackBar(
-                  SnackBar(
-                    duration: const Duration(milliseconds: 1200),
-                    content: Text(fav ? 'Dihapus dari favorit' : 'Ditambahkan ke favorit'),
+        return PressableScale(
+          scale: 0.85,
+          child: Material(
+            color: Colors.white,
+            shape: const CircleBorder(),
+            child: InkWell(
+              customBorder: const CircleBorder(),
+              onTap: () {
+                context.read<FavoriteCubit>().toggle(campaignId);
+                ScaffoldMessenger.of(context)
+                  ..hideCurrentSnackBar()
+                  ..showSnackBar(
+                    SnackBar(
+                      duration: const Duration(milliseconds: 1200),
+                      content: Text(fav ? 'Dihapus dari favorit' : 'Ditambahkan ke favorit'),
+                    ),
+                  );
+              },
+              child: SizedBox(
+                width: size,
+                height: size,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 320),
+                  switchInCurve: Curves.elasticOut,
+                  transitionBuilder: (child, anim) => ScaleTransition(scale: anim, child: child),
+                  child: Icon(
+                    fav ? Icons.favorite : Icons.favorite_border,
+                    key: ValueKey(fav),
+                    size: size * 0.55,
+                    color: fav ? const Color(0xFFD94B4B) : AppColors.forestGreen,
                   ),
-                );
-            },
-            child: SizedBox(
-              width: size,
-              height: size,
-              child: Icon(
-                fav ? Icons.favorite : Icons.favorite_border,
-                size: size * 0.55,
-                color: fav ? const Color(0xFFD94B4B) : AppColors.forestGreen,
+                ),
               ),
             ),
           ),

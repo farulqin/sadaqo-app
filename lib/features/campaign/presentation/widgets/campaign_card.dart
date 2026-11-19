@@ -5,6 +5,7 @@ import 'package:sadaqo/core/widgets/percent_chip.dart';
 import 'package:sadaqo/core/widgets/program_image.dart';
 import 'package:sadaqo/features/campaign/domain/entities/campaign.dart';
 import 'package:sadaqo/features/favorite/presentation/widgets/favorite_button.dart';
+import 'package:sadaqo/core/widgets/interactive_card.dart';
 
 class CampaignCard extends StatelessWidget {
   const CampaignCard({super.key, required this.campaign, required this.onTap});
@@ -14,7 +15,7 @@ class CampaignCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
+    return InteractiveCard(radius: 16, child: Material(
       color: Colors.white,
       borderRadius: BorderRadius.circular(16),
       clipBehavior: Clip.antiAlias,
@@ -134,6 +135,7 @@ class CampaignCard extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }

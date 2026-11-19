@@ -4,6 +4,8 @@ import 'package:sadaqo/core/utils/formatter.dart';
 import 'package:sadaqo/core/widgets/program_image.dart';
 import 'package:sadaqo/features/campaign/domain/entities/campaign.dart';
 import 'package:sadaqo/features/favorite/presentation/widgets/favorite_button.dart';
+import 'package:sadaqo/core/widgets/interactive_card.dart';
+import 'package:sadaqo/core/widgets/pressable_scale.dart';
 
 /// Kartu program untuk daftar di tab Program: gambar dengan lencana,
 /// info singkat, progres, dan tombol donasi.
@@ -37,7 +39,7 @@ class ProgramListCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = campaign;
-    return Material(
+    return InteractiveCard(radius: 20, child: Material(
       color: Colors.white,
       borderRadius: BorderRadius.circular(20),
       clipBehavior: Clip.antiAlias,
@@ -152,7 +154,7 @@ class ProgramListCard extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 8),
                           textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
                         ),
-                      ),
+                      ).pressable(),
                     ),
                   ],
                 ),
@@ -161,6 +163,7 @@ class ProgramListCard extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 }

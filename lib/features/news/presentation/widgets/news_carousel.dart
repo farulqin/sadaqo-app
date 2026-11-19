@@ -6,6 +6,7 @@ import 'package:sadaqo/core/utils/formatter.dart';
 import 'package:sadaqo/core/widgets/program_image.dart';
 import 'package:sadaqo/features/news/domain/entities/news_article.dart';
 import 'package:sadaqo/features/news/presentation/pages/news_detail_page.dart';
+import 'package:sadaqo/core/widgets/interactive_card.dart';
 
 /// Carousel berita yang bergeser otomatis seperti banner iklan.
 /// - Geser otomatis tiap [interval]; kembali ke berita pertama setelah yang terakhir.
@@ -120,7 +121,7 @@ class _NewsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
+    return InteractiveCard(radius: 16, lift: 0, child: Material(
       borderRadius: BorderRadius.circular(16),
       clipBehavior: Clip.antiAlias,
       color: AppColors.forestGreen,
@@ -190,6 +191,7 @@ class _NewsCard extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }

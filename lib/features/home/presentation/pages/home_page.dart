@@ -117,7 +117,7 @@ class HomePage extends StatelessWidget {
                       );
                     }
                     if (state is! NewsLoaded) {
-                      return const SizedBox(height: 190, child: LoadingView());
+                      return const LoadingView(variant: LoadingVariant.banner);
                     }
                     if (state.articles.isEmpty) {
                       return const SizedBox.shrink();
@@ -135,10 +135,7 @@ class HomePage extends StatelessWidget {
                       );
                     }
                     if (state is! CampaignLoaded) {
-                      return const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 32),
-                        child: LoadingView(),
-                      );
+                      return const LoadingView(variant: LoadingVariant.cards);
                     }
                     final now = DateTime.now();
                     final fresh = freshPrograms(state.campaigns, now);

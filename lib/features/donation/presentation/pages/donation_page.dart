@@ -25,6 +25,7 @@ import 'package:sadaqo/features/splash/presentation/pages/pages/kindness_splash_
 import 'package:sadaqo/core/navigation/main_tab_controller.dart';
 import 'package:sadaqo/features/notification/presentation/cubit/notification_cubit.dart';
 import 'package:sadaqo/features/profile/presentation/cubit/settings_cubit.dart';
+import 'package:sadaqo/core/widgets/pressable_scale.dart';
 
 /// Form donasi dengan 3 mode nominal:
 /// 1) nominal bebas (minimal Rp 5.000),
@@ -268,7 +269,7 @@ class _DonationPageState extends State<DonationPage> {
                 width: 20,
                 child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
               )
-            : Text(fixed ? 'Bayar Zakat  →' : 'Lanjutkan  →'),
+            : Text(fixed ? 'Bayar Zakat  →' : 'Lanjutkan  →').pressable(),
       ),
     ];
   }

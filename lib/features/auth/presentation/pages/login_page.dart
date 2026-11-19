@@ -9,6 +9,7 @@ import 'package:sadaqo/features/home/presentation/pages/main_shell.dart';
 import 'package:sadaqo/features/notification/presentation/cubit/notification_cubit.dart';
 import 'package:sadaqo/features/splash/presentation/pages/pages/kindness_splash_page.dart';
 import 'package:sadaqo/pengelola/pengelola.dart';
+import 'package:sadaqo/core/widgets/pressable_scale.dart';
 
 /// Halaman masuk dan daftar. Setelah berhasil: splash ucapan selamat datang
 /// (juga dicatat di notifikasi), lalu masuk ke beranda.
@@ -216,7 +217,7 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             )
                           : Text(_isLogin ? 'Masuk  →' : 'Daftar  →'),
-                    ),
+                    ).pressable(),
                     const SizedBox(height: 8),
                     Text(
                       _isLogin

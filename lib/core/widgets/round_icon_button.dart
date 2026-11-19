@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
+import 'package:sadaqo/core/widgets/pressable_scale.dart';
 
 /// Tombol ikon bulat putih (kembali, bagikan) di atas gambar header.
 class RoundIconButton extends StatelessWidget {
@@ -10,15 +11,18 @@ class RoundIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white,
-      shape: const CircleBorder(),
-      child: InkWell(
-        customBorder: const CircleBorder(),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Icon(icon, size: 20, color: AppColors.forestGreen),
+    return PressableScale(
+      scale: 0.88,
+      child: Material(
+        color: Colors.white,
+        shape: const CircleBorder(),
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Icon(icon, size: 20, color: AppColors.forestGreen),
+          ),
         ),
       ),
     );
