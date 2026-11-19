@@ -4,6 +4,7 @@ import 'package:sadaqo/core/constants/app_colors.dart';
 import 'package:sadaqo/core/utils/formatter.dart';
 import 'package:sadaqo/features/donation/domain/entities/donation.dart';
 import 'package:sadaqo/core/widgets/pressable_scale.dart';
+import 'package:sadaqo/core/widgets/payment_logo.dart';
 
 /// Langkah pembayaran (SIMULASI). Mengembalikan true jika donatur menekan
 /// "Saya Sudah Membayar", false jika dibatalkan.
@@ -98,6 +99,8 @@ class _PaymentSheetState extends State<PaymentSheet> {
       case PaymentMethod.qris:
         return Column(
           children: [
+            const PaymentLogo('QRIS', height: 34),
+            const SizedBox(height: 10),
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
@@ -165,7 +168,9 @@ class _PaymentSheetState extends State<PaymentSheet> {
       ),
       child: Column(
         children: [
-          Icon(icon, size: 36, color: AppColors.forestGreen),
+          widget.provider == null
+              ? Icon(icon, size: 36, color: AppColors.forestGreen)
+              : PaymentLogo(widget.provider!, height: 40),
           const SizedBox(height: 8),
           Text(
             title,

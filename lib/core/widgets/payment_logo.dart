@@ -10,6 +10,9 @@ class PaymentLogo extends StatelessWidget {
   final String name;
   final double height;
 
+  /// Semua berkas logo berukuran 360x120 (rasio 3:1).
+  static const double aspect = 3.0;
+
   static String slug(String name) => name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');
 
   static const _brands = <String, _Brand>{
@@ -35,36 +38,44 @@ class PaymentLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final key = slug(name);
-    final width = height * 1.7;
     final brand = _brands[key] ?? _Brand(name, const Color(0xFF1F3D2B), Colors.white);
-    return SizedBox(
-      width: width,
-      height: height,
-      child: Image.asset(
-        'assets/images/payment/$key.png',
-        fit: BoxFit.contain,
-        errorBuilder: (context, error, stack) => Container(
-          alignment: Alignment.center,
-          padding: EdgeInsets.symmetric(horizontal: height * 0.15),
-          decoration: BoxDecoration(
-            color: brand.bg,
-            borderRadius: BorderRadius.circular(height * 0.22),
-          ),
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              brand.text,
-              maxLines: 1,
-              style: TextStyle(
-                color: brand.fg,
-                fontWeight: FontWeight.w800,
-                fontSize: height * 0.42,
-                letterSpacing: -0.2,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Lebar mengikuti rasio logo, tetapi tidak melebihi ruang yang tersedia.
+        final maxW = constraints.hasBoundedWidth ? constraints.maxWidth : double.infinity;
+        final width = height * aspect < maxW ? height * aspect : maxW;
+        return SizedBox(
+          width: width,
+          height: height,
+          child: Image.asset(
+            'assets/images/payment/$key.png',
+            fit: BoxFit.contain,
+            filterQuality: FilterQuality.medium,
+            semanticLabel: name,
+            errorBuilder: (context, error, stack) => Container(
+              alignment: Alignment.center,
+              padding: EdgeInsets.symmetric(horizontal: height * 0.15),
+              decoration: BoxDecoration(
+                color: brand.bg,
+                borderRadius: BorderRadius.circular(height * 0.22),
+              ),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  brand.text,
+                  maxLines: 1,
+                  style: TextStyle(
+                    color: brand.fg,
+                    fontWeight: FontWeight.w800,
+                    fontSize: height * 0.42,
+                    letterSpacing: -0.2,
+                  ),
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

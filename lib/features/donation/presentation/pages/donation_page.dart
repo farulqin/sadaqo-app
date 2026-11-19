@@ -292,34 +292,40 @@ class _DonationPageState extends State<DonationPage> {
                 spacing: gap,
                 runSpacing: gap,
                 children: [
-                  for (final p in options)
+                                    for (final p in options)
                     SizedBox(
                       width: w,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(12),
-                        onTap: () => setState(() => _provider = p),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
-                          decoration: BoxDecoration(
-                            color: _provider == p ? AppColors.successSoft : Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: _provider == p ? AppColors.forestGreen : AppColors.sandBeige,
-                              width: _provider == p ? 2 : 1,
-                            ),
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              PaymentLogo(p, height: 28),
-                              const SizedBox(height: 6),
-                              Text(
-                                p,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700),
+                      child: Semantics(
+                        button: true,
+                        selected: _provider == p,
+                        label: p,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(12),
+                          onTap: () => setState(() => _provider = p),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 160),
+                            height: 64,
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            decoration: BoxDecoration(
+                              color: _provider == p ? AppColors.successSoft : Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: _provider == p ? AppColors.forestGreen : AppColors.sandBeige,
+                                width: _provider == p ? 2 : 1,
                               ),
-                            ],
+                            ),
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                PaymentLogo(p, height: 34),
+                                if (_provider == p)
+                                  const Positioned(
+                                    top: 4,
+                                    right: 4,
+                                    child: Icon(Icons.check_circle, size: 16, color: AppColors.forestGreen),
+                                  ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
