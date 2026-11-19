@@ -12,6 +12,7 @@ import 'package:sadaqo/features/campaign/presentation/pages/campaign_detail_page
 import 'package:sadaqo/features/campaign/presentation/widgets/program_list_card.dart';
 import 'package:sadaqo/features/donation/presentation/pages/donation_page.dart';
 import 'package:sadaqo/features/home/presentation/widgets/top_bar_actions.dart';
+import 'package:sadaqo/core/widgets/category_icon.dart';
 
 enum _Sort {
   newest('Terbaru'),
@@ -320,7 +321,7 @@ class _CampaignListPageState extends State<CampaignListPage> {
   }
 
   Widget _categoryChips() {
-    Widget chip(String label, IconData icon, bool selected, VoidCallback onTap) => Padding(
+    Widget chip(String label, Widget Function(Color color) icon, bool selected, VoidCallback onTap) => Padding(
           padding: const EdgeInsets.only(right: 8),
           child: GestureDetector(
             onTap: onTap,
@@ -333,7 +334,7 @@ class _CampaignListPageState extends State<CampaignListPage> {
               ),
               child: Row(
                 children: [
-                  Icon(icon, size: 18, color: selected ? Colors.white : AppColors.forestGreen),
+                  icon(selected ? Colors.white : AppColors.forestGreen),
                   const SizedBox(width: 6),
                   Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: selected ? Colors.white : AppColors.textDark)),
                 ],
@@ -346,8 +347,8 @@ class _CampaignListPageState extends State<CampaignListPage> {
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),
       child: Row(
         children: [
-          chip('Semua', Icons.grid_view_rounded, _category == null, () => _selectCategory(null)),
-          for (final c in ProgramCategory.values) chip(c.shortLabel, c.icon, _category == c, () => _selectCategory(c)),
+          chip('Semua', (color) => Icon(Icons.grid_view_rounded, size: 18, color: color), _category == null, () => _selectCategory(null)),
+          for (final c in ProgramCategory.values) chip(c.shortLabel, (color) => CategoryIcon(c, size: 18, color: color), _category == c, () => _selectCategory(c)),
         ],
       ),
     );

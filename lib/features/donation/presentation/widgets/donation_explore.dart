@@ -14,6 +14,7 @@ import 'package:sadaqo/features/donation/presentation/cubit/donation_history_sta
 import 'package:sadaqo/features/favorite/presentation/cubit/favorite_cubit.dart';
 import 'package:sadaqo/features/favorite/presentation/widgets/favorite_button.dart';
 import 'package:sadaqo/injection_container.dart';
+import 'package:sadaqo/core/widgets/category_icon.dart';
 
 enum _Sort {
   relevant('Paling relevan'),
@@ -224,7 +225,7 @@ class _DonationExploreState extends State<DonationExplore> {
 
   Widget _chips() {
     final cats = ProgramCategory.values.where((c) => c != ProgramCategory.zakat).toList();
-    Widget chip(String label, IconData icon, bool selected, VoidCallback onTap) => Padding(
+    Widget chip(String label, Widget Function(Color color) icon, bool selected, VoidCallback onTap) => Padding(
           padding: const EdgeInsets.only(right: 8),
           child: GestureDetector(
             onTap: onTap,
@@ -237,7 +238,7 @@ class _DonationExploreState extends State<DonationExplore> {
               ),
               child: Row(
                 children: [
-                  Icon(icon, size: 18, color: selected ? Colors.white : AppColors.forestGreen),
+                  icon(selected ? Colors.white : AppColors.forestGreen),
                   const SizedBox(width: 6),
                   Text(
                     label,
@@ -256,8 +257,8 @@ class _DonationExploreState extends State<DonationExplore> {
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          chip('Semua', Icons.grid_view_rounded, _category == null, () => setState(() => _category = null)),
-          for (final c in cats) chip(c.shortLabel, c.icon, _category == c, () => setState(() => _category = c)),
+          chip('Semua', (color) => Icon(Icons.grid_view_rounded, size: 18, color: color), _category == null, () => setState(() => _category = null)),
+          for (final c in cats) chip(c.shortLabel, (color) => CategoryIcon(c, size: 18, color: color), _category == c, () => setState(() => _category = c)),
         ],
       ),
     );
