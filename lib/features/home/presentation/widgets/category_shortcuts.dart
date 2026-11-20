@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
 import 'package:sadaqo/core/constants/program_category.dart';
@@ -14,7 +15,7 @@ class CategoryShortcuts extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 6),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -28,11 +29,11 @@ class CategoryShortcuts extends StatelessWidget {
                   children: [
                     Container(
                       padding: const EdgeInsets.all(10),
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: AppColors.sandBeige,
                         shape: BoxShape.circle,
                       ),
-                      child: CategoryIcon(c, color: AppColors.forestGreen),
+                      child: CategoryIcon(c, color: AppColors.brandInk),
                     ),
                     const SizedBox(height: 6),
                     Text(

@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:sadaqo/core/constants/app_assets.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
@@ -38,7 +39,7 @@ class AboutContent extends StatelessWidget {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.fromLTRB(24, 28, 24, 28),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppColors.sandBeige,
                 borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
               ),
@@ -46,13 +47,13 @@ class AboutContent extends StatelessWidget {
                 children: [
                   Image.asset(AppAssets.logo, height: 150),
                   const SizedBox(height: 12),
-                  const Text(
+                  Text(
                     'Menghubungkan Niat Baikmu dengan Mereka yang Membutuhkan.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
-                      color: AppColors.forestGreen,
+                      color: AppColors.brandInk,
                       height: 1.35,
                     ),
                   ),
@@ -121,14 +122,14 @@ class AboutContent extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.surface,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: AppColors.sandBeige),
                     ),
-                    child: const Row(
+                    child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.info_outline, size: 18, color: AppColors.forestGreen),
+                        Icon(Icons.info_outline, size: 18, color: AppColors.brandInk),
                         SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -146,20 +147,20 @@ class AboutContent extends StatelessWidget {
                   // 5) Hubungi kami
                   const _Title('Hubungi Kami'),
                   Material(
-                    color: Colors.white,
+                    color: AppColors.surface,
                     borderRadius: BorderRadius.circular(16),
                     clipBehavior: Clip.antiAlias,
                     child: Column(
                       children: [
                         ListTile(
-                          leading: const Icon(Icons.mail_outline, color: AppColors.forestGreen),
+                          leading: Icon(Icons.mail_outline, color: AppColors.brandInk),
                           title: const Text('Email CS'),
                           subtitle: const Text(AppInfo.email),
                           onTap: () => copyToClipboard(context, 'Email', AppInfo.email),
                         ),
                         const Divider(height: 1),
                         ListTile(
-                          leading: const Icon(Icons.chat_outlined, color: AppColors.forestGreen),
+                          leading: Icon(Icons.chat_outlined, color: AppColors.brandInk),
                           title: const Text('WhatsApp CS'),
                           subtitle: const Text(AppInfo.whatsapp),
                           onTap: () =>
@@ -180,7 +181,7 @@ class AboutContent extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Kontak dan akun di atas adalah contoh untuk versi demo. Ketuk untuk menyalin.',
                     style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                   ),
@@ -188,20 +189,20 @@ class AboutContent extends StatelessWidget {
 
                   // 6) Informasi teknis
                   Material(
-                    color: Colors.white,
+                    color: AppColors.surface,
                     borderRadius: BorderRadius.circular(16),
                     clipBehavior: Clip.antiAlias,
                     child: Column(
                       children: [
-                        const ListTile(
-                          leading: Icon(Icons.verified_outlined, color: AppColors.forestGreen),
+                        ListTile(
+                          leading: Icon(Icons.verified_outlined, color: AppColors.brandInk),
                           title: Text('Versi Aplikasi'),
                           trailing: Text('Version ${AppInfo.version}'),
                         ),
                         const Divider(height: 1),
                         ListTile(
-                          leading: const Icon(Icons.description_outlined,
-                              color: AppColors.forestGreen),
+                          leading: Icon(Icons.description_outlined,
+                              color: AppColors.brandInk),
                           title: const Text('Syarat & Ketentuan'),
                           trailing: const Icon(Icons.chevron_right),
                           onTap: () => Navigator.of(context).push(
@@ -210,8 +211,8 @@ class AboutContent extends StatelessWidget {
                         ),
                         const Divider(height: 1),
                         ListTile(
-                          leading: const Icon(Icons.privacy_tip_outlined,
-                              color: AppColors.forestGreen),
+                          leading: Icon(Icons.privacy_tip_outlined,
+                              color: AppColors.brandInk),
                           title: const Text('Kebijakan Privasi'),
                           trailing: const Icon(Icons.chevron_right),
                           onTap: () => Navigator.of(context).push(
@@ -222,7 +223,7 @@ class AboutContent extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const Center(
+                  Center(
                     child: Text(
                       '${AppInfo.name} • ${AppInfo.tagline}',
                       style: TextStyle(fontSize: 12, color: AppColors.textMuted),
@@ -250,10 +251,10 @@ class _Title extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 10),
       child: Text(
         text,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 17,
           fontWeight: FontWeight.w800,
-          color: AppColors.forestGreen,
+          color: AppColors.brandInk,
         ),
       ),
     );
@@ -273,13 +274,13 @@ class _MiniCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: AppColors.forestGreen),
+          Icon(icon, color: AppColors.brandInk),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -317,7 +318,7 @@ class _ValueRow extends StatelessWidget {
               color: AppColors.limeGreen.withValues(alpha: 0.35),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: AppColors.forestGreen),
+            child: Icon(icon, color: AppColors.onLime),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -351,7 +352,7 @@ class _SocialChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.fromLTRB(6, 6, 14, 6),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(30),
           border: Border.all(color: AppColors.sandBeige),
         ),

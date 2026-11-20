@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -139,7 +140,7 @@ class _CreateCampaignPageState extends State<CreateCampaignPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Catatan Admin',
                       style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.error),
                     ),
@@ -156,7 +157,7 @@ class _CreateCampaignPageState extends State<CreateCampaignPage> {
                   color: AppColors.successSoft,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
                     Icon(Icons.info_outline_rounded, color: AppColors.success),
                     SizedBox(width: 10),

@@ -18,11 +18,11 @@ class AdminColors {
   static const Color limeSoft = Color(0xFFE3F0C8);
   static const Color gold = Color(0xFFD9B84A);
   static const Color goldSoft = Color(0xFFF3E8C6);
-  static const Color danger = AppColors.error;
+  static const Color danger = Color(0xFFB3261E);
   static const Color dangerSoft = Color(0xFFF8DEDB);
   static const Color warn = Color(0xFFC27B12);
   static const Color warnSoft = Color(0xFFFBEBCB);
-  static const Color muted = AppColors.textMuted;
+  static const Color muted = Color(0xFF6B6B6B);
 }
 
 /// Warna tetap tiap kategori program di grafik admin.

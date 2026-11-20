@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:sadaqo/core/constants/app_assets.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
@@ -97,11 +98,11 @@ class _SplashPageState extends State<SplashPage>
     return Scaffold(
       body: Container(
         width: double.infinity,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.white, AppColors.background, AppColors.sandBeige],
+            colors: [AppColors.surface, AppColors.background, AppColors.sandBeige],
           ),
         ),
         child: Stack(
@@ -134,12 +135,12 @@ class _SplashPageState extends State<SplashPage>
                   const SizedBox(height: 12),
                   FadeTransition(
                     opacity: _taglineFade,
-                    child: const Text(
+                    child: Text(
                       'Berbagi Kebaikan, Menebar Manfaat',
                       style: TextStyle(
                         fontSize: 15,
                         fontStyle: FontStyle.italic,
-                        color: AppColors.forestGreen,
+                        color: AppColors.brandInk,
                       ),
                     ),
                   ),

@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
@@ -35,7 +36,7 @@ class ReportHistoryView extends StatelessWidget {
           builder: (context, _) {
             final items = repo.publishedFor(ids);
             if (items.isEmpty) {
-              return const Center(
+              return Center(
                 child: Padding(
                   padding: EdgeInsets.all(32),
                   child: Column(
@@ -79,7 +80,7 @@ class _ReportTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final photo = report.activityPhotos.isEmpty ? null : report.activityPhotos.first;
     return Material(
-      color: Colors.white,
+      color: AppColors.surface,
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
         borderRadius: BorderRadius.circular(14),
@@ -116,7 +117,7 @@ class _ReportTile extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 10.5,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.forestGreen,
+                            color: AppColors.onLime,
                           ),
                         ),
                       ),
@@ -131,16 +132,16 @@ class _ReportTile extends StatelessWidget {
                       report.campaignTitle,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                      style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                     ),
                     Text(
                       'Disalurkan ${Formatter.rupiah(report.distributedAmount)} • ${Formatter.date(report.publishedAt ?? report.submittedAt)}',
-                      style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                      style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
+              Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
             ],
           ),
         ),

@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
 import 'package:sadaqo/core/constants/app_info.dart';
@@ -217,7 +218,7 @@ class _ChangePasswordDialogState extends State<_ChangePasswordDialog> {
                   padding: const EdgeInsets.only(top: 10),
                   child: Text(
                     _error!,
-                    style: const TextStyle(color: AppColors.error, fontSize: 13),
+                    style: TextStyle(color: AppColors.error, fontSize: 13),
                   ),
                 ),
             ],

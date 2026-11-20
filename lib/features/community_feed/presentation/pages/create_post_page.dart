@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -154,7 +155,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
             const Divider(height: 28),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              activeThumbColor: AppColors.forestGreen,
+              activeThumbColor: AppColors.brandInk,
               title: const Text('Tambahkan Polling', style: TextStyle(fontWeight: FontWeight.w800)),
               subtitle: const Text('Opsional'),
               value: _withPoll,
@@ -192,7 +193,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                       if (_options.length > 2)
                         IconButton(
                           tooltip: 'Hapus opsi',
-                          icon: const Icon(Icons.delete_outline_rounded, color: AppColors.error),
+                          icon: Icon(Icons.delete_outline_rounded, color: AppColors.error),
                           onPressed: () => setState(() => _options.removeAt(i).dispose()),
                         ),
                     ],
@@ -230,7 +231,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Jaga adab: tanpa hoaks, ujaran kebencian, penipuan, atau konten dewasa. Pelanggaran pertama mendapat peringatan, pelanggaran kedua dibanned 30 hari.',
               style: TextStyle(fontSize: 11.5, color: AppColors.textMuted),
             ),

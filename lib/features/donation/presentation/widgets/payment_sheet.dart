@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
@@ -60,21 +61,21 @@ class _PaymentSheetState extends State<PaymentSheet> {
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: AppColors.textMuted),
+              style: TextStyle(color: AppColors.textMuted),
             ),
             const SizedBox(height: 12),
             Text(
               Formatter.rupiah(widget.amount),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.w800,
-                color: AppColors.forestGreen,
+                color: AppColors.brandInk,
               ),
             ),
             const SizedBox(height: 16),
             _body(),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               'Simulasi: tidak ada uang sungguhan yang berpindah.',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 12, color: AppColors.textMuted),
@@ -104,7 +105,7 @@ class _PaymentSheetState extends State<PaymentSheet> {
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: AppColors.sandBeige),
               ),
@@ -122,7 +123,7 @@ class _PaymentSheetState extends State<PaymentSheet> {
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 4),
-            const Text(
+            Text(
               'Kode contoh untuk simulasi, tidak dapat dibayar sungguhan.',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 12, color: AppColors.textMuted),
@@ -130,7 +131,7 @@ class _PaymentSheetState extends State<PaymentSheet> {
             const SizedBox(height: 8),
             Text(
               'Kode referensi: $_ref',
-              style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+              style: TextStyle(fontSize: 12, color: AppColors.textMuted),
             ),
           ],
         );
@@ -162,14 +163,14 @@ class _PaymentSheetState extends State<PaymentSheet> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.sandBeige),
       ),
       child: Column(
         children: [
           widget.provider == null
-              ? Icon(icon, size: 36, color: AppColors.forestGreen)
+              ? Icon(icon, size: 36, color: AppColors.brandInk)
               : PaymentLogo(widget.provider!, height: 40),
           const SizedBox(height: 8),
           Text(
@@ -186,11 +187,11 @@ class _PaymentSheetState extends State<PaymentSheet> {
             const SizedBox(height: 10),
             SelectableText(
               code,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 2,
-                color: AppColors.forestGreen,
+                color: AppColors.brandInk,
               ),
             ),
           ],

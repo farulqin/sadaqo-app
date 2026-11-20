@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sadaqo/core/constants/app_assets.dart';
@@ -98,7 +99,7 @@ class _DonationExploreState extends State<DonationExplore> {
             for (final s in _Sort.values)
               ListTile(
                 title: Text(s.label),
-                trailing: s == _sort ? const Icon(Icons.check_rounded, color: AppColors.forestGreen) : null,
+                trailing: s == _sort ? Icon(Icons.check_rounded, color: AppColors.brandInk) : null,
                 onTap: () => Navigator.pop(ctx, s),
               ),
           ],
@@ -157,7 +158,7 @@ class _DonationExploreState extends State<DonationExplore> {
           ),
         ),
         const SizedBox(height: 8),
-        const Text(
+        Text(
           'Untuk zakat, gunakan menu Zakat di beranda.',
           style: TextStyle(fontSize: 12, color: AppColors.textMuted),
         ),
@@ -184,7 +185,7 @@ class _DonationExploreState extends State<DonationExplore> {
         Expanded(
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(30),
               border: Border.all(color: AppColors.sandBeige),
             ),
@@ -194,8 +195,8 @@ class _DonationExploreState extends State<DonationExplore> {
               textInputAction: TextInputAction.search,
               decoration: InputDecoration(
                 hintText: 'Cari dan pilih program donasi...',
-                hintStyle: const TextStyle(fontSize: 13.5, color: AppColors.textMuted),
-                prefixIcon: const Icon(Icons.search_rounded, color: AppColors.forestGreen),
+                hintStyle: TextStyle(fontSize: 13.5, color: AppColors.textMuted),
+                prefixIcon: Icon(Icons.search_rounded, color: AppColors.brandInk),
                 suffixIcon: _search.text.isEmpty
                     ? null
                     : IconButton(
@@ -218,13 +219,13 @@ class _DonationExploreState extends State<DonationExplore> {
           child: InkWell(
             borderRadius: BorderRadius.circular(26),
             onTap: _openFilter,
-            child: const Padding(
+            child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 14, vertical: 14),
               child: Row(
                 children: [
-                  Icon(Icons.tune_rounded, size: 20, color: AppColors.forestGreen),
+                  Icon(Icons.tune_rounded, size: 20, color: AppColors.brandInk),
                   SizedBox(width: 6),
-                  Text('Filter', style: TextStyle(fontWeight: FontWeight.w700, color: AppColors.forestGreen)),
+                  Text('Filter', style: TextStyle(fontWeight: FontWeight.w700, color: AppColors.brandInk)),
                 ],
               ),
             ),
@@ -249,7 +250,7 @@ class _DonationExploreState extends State<DonationExplore> {
               ),
               child: Row(
                 children: [
-                  icon(selected ? Colors.white : AppColors.forestGreen),
+                  icon(selected ? Colors.white : AppColors.brandInk),
                   const SizedBox(width: 6),
                   Text(
                     label,
@@ -284,7 +285,7 @@ class _DonationExploreState extends State<DonationExplore> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Container(color: const Color(0xFFEFF3DC)),
+            Container(color: AppColors.tintCream),
             Positioned(
               right: 0,
               top: 0,
@@ -306,12 +307,12 @@ class _DonationExploreState extends State<DonationExplore> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Berbagi Kebaikan,\nMenebar Manfaat',
-                    style: TextStyle(fontSize: 21, height: 1.15, fontWeight: FontWeight.w800, color: AppColors.forestGreen),
+                    style: TextStyle(fontSize: 21, height: 1.15, fontWeight: FontWeight.w800, color: AppColors.brandInk),
                   ),
                   const SizedBox(height: 6),
-                  const Text(
+                  Text(
                     'Setiap donasi Anda membawa harapan bagi yang membutuhkan.',
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -371,7 +372,7 @@ class _DonationExploreState extends State<DonationExplore> {
                   FittedBox(
                     child: Text(value, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
                   ),
-                  Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                  Text(label, textAlign: TextAlign.center, style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
                 ],
               ),
             );
@@ -381,21 +382,21 @@ class _DonationExploreState extends State<DonationExplore> {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.bar_chart_rounded, color: AppColors.forestGreen),
+                  Icon(Icons.bar_chart_rounded, color: AppColors.brandInk),
                   const SizedBox(width: 8),
                   const Expanded(
                     child: Text('Ringkasan Donasi Saya', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
                   ),
                   GestureDetector(
                     onTap: () => sl<MainTabController>().index.value = MainTabController.history,
-                    child: const Text('Lihat Detail →', style: TextStyle(color: AppColors.success, fontWeight: FontWeight.w700, fontSize: 12)),
+                    child: Text('Lihat Detail →', style: TextStyle(color: AppColors.success, fontWeight: FontWeight.w700, fontSize: 12)),
                   ),
                 ],
               ),
               const SizedBox(height: 14),
               Row(
                 children: [
-                  stat(Icons.volunteer_activism_rounded, AppColors.forestGreen, Formatter.rupiah(total), 'Total Donasi'),
+                  stat(Icons.volunteer_activism_rounded, AppColors.brandInk, Formatter.rupiah(total), 'Total Donasi'),
                   stat(Icons.star_rounded, const Color(0xFFF2B01E), '${programs.length}', 'Program Diikuti'),
                   stat(Icons.favorite_rounded, const Color(0xFFE53935), '$social', 'Kegiatan Sosial'),
                 ],
@@ -430,7 +431,7 @@ class _DonationExploreState extends State<DonationExplore> {
               ),
               const SizedBox(height: 12),
               if (first == null)
-                const Text(
+                Text(
                   'Belum ada program favorit. Tekan ikon hati pada program untuk menyimpannya.',
                   style: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
                 )
@@ -459,7 +460,7 @@ class _DonationExploreState extends State<DonationExplore> {
                     OutlinedButton(
                       onPressed: () => widget.onPick(first!),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.forestGreen,
+                        foregroundColor: AppColors.brandInk,
                         backgroundColor: AppColors.successSoft,
                         side: BorderSide.none,
                         shape: const StadiumBorder(),
@@ -479,7 +480,7 @@ class _DonationExploreState extends State<DonationExplore> {
         width: double.infinity,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: AppColors.sandBeige.withValues(alpha: 0.6)),
         ),
@@ -497,7 +498,7 @@ class _ProgramTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = campaign;
     return Material(
-      color: Colors.white,
+      color: AppColors.surface,
       borderRadius: BorderRadius.circular(18),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -534,7 +535,7 @@ class _ProgramTile extends StatelessWidget {
                     '${Formatter.rupiah(c.collectedAmount)} / ${Formatter.rupiah(c.targetAmount)}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                    style: TextStyle(fontSize: 11, color: AppColors.textMuted),
                   ),
                   const SizedBox(height: 10),
                   SizedBox(

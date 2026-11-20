@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -156,7 +157,7 @@ class _Header extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const Positioned(
+                    Positioned(
                       left: 20,
                       top: 206,
                       right: 20,
@@ -471,7 +472,7 @@ class _ActivityCardState extends State<_ActivityCard> {
         children: [
           Row(
             children: [
-              const Icon(Icons.bar_chart_rounded, color: AppColors.success, size: 28),
+              Icon(Icons.bar_chart_rounded, color: AppColors.success, size: 28),
               const SizedBox(width: 8),
               const Expanded(
                 child: Text('Ringkasan Aktivitas', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
@@ -722,7 +723,7 @@ class _ProgramTile extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       'Target: ${Formatter.rupiah(program.targetAmount)}',
-                      style: const TextStyle(fontSize: 12.5, color: AppColors.textMuted),
+                      style: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
                     ),
                     const SizedBox(height: 6),
                     Row(

@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
@@ -88,7 +89,7 @@ class PengelolaProfilePage extends StatelessWidget {
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size.fromHeight(48),
                   foregroundColor: AppColors.error,
-                  side: const BorderSide(color: AppColors.error),
+                  side: BorderSide(color: AppColors.error),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
@@ -153,7 +154,7 @@ class _IdentityCard extends StatelessWidget {
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 2),
-          Text(email, style: const TextStyle(color: AppColors.textMuted)),
+          Text(email, style: TextStyle(color: AppColors.textMuted)),
           const SizedBox(height: 10),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -178,7 +179,7 @@ class _IdentityCard extends StatelessWidget {
           _InfoRow(icon: Icons.campaign_rounded, text: '$programs program dikelola'),
           if (!complete) ...[
             const SizedBox(height: 12),
-            const Text(
+            Text(
               'Lengkapi profil agar admin bisa menghubungi kamu.',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 12.5, color: AppColors.error),
@@ -245,7 +246,7 @@ class _MenuTile extends StatelessWidget {
       ),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
       subtitle: Text(subtitle, style: const TextStyle(fontSize: 12.5)),
-      trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
+      trailing: Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
     );
   }
 }

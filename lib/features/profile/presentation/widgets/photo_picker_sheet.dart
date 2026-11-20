@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -102,8 +103,8 @@ class PhotoPickerSheet extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.lightbulb_outline,
-                      size: 18, color: AppColors.forestGreen),
+                  Icon(Icons.lightbulb_outline,
+                      size: 18, color: AppColors.brandInk),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -121,7 +122,7 @@ class PhotoPickerSheet extends StatelessWidget {
             const SizedBox(height: 8),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.photo_library_outlined, color: AppColors.forestGreen),
+              leading: Icon(Icons.photo_library_outlined, color: AppColors.brandInk),
               title: const Text('Pilih dari galeri'),
               onTap: () => _pickFromGallery(context),
             ),
@@ -155,8 +156,8 @@ class PhotoPickerSheet extends StatelessWidget {
               const SizedBox(height: 8),
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.delete_outline, color: AppColors.error),
-                title: const Text('Hapus foto', style: TextStyle(color: AppColors.error)),
+                leading: Icon(Icons.delete_outline, color: AppColors.error),
+                title: Text('Hapus foto', style: TextStyle(color: AppColors.error)),
                 onTap: () {
                   cubit.removePhoto();
                   Navigator.pop(context);

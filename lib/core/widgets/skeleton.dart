@@ -1,4 +1,6 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
+import 'package:sadaqo/core/constants/app_colors.dart';
 
 /// Bentuk kerangka loading yang tersedia.
 enum LoadingVariant { list, banner, cards, programList, posts }
@@ -15,8 +17,6 @@ class Shimmer extends StatefulWidget {
 }
 
 class _ShimmerState extends State<Shimmer> with SingleTickerProviderStateMixin {
-  static const _base = Color(0xFFE6DFCB);
-  static const _highlight = Color(0xFFF8F4E8);
 
   late final AnimationController _c = AnimationController(
     vsync: this,
@@ -48,7 +48,7 @@ class _ShimmerState extends State<Shimmer> with SingleTickerProviderStateMixin {
       builder: (context, child) => ShaderMask(
         blendMode: BlendMode.srcATop,
         shaderCallback: (bounds) => LinearGradient(
-          colors: const [_base, _highlight, _base],
+          colors: [AppColors.shimmerBase, AppColors.shimmerHighlight, AppColors.shimmerBase],
           stops: const [0.35, 0.5, 0.65],
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
@@ -85,7 +85,7 @@ class SkeletonBox extends StatelessWidget {
     return Container(
       width: width,
       height: height,
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(radius)),
+      decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(radius)),
     );
   }
 }
@@ -100,7 +100,7 @@ class SkeletonCircle extends StatelessWidget {
     return Container(
       width: size,
       height: size,
-      decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+      decoration: BoxDecoration(color: AppColors.surface, shape: BoxShape.circle),
     );
   }
 }

@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -105,11 +106,11 @@ class _KindnessSplashPageState extends State<KindnessSplashPage>
         child: Container(
           width: double.infinity,
           height: double.infinity,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Colors.white, AppColors.background, AppColors.sandBeige],
+              colors: [AppColors.surface, AppColors.background, AppColors.sandBeige],
             ),
           ),
           child: Stack(
@@ -150,8 +151,8 @@ class _KindnessSplashPageState extends State<KindnessSplashPage>
                             child: Text(
                               widget.message,
                               textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: AppColors.forestGreen,
+                              style: TextStyle(
+                                color: AppColors.brandInk,
                                 fontSize: 21,
                                 fontWeight: FontWeight.w800,
                                 height: 1.4,

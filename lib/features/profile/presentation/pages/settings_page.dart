@@ -1,6 +1,8 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
+import 'package:sadaqo/core/widgets/theme_picker.dart';
 import 'package:sadaqo/core/constants/app_info.dart';
 import 'package:sadaqo/features/notification/presentation/cubit/notification_cubit.dart';
 import 'package:sadaqo/features/profile/presentation/cubit/settings_cubit.dart';
@@ -34,14 +36,15 @@ class SettingsPage extends StatelessWidget {
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
+              const _Group(title: 'Tampilan', children: [ThemePicker()]),
               _Group(
                 title: 'Notifikasi',
                 children: [
                   SwitchListTile(
                     value: settings.notificationsEnabled,
                     onChanged: cubit.setNotifications,
-                    secondary: const Icon(Icons.notifications_active_outlined,
-                        color: AppColors.forestGreen),
+                    secondary: Icon(Icons.notifications_active_outlined,
+                        color: AppColors.brandInk),
                     title: const Text('Notifikasi di aplikasi'),
                     subtitle: const Text('Ucapan, konfirmasi donasi, dan info akun'),
                   ),
@@ -53,8 +56,8 @@ class SettingsPage extends StatelessWidget {
                   SwitchListTile(
                     value: settings.hideNameByDefault,
                     onChanged: cubit.setHideNameByDefault,
-                    secondary: const Icon(Icons.visibility_off_outlined,
-                        color: AppColors.forestGreen),
+                    secondary: Icon(Icons.visibility_off_outlined,
+                        color: AppColors.brandInk),
                     title: const Text('Sembunyikan nama saya'),
                     subtitle: const Text(
                       'Donasi baru otomatis atas nama "Hamba Allah". '
@@ -67,29 +70,29 @@ class SettingsPage extends StatelessWidget {
                 title: 'Akun',
                 children: [
                   ListTile(
-                    leading: const Icon(Icons.lock_outline, color: AppColors.forestGreen),
+                    leading: Icon(Icons.lock_outline, color: AppColors.brandInk),
                     title: const Text('Ubah password'),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () => _changePassword(context),
                   ),
                 ],
               ),
-              const _Group(
+              _Group(
                 title: 'Umum',
                 children: [
                   ListTile(
-                    leading: Icon(Icons.language, color: AppColors.forestGreen),
+                    leading: Icon(Icons.language, color: AppColors.brandInk),
                     title: Text('Bahasa'),
                     trailing: Text('Indonesia'),
                   ),
                   ListTile(
-                    leading: Icon(Icons.info_outline, color: AppColors.forestGreen),
+                    leading: Icon(Icons.info_outline, color: AppColors.brandInk),
                     title: Text('Versi aplikasi'),
                     trailing: Text(AppInfo.version),
                   ),
                 ],
               ),
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(top: 4),
                 child: Text(
                   'Pengaturan tersimpan selama aplikasi terbuka. Setelah backend siap, '
@@ -122,7 +125,7 @@ class _Group extends StatelessWidget {
             padding: const EdgeInsets.only(left: 4, bottom: 6),
             child: Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
                 color: AppColors.textMuted,
@@ -130,7 +133,7 @@ class _Group extends StatelessWidget {
             ),
           ),
           Material(
-            color: Colors.white,
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(16),
             clipBehavior: Clip.antiAlias,
             child: Column(children: children),
@@ -206,7 +209,7 @@ class _ChangePasswordDialogState extends State<_ChangePasswordDialog> {
                 padding: const EdgeInsets.only(top: 10),
                 child: Text(
                   _error!,
-                  style: const TextStyle(color: AppColors.error, fontSize: 12),
+                  style: TextStyle(color: AppColors.error, fontSize: 12),
                 ),
               ),
           ],

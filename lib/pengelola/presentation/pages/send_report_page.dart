@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -161,7 +162,7 @@ class _SendReportPageState extends State<SendReportPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Catatan Admin',
                       style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.error),
                     ),
@@ -188,7 +189,7 @@ class _SendReportPageState extends State<SendReportPage> {
             const SizedBox(height: 4),
             Text(
               'Dana terkumpul: ${Formatter.rupiah(_campaign.collectedAmount)}',
-              style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+              style: TextStyle(fontSize: 12, color: AppColors.textMuted),
             ),
             _label('Judul laporan'),
             TextFormField(
@@ -259,7 +260,7 @@ class _SendReportPageState extends State<SendReportPage> {
               onRemove: (i) => setState(() => _proof.removeAt(i)),
             ),
             if (_photoError)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(top: 8),
                 child: Text(
                   'Foto kegiatan dan bukti penyaluran masing-masing minimal 1.',
@@ -279,7 +280,7 @@ class _SendReportPageState extends State<SendReportPage> {
               label: Text(_sending ? 'Mengirim...' : 'Kirim ke Admin'),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Laporan baru tampil ke donatur setelah diperiksa dan disetujui admin.',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 12, color: AppColors.textMuted),

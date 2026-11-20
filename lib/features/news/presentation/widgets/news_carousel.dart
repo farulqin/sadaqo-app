@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -164,7 +165,7 @@ class _NewsCard extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.forestGreen,
+                        color: AppColors.onLime,
                       ),
                     ),
                   ),

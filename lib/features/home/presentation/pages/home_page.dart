@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:sadaqo/core/widgets/sadaqo_logo.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,6 +26,7 @@ import 'package:sadaqo/features/news/presentation/widgets/news_carousel.dart';
 import 'package:sadaqo/features/zakat/presentation/pages/zakat_page.dart';
 import 'package:sadaqo/core/widgets/animated_progress_bar.dart';
 import 'package:sadaqo/core/widgets/count_up_text.dart';
+import 'package:sadaqo/core/widgets/theme_picker.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key, required this.onNavigateTab});
@@ -218,7 +220,7 @@ class _NewProgramTile extends StatelessWidget {
     return SizedBox(
       width: 260,
       child: Material(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -271,7 +273,7 @@ class _NewProgramTile extends StatelessWidget {
                       c.location,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 11.5, color: AppColors.textMuted),
+                      style: TextStyle(fontSize: 11.5, color: AppColors.textMuted),
                     ),
                     const SizedBox(height: 8),
                     AnimatedProgressBar(
@@ -279,7 +281,7 @@ class _NewProgramTile extends StatelessWidget {
                       minHeight: 6,
                       radius: 6,
                       backgroundColor: AppColors.sandBeige,
-                      color: AppColors.forestGreen,
+                      color: AppColors.brandInk,
                     ),
                     const SizedBox(height: 5),
                     Text(
@@ -344,6 +346,8 @@ class _Header extends StatelessWidget {
                   ],
                 ),
               ),
+              // Pilih tampilan (Terang / Gelap / Liquid Glass)
+              const ThemeQuickButton(),
               // Notifikasi + foto profil (membuka halaman Profil)
               const TopBarActions(),
             ],
@@ -353,14 +357,14 @@ class _Header extends StatelessWidget {
             margin: const EdgeInsets.only(right: 8),
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.account_balance_wallet_outlined,
-                  color: AppColors.forestGreen,
+                  color: AppColors.brandInk,
                   size: 28,
                 ),
                 const SizedBox(width: 12),
@@ -368,17 +372,17 @@ class _Header extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Total Donasi Anda',
                         style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                       ),
                       CountUpText(
                         value: total,
                         format: Formatter.rupiah,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.forestGreen,
+                          color: AppColors.brandInk,
                         ),
                       ),
                     ],

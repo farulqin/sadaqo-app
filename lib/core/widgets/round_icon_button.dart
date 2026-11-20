@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
 import 'package:sadaqo/core/widgets/pressable_scale.dart';
@@ -14,14 +15,14 @@ class RoundIconButton extends StatelessWidget {
     return PressableScale(
       scale: 0.88,
       child: Material(
-        color: Colors.white,
+        color: AppColors.surface,
         shape: const CircleBorder(),
         child: InkWell(
           customBorder: const CircleBorder(),
           onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.all(8),
-            child: Icon(icon, size: 20, color: AppColors.forestGreen),
+            child: Icon(icon, size: 20, color: AppColors.brandInk),
           ),
         ),
       ),

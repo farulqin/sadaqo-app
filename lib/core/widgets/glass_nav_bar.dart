@@ -78,7 +78,7 @@ class _GlassNavBarState extends State<GlassNavBar> with SingleTickerProviderStat
             borderRadius: BorderRadius.circular(32),
             boxShadow: [
               BoxShadow(
-                color: AppColors.forestGreen.withValues(alpha: 0.20),
+                color: AppColors.navShadow,
                 blurRadius: 26,
                 offset: const Offset(0, 10),
               ),
@@ -95,12 +95,12 @@ class _GlassNavBarState extends State<GlassNavBar> with SingleTickerProviderStat
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Colors.white.withValues(alpha: 0.82),
-                      Colors.white.withValues(alpha: 0.62),
+                      AppColors.navTop,
+                      AppColors.navBottom,
                     ],
                   ),
                   borderRadius: BorderRadius.circular(32),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.9), width: 1.2),
+                  border: Border.all(color: AppColors.navBorder, width: 1.2),
                 ),
                 child: LayoutBuilder(
                   builder: (context, constraints) {
@@ -186,7 +186,9 @@ class _NavItemView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = Color.lerp(AppColors.textDark, AppColors.forestGreen, t)!;
+    // Ikon berada di atas indikator lime (teks gelap); label berada di bar.
+    final iconColor = Color.lerp(AppColors.textDark, AppColors.onLime, t)!;
+    final color = Color.lerp(AppColors.textDark, AppColors.brandInk, t)!;
     final active = t > 0.5;
     return Semantics(
       button: true,
@@ -207,7 +209,7 @@ class _NavItemView extends StatelessWidget {
                   child: Center(
                     child: Transform.scale(
                       scale: 1 + 0.12 * t,
-                      child: item.iconBuilder(color),
+                      child: item.iconBuilder(iconColor),
                     ),
                   ),
                 ),

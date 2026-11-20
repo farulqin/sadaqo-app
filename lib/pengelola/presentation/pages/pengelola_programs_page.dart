@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:sadaqo/admin/data/admin_verification_store.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
@@ -151,7 +152,7 @@ class _SubmissionCard extends StatelessWidget {
                     ),
                     Text(
                       '${s.category.shortLabel} • Target ${Formatter.rupiah(s.targetAmount)}',
-                      style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                      style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                     ),
                   ],
                 ),
@@ -188,7 +189,7 @@ class _SubmissionCard extends StatelessWidget {
             ),
           ] else ...[
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Sedang diperiksa admin. Kampanye tampil di aplikasi setelah disetujui.',
               style: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
             ),
@@ -239,14 +240,14 @@ class _ProgramCard extends StatelessWidget {
                     const SizedBox(width: 6),
                     Text(
                       program.category.shortLabel,
-                      style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                      style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                     ),
                   ],
                 ),
                 const SizedBox(height: 6),
                 Text(program.title, style: const TextStyle(fontSize: 16.5, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 2),
-                Text(program.location, style: const TextStyle(fontSize: 12.5, color: AppColors.textMuted)),
+                Text(program.location, style: TextStyle(fontSize: 12.5, color: AppColors.textMuted)),
                 const SizedBox(height: 10),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(6),
@@ -302,7 +303,7 @@ class _Meta extends StatelessWidget {
       children: [
         Icon(icon, size: 16, color: AppColors.forestGreen),
         const SizedBox(width: 4),
-        Text(text, style: const TextStyle(fontSize: 12.5, color: AppColors.textMuted)),
+        Text(text, style: TextStyle(fontSize: 12.5, color: AppColors.textMuted)),
       ],
     );
   }

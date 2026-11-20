@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
@@ -38,7 +39,7 @@ class NiatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 8, 14, 6),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.sandBeige),
       ),
@@ -47,7 +48,7 @@ class NiatCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.record_voice_over_outlined, color: AppColors.forestGreen),
+              Icon(Icons.record_voice_over_outlined, color: AppColors.brandInk),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -59,7 +60,7 @@ class NiatCard extends StatelessWidget {
                 tooltip: 'Salin niat',
                 onPressed: () => _copy(context),
                 icon: const Icon(Icons.copy_rounded, size: 20),
-                color: AppColors.forestGreen,
+                color: AppColors.brandInk,
               ),
             ],
           ),
@@ -79,11 +80,11 @@ class NiatCard extends StatelessWidget {
               child: Text(
                 niat.arabic,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 24,
                   height: 2,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.forestGreen,
+                  color: AppColors.brandInk,
                 ),
               ),
             ),
@@ -96,10 +97,10 @@ class NiatCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             'Artinya: ${niat.meaning}',
-            style: const TextStyle(fontSize: 13, color: AppColors.textMuted, height: 1.45),
+            style: TextStyle(fontSize: 13, color: AppColors.textMuted, height: 1.45),
           ),
           const SizedBox(height: 6),
-          const Text(
+          Text(
             'Niat sejatinya ada di dalam hati. Lafaz di atas membantu menguatkan.',
             style: TextStyle(fontSize: 11.5, color: AppColors.textMuted),
           ),
@@ -110,7 +111,7 @@ class NiatCard extends StatelessWidget {
             controlAffinity: ListTileControlAffinity.leading,
             contentPadding: EdgeInsets.zero,
             dense: true,
-            activeColor: AppColors.forestGreen,
+            activeColor: AppColors.brandInk,
             title: Text(
               confirmLabel,
               style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600),

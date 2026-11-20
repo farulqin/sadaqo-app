@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
 import 'package:sadaqo/core/utils/formatter.dart';
@@ -41,7 +42,7 @@ class ProgramListCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = campaign;
     return InteractiveCard(radius: 20, child: Material(
-      color: Colors.white,
+      color: AppColors.surface,
       borderRadius: BorderRadius.circular(20),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -113,15 +114,15 @@ class ProgramListCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        const Icon(Icons.location_on_rounded, size: 14, color: AppColors.forestGreen),
+                        Icon(Icons.location_on_rounded, size: 14, color: AppColors.brandInk),
                         const SizedBox(width: 2),
                         Expanded(
-                          child: Text(c.location, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                          child: Text(c.location, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
                         ),
                       ],
                     ),
                     const SizedBox(height: 6),
-                    Text(c.description, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, height: 1.3, color: AppColors.textDark)),
+                    Text(c.description, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12, height: 1.3, color: AppColors.textDark)),
                     const SizedBox(height: 8),
                     Row(
                       children: [
@@ -135,7 +136,7 @@ class ProgramListCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        Text('${c.progressPercent}%', style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800, color: AppColors.forestGreen)),
+                        Text('${c.progressPercent}%', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800, color: AppColors.brandInk)),
                       ],
                     ),
                     const SizedBox(height: 4),
@@ -143,7 +144,7 @@ class ProgramListCard extends StatelessWidget {
                       '${Formatter.rupiah(c.collectedAmount)} / ${Formatter.rupiah(c.targetAmount)}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                      style: TextStyle(fontSize: 11, color: AppColors.textMuted),
                     ),
                     const SizedBox(height: 8),
                     SizedBox(

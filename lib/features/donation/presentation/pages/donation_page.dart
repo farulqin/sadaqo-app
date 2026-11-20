@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:sadaqo/core/widgets/sadaqo_logo.dart';
 import 'package:flutter/services.dart';
@@ -174,9 +175,9 @@ class _DonationPageState extends State<DonationPage> {
           color: AppColors.successSoft,
           borderRadius: BorderRadius.circular(12),
         ),
-        child: const Row(
+        child: Row(
           children: [
-            Icon(Icons.verified_user_outlined, color: AppColors.forestGreen),
+            Icon(Icons.verified_user_outlined, color: AppColors.brandInk),
             SizedBox(width: 10),
             Expanded(
               child: Text(
@@ -226,7 +227,7 @@ class _DonationPageState extends State<DonationPage> {
         ],
       ),
       if (_method == PaymentMethod.qris)
-        const Padding(
+        Padding(
           padding: EdgeInsets.only(top: 10),
           child: Text(
             'Kode QR akan ditampilkan pada langkah berikutnya.',
@@ -240,13 +241,13 @@ class _DonationPageState extends State<DonationPage> {
       const SizedBox(height: 16),
       Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(14),
         ),
         child: SwitchListTile(
           value: _anonymous,
           onChanged: (v) => setState(() => _anonymous = v),
-          secondary: const Icon(Icons.visibility_off_outlined, color: AppColors.forestGreen),
+          secondary: Icon(Icons.visibility_off_outlined, color: AppColors.brandInk),
           title: const Text(
             'Sembunyikan nama saya',
             style: TextStyle(fontWeight: FontWeight.w600),
@@ -255,7 +256,7 @@ class _DonationPageState extends State<DonationPage> {
         ),
       ),
       const SizedBox(height: 8),
-      const Text(
+      Text(
         'Ini simulasi: tidak ada uang sungguhan yang berpindah.',
         style: TextStyle(fontSize: 12, color: AppColors.textMuted),
       ),
@@ -281,7 +282,7 @@ class _DonationPageState extends State<DonationPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(hint, style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+          Text(hint, style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
           const SizedBox(height: 8),
           LayoutBuilder(
             builder: (context, c) {
@@ -307,10 +308,10 @@ class _DonationPageState extends State<DonationPage> {
                             height: 64,
                             padding: const EdgeInsets.symmetric(horizontal: 8),
                             decoration: BoxDecoration(
-                              color: _provider == p ? AppColors.successSoft : Colors.white,
+                              color: _provider == p ? AppColors.successSoft : AppColors.surface,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: _provider == p ? AppColors.forestGreen : AppColors.sandBeige,
+                                color: _provider == p ? AppColors.brandInk : AppColors.sandBeige,
                                 width: _provider == p ? 2 : 1,
                               ),
                             ),
@@ -319,10 +320,10 @@ class _DonationPageState extends State<DonationPage> {
                               children: [
                                 PaymentLogo(p, height: 34),
                                 if (_provider == p)
-                                  const Positioned(
+                                  Positioned(
                                     top: 4,
                                     right: 4,
-                                    child: Icon(Icons.check_circle, size: 16, color: AppColors.forestGreen),
+                                    child: Icon(Icons.check_circle, size: 16, color: AppColors.brandInk),
                                   ),
                               ],
                             ),
@@ -347,19 +348,19 @@ class _DonationPageState extends State<DonationPage> {
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(14),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Total Zakat', style: TextStyle(color: AppColors.textMuted)),
+              Text('Total Zakat', style: TextStyle(color: AppColors.textMuted)),
               Text(
                 Formatter.rupiah(amount),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.forestGreen,
+                  color: AppColors.brandInk,
                 ),
               ),
               const SizedBox(height: 6),
@@ -367,7 +368,7 @@ class _DonationPageState extends State<DonationPage> {
                 c.subType == 'Fitrah'
                     ? 'Disalurkan dalam bentuk beras'
                     : 'Disalurkan dalam bentuk uang',
-                style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                style: TextStyle(fontSize: 12, color: AppColors.textMuted),
               ),
             ],
           ),
@@ -386,7 +387,7 @@ class _DonationPageState extends State<DonationPage> {
         Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(14),
           ),
           child: Column(
@@ -426,14 +427,14 @@ class _DonationPageState extends State<DonationPage> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      const Text('Total',
+                      Text('Total',
                           style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
                       Text(
                         Formatter.rupiah(amount),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.forestGreen,
+                          color: AppColors.brandInk,
                         ),
                       ),
                     ],
@@ -441,7 +442,7 @@ class _DonationPageState extends State<DonationPage> {
                 ],
               ),
               if (c.isFull)
-                const Padding(
+                Padding(
                   padding: EdgeInsets.only(top: 8),
                   child: Text(
                     'Kuota program ini sudah penuh',
@@ -494,7 +495,7 @@ class _DonationPageState extends State<DonationPage> {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -520,7 +521,7 @@ class _DonationPageState extends State<DonationPage> {
                 const SizedBox(height: 4),
                 Text(
                   selected.category.label,
-                  style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                  style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                 ),
               ],
             ),
@@ -652,7 +653,7 @@ class _QtyStepper extends StatelessWidget {
         IconButton(
           onPressed: canDecrease ? () => onChanged(value - 1) : null,
           icon: const Icon(Icons.remove_circle_outline),
-          color: AppColors.forestGreen,
+          color: AppColors.brandInk,
         ),
         SizedBox(
           width: 28,
@@ -665,7 +666,7 @@ class _QtyStepper extends StatelessWidget {
         IconButton(
           onPressed: canIncrease ? () => onChanged(value + 1) : null,
           icon: const Icon(Icons.add_circle_outline),
-          color: AppColors.forestGreen,
+          color: AppColors.brandInk,
         ),
       ],
     );
@@ -688,7 +689,7 @@ class _AmountChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 12),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: selected ? AppColors.forestGreen : Colors.white,
+          color: selected ? AppColors.forestGreen : AppColors.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: AppColors.sandBeige),
         ),
@@ -725,17 +726,17 @@ class _MethodTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
         decoration: BoxDecoration(
-          color: selected ? AppColors.successSoft : Colors.white,
+          color: selected ? AppColors.successSoft : AppColors.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: selected ? AppColors.forestGreen : AppColors.sandBeige,
+            color: selected ? AppColors.brandInk : AppColors.sandBeige,
             width: selected ? 2 : 1,
           ),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 26, color: AppColors.forestGreen),
+            Icon(icon, size: 26, color: AppColors.brandInk),
             const SizedBox(height: 6),
             Text(
               label,

@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -137,7 +138,7 @@ class _CommunityMembersPageState extends State<CommunityMembersPage> {
                       selected: _filter == f.$1,
                       showCheckmark: false,
                       selectedColor: AppColors.forestGreen,
-                      backgroundColor: Colors.white,
+                      backgroundColor: AppColors.surface,
                       labelStyle: TextStyle(
                         fontWeight: FontWeight.w700,
                         color: _filter == f.$1 ? Colors.white : AppColors.textDark,
@@ -157,7 +158,7 @@ class _CommunityMembersPageState extends State<CommunityMembersPage> {
                 : _error != null
                     ? ErrorView(message: _error!, onRetry: _load)
                     : _items.isEmpty
-                        ? const Center(
+                        ? Center(
                             child: Text('Tidak ada anggota yang cocok.',
                                 style: TextStyle(color: AppColors.textMuted)),
                           )
@@ -197,7 +198,7 @@ class _MemberTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.sandBeige),
       ),
@@ -230,7 +231,7 @@ class _MemberTile extends StatelessWidget {
                 AuthorName(member),
                 Text(
                   member.handle,
-                  style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                  style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                 ),
               ],
             ),
@@ -242,7 +243,7 @@ class _MemberTile extends StatelessWidget {
                 color: AppColors.background,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Text(
+              child: Text(
                 'Anggota',
                 style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textMuted),
               ),

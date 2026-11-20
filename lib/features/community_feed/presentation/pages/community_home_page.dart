@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sadaqo/core/constants/app_assets.dart';
@@ -188,7 +189,7 @@ class _FilterBar extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
-                        color: current == f.$1 ? Colors.white : AppColors.forestGreen,
+                        color: current == f.$1 ? Colors.white : AppColors.brandInk,
                       ),
                     ),
                   ),
@@ -341,8 +342,8 @@ class _Header extends StatelessWidget {
                           icon: const Icon(Icons.add_rounded, size: 18),
                           label: const Text('Gabung'),
                           style: FilledButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: AppColors.forestGreen,
+                            backgroundColor: AppColors.surface,
+                            foregroundColor: AppColors.brandInk,
                           ),
                         ),
               ],
@@ -376,7 +377,7 @@ class _AvatarStack extends StatelessWidget {
                 height: size,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.forestGreen, width: 2),
+                  border: Border.all(color: AppColors.brandInk, width: 2),
                 ),
                 child: ClipOval(child: Image.asset(shown[i], fit: BoxFit.cover)),
               ),
@@ -398,7 +399,7 @@ class _Composer extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Material(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
@@ -416,17 +417,17 @@ class _Composer extends StatelessWidget {
                   backgroundColor: AppColors.sandBeige,
                   child: Text(
                     user?.initial ?? '?',
-                    style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.forestGreen),
+                    style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.brandInk),
                   ),
                 ),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Text(
                     'Apa yang ingin kamu bagikan?',
                     style: TextStyle(color: AppColors.textMuted, fontSize: 14),
                   ),
                 ),
-                const Icon(Icons.edit_note_rounded, color: AppColors.forestGreen),
+                Icon(Icons.edit_note_rounded, color: AppColors.brandInk),
               ],
             ),
           ),
@@ -457,7 +458,7 @@ class _Footer extends StatelessWidget {
       return Padding(
         padding: const EdgeInsets.all(32),
         child: Center(
-          child: Text(text, style: const TextStyle(color: AppColors.textMuted)),
+          child: Text(text, style: TextStyle(color: AppColors.textMuted)),
         ),
       );
     }
@@ -523,7 +524,7 @@ class _QuickAction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white,
+      color: AppColors.surface,
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
         borderRadius: BorderRadius.circular(14),
@@ -536,7 +537,7 @@ class _QuickAction extends StatelessWidget {
           ),
           child: Column(
             children: [
-              Icon(icon, color: AppColors.forestGreen),
+              Icon(icon, color: AppColors.brandInk),
               const SizedBox(height: 4),
               Text(
                 label,

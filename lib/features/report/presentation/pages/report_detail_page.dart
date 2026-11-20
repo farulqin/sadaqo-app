@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
 import 'package:sadaqo/features/report/domain/entities/campaign_report.dart';
@@ -50,7 +51,7 @@ class _ReportDetailPageState extends State<ReportDetailPage> {
                 color: AppColors.successSoft,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Row(
+              child: Row(
                 children: [
                   Icon(Icons.verified_rounded, color: AppColors.success),
                   SizedBox(width: 10),

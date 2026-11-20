@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sadaqo/core/constants/app_assets.dart';
@@ -132,7 +133,7 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 8),
                     Text(
                       _isLogin ? 'Masuk ke akun Anda' : 'Buat akun baru',
-                      style: const TextStyle(color: AppColors.textMuted),
+                      style: TextStyle(color: AppColors.textMuted),
                     ),
                     const SizedBox(height: 20),
                     _AuthToggle(isLogin: _isLogin, onChanged: _setMode),
@@ -224,12 +225,12 @@ class _LoginPageState extends State<LoginPage> {
                           ? 'Mode demo: email apa saja, password minimal 6 karakter.'
                           : 'Password minimal 6 karakter.',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                      style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                     ),
                     const SizedBox(height: 20),
                     Text(
                       _isLogin ? 'atau masuk dengan' : 'atau daftar dengan',
-                      style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                      style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                     ),
                     const SizedBox(height: 12),
                                         Row(
@@ -260,9 +261,9 @@ class _LoginPageState extends State<LoginPage> {
                           onTap: () => _setMode(!_isLogin),
                           child: Text(
                             _isLogin ? 'Daftar sekarang' : 'Masuk',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.w700,
-                              color: AppColors.forestGreen,
+                              color: AppColors.brandInk,
                             ),
                           ),
                         ),
@@ -341,8 +342,8 @@ class _SocialButton extends StatelessWidget {
       style: OutlinedButton.styleFrom(
         minimumSize: const Size.fromHeight(46),
         foregroundColor: AppColors.textDark,
-        backgroundColor: Colors.white,
-        side: const BorderSide(color: AppColors.sandBeige),
+        backgroundColor: AppColors.surface,
+        side: BorderSide(color: AppColors.sandBeige),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );

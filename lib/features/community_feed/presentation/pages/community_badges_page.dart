@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
@@ -78,7 +79,7 @@ class _CommunityBadgesPageState extends State<CommunityBadgesPage> {
               ),
               const SizedBox(height: 10),
               if (o.myBadges.isEmpty)
-                const Text(
+                Text(
                   'Belum ada badge. Berdonasi atau aktif di Komunitas untuk mendapatkannya.',
                   style: TextStyle(color: AppColors.textMuted),
                 )
@@ -137,7 +138,7 @@ class _BadgeTile extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: earned ? AppColors.limeGreen : AppColors.sandBeige),
         ),
@@ -153,7 +154,7 @@ class _BadgeTile extends StatelessWidget {
               ),
               child: earned
                   ? Text(badge.icon, style: const TextStyle(fontSize: 24))
-                  : const Icon(Icons.lock_outline_rounded, color: AppColors.textMuted),
+                  : Icon(Icons.lock_outline_rounded, color: AppColors.textMuted),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -164,7 +165,7 @@ class _BadgeTile extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     badge.description,
-                    style: const TextStyle(fontSize: 12.5, color: AppColors.textMuted),
+                    style: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
                   ),
                 ],
               ),

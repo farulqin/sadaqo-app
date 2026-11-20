@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:sadaqo/core/navigation/session_guard.dart';
-import 'package:sadaqo/core/theme/app_theme.dart';
+import 'package:sadaqo/core/theme/theme_controller.dart';
+import 'package:sadaqo/core/theme/theme_scope.dart';
+import 'package:sadaqo/pengelola/core/pengelola_config.dart';
 import 'package:sadaqo/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sadaqo/features/auth/presentation/cubit/auth_state.dart';
 import 'package:sadaqo/features/auth/presentation/pages/login_page.dart';
@@ -22,6 +24,10 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('id_ID'); // format tanggal bahasa Indonesia
   await di.init();
+
+  // Tampilan tersimpan (Terang/Gelap/Liquid Glass). Admin dan pengelola dikunci Terang.
+  await ThemeController.instance.load();
+  _syncThemeLock(di.sl<AuthCubit>());
 
   // Server membalas 401 (token kedaluwarsa/tidak valid): keluar dan ke halaman login.
   SessionGuard.onExpired = () {
@@ -54,6 +60,19 @@ Future<void> main() async {
   runApp(const SadaqoApp());
 }
 
+/// Admin dan pengelola selalu memakai tampilan Terang. Pilihan donatur tidak berubah.
+void _syncThemeLock(AuthCubit auth) {
+  void apply(AuthState state) {
+    final user = state is AuthAuthenticated ? state.user : null;
+    final staff = user != null &&
+        (user.isAdmin || user.isManager || PengelolaConfig.isPengelolaEmail(user.email));
+    ThemeController.instance.setLockedLight(staff);
+  }
+
+  apply(auth.state);
+  auth.stream.listen(apply);
+}
+
 class SadaqoApp extends StatelessWidget {
   const SadaqoApp({super.key});
 
@@ -73,14 +92,16 @@ class SadaqoApp extends StatelessWidget {
         BlocProvider<SettingsCubit>.value(value: di.sl<SettingsCubit>()),
         BlocProvider<CommunityFeedCubit>.value(value: di.sl<CommunityFeedCubit>()),
       ],
-      child: MaterialApp(
-        title: 'SADAQO',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.light,
-        scrollBehavior: const AppScrollBehavior(),
-        navigatorKey: appNavigatorKey,
-        scaffoldMessengerKey: appMessengerKey,
-        home: const SplashPage(),
+      child: ThemeScope(
+        builder: (context, theme) => MaterialApp(
+          title: 'SADAQO',
+          debugShowCheckedModeBanner: false,
+          theme: theme,
+          scrollBehavior: const AppScrollBehavior(),
+          navigatorKey: appNavigatorKey,
+          scaffoldMessengerKey: appMessengerKey,
+          home: const SplashPage(),
+        ),
       ),
     );
   }

@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
@@ -119,7 +120,7 @@ class _CommunityAgendaPageState extends State<CommunityAgendaPage> {
                     padding: const EdgeInsets.all(16),
                     children: [
                       if (_events.isEmpty)
-                        const Padding(
+                        Padding(
                           padding: EdgeInsets.symmetric(vertical: 60),
                           child: Center(
                             child: Text(
@@ -178,7 +179,7 @@ class _EventCard extends StatelessWidget {
     final month = DateFormat('MMM', 'id_ID').format(e.startsAt).toUpperCase();
 
     return Material(
-      color: Colors.white,
+      color: AppColors.surface,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
@@ -247,7 +248,7 @@ class _EventCard extends StatelessWidget {
                           Expanded(
                             child: Text(
                               '${e.interestedCount} tertarik',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.success,
@@ -269,7 +270,7 @@ class _EventCard extends StatelessWidget {
                                     onPressed: onInterest,
                                     style: OutlinedButton.styleFrom(
                                       visualDensity: VisualDensity.compact,
-                                      foregroundColor: AppColors.forestGreen,
+                                      foregroundColor: AppColors.brandInk,
                                     ),
                                     child: const Text('Tertarik'),
                                   ),
@@ -304,7 +305,7 @@ class _InfoLine extends StatelessWidget {
             text,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 12.5, color: AppColors.textMuted),
+            style: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
           ),
         ),
       ],
@@ -359,12 +360,12 @@ class _EventDetail extends StatelessWidget {
           if (e.creator != null) ...[
             const SizedBox(height: 14),
             Text('Diselenggarakan oleh ${e.creator}',
-                style: const TextStyle(fontSize: 12.5, color: AppColors.textMuted)),
+                style: TextStyle(fontSize: 12.5, color: AppColors.textMuted)),
           ],
           const SizedBox(height: 16),
           Text(
             '${e.interestedCount} orang tertarik',
-            style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.success),
+            style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.success),
           ),
           const SizedBox(height: 14),
           if (!e.isPast)
@@ -379,12 +380,12 @@ class _EventDetail extends StatelessWidget {
                     )
                   : OutlinedButton(
                       onPressed: onInterest,
-                      style: OutlinedButton.styleFrom(foregroundColor: AppColors.forestGreen),
+                      style: OutlinedButton.styleFrom(foregroundColor: AppColors.brandInk),
                       child: const Text('Saya Tertarik'),
                     ),
             )
           else
-            const Text('Acara ini sudah selesai.',
+            Text('Acara ini sudah selesai.',
                 style: TextStyle(color: AppColors.textMuted)),
         ],
       ),

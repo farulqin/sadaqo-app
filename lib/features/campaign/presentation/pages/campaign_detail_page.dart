@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
@@ -164,7 +165,7 @@ class CampaignDetailPage extends StatelessWidget {
                         const SizedBox(height: 6),
                         Text(
                           c.description,
-                          style: const TextStyle(height: 1.5, color: AppColors.textMuted),
+                          style: TextStyle(height: 1.5, color: AppColors.textMuted),
                         ),
                         const SizedBox(height: 14),
                         Container(
@@ -173,10 +174,10 @@ class CampaignDetailPage extends StatelessWidget {
                             color: AppColors.sandBeige,
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Row(
+                          child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Icon(Icons.info_outline, size: 18, color: AppColors.forestGreen),
+                              Icon(Icons.info_outline, size: 18, color: AppColors.brandInk),
                               SizedBox(width: 8),
                               Expanded(
                                 child: Text(
@@ -227,7 +228,7 @@ class _InfoRow extends StatelessWidget {
               color: AppColors.sandBeige,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, size: 20, color: AppColors.forestGreen),
+            child: Icon(icon, size: 20, color: AppColors.brandInk),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -235,7 +236,7 @@ class _InfoRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(label,
-                    style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                    style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
                 Text(value,
                     style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
               ],

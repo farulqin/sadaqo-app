@@ -1,7 +1,9 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:sadaqo/core/constants/app_assets.dart';
 import 'package:sadaqo/core/navigation/main_tab_controller.dart';
 import 'package:sadaqo/injection_container.dart';
+import 'package:sadaqo/core/constants/app_colors.dart';
 
 /// Kembali ke Beranda dari halaman mana pun: tutup semua halaman yang
 /// ditumpuk lalu pindahkan tab ke Beranda.
@@ -33,7 +35,7 @@ class SadaqoLogo extends StatelessWidget {
             width: size,
             height: size,
             padding: EdgeInsets.all(size * 0.14),
-            decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+            decoration: BoxDecoration(color: AppColors.surface, shape: BoxShape.circle),
             child: Image.asset(AppAssets.logoEmblem, fit: BoxFit.contain),
           ),
         ),

@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:sadaqo/core/widgets/sadaqo_logo.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -96,7 +97,7 @@ class _TransactionsViewState extends State<_TransactionsView> {
                     showCheckmark: false,
                     onSelected: (_) => setState(() => _filter = f),
                     selectedColor: AppColors.forestGreen,
-                    backgroundColor: Colors.white,
+                    backgroundColor: AppColors.surface,
                     labelStyle: TextStyle(
                       color: _filter == f ? Colors.white : AppColors.textDark,
                       fontWeight: FontWeight.w600,
@@ -154,7 +155,7 @@ class _DonationTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
@@ -183,11 +184,11 @@ class _DonationTile extends StatelessWidget {
                 ),
                 Text(
                   '${Formatter.date(donation.createdAt)} • ${donation.paymentLabel}',
-                  style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                  style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                 ),
                 Text(
                   'Atas nama: ${donation.donorName}',
-                  style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                  style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                 ),
               ],
             ),

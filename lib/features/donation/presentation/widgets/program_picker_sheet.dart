@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
 import 'package:sadaqo/core/constants/program_category.dart';
@@ -102,7 +103,7 @@ class _ProgramPickerSheetState extends State<ProgramPickerSheet> {
                         itemBuilder: (context, i) {
                           final c = results[i];
                           return Material(
-                            color: Colors.white,
+                            color: AppColors.surface,
                             borderRadius: BorderRadius.circular(14),
                             clipBehavior: Clip.antiAlias,
                             child: ListTile(
@@ -127,9 +128,9 @@ class _ProgramPickerSheetState extends State<ProgramPickerSheet> {
                               ),
                               trailing: Text(
                                 '${c.progressPercent}%',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.w800,
-                                  color: AppColors.forestGreen,
+                                  color: AppColors.brandInk,
                                 ),
                               ),
                             ),
@@ -153,7 +154,7 @@ class _ProgramPickerSheetState extends State<ProgramPickerSheet> {
         showCheckmark: false,
         onSelected: (_) => onTap(),
         selectedColor: AppColors.forestGreen,
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         labelStyle: TextStyle(
           color: selected ? Colors.white : AppColors.textDark,
           fontWeight: FontWeight.w600,

@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
@@ -90,7 +91,7 @@ class NewsDetailPage extends StatelessWidget {
                                 style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w800,
-                                  color: AppColors.forestGreen,
+                                  color: AppColors.onLime,
                                 ),
                               ),
                             ),
@@ -107,7 +108,7 @@ class NewsDetailPage extends StatelessWidget {
                             Text(
                               '${article.author}  •  ${Formatter.date(article.publishedAt)}  •  '
                               '${article.readMinutes} menit baca',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
                                 color: AppColors.textMuted,
                               ),
@@ -127,10 +128,10 @@ class NewsDetailPage extends StatelessWidget {
                                 color: AppColors.sandBeige,
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: const Row(
+                              child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Icon(Icons.info_outline, size: 18, color: AppColors.forestGreen),
+                                  Icon(Icons.info_outline, size: 18, color: AppColors.brandInk),
                                   SizedBox(width: 8),
                                   Expanded(
                                     child: Text(

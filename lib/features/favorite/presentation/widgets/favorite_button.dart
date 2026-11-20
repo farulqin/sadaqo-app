@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
@@ -19,7 +20,7 @@ class FavoriteButton extends StatelessWidget {
         return PressableScale(
           scale: 0.85,
           child: Material(
-            color: Colors.white,
+            color: AppColors.surface,
             shape: const CircleBorder(),
             child: InkWell(
               customBorder: const CircleBorder(),
@@ -45,7 +46,7 @@ class FavoriteButton extends StatelessWidget {
                     fav ? Icons.favorite : Icons.favorite_border,
                     key: ValueKey(fav),
                     size: size * 0.55,
-                    color: fav ? const Color(0xFFD94B4B) : AppColors.forestGreen,
+                    color: fav ? const Color(0xFFD94B4B) : AppColors.brandInk,
                   ),
                 ),
               ),

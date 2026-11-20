@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
@@ -70,7 +71,7 @@ class ReportPhotoImage extends StatelessWidget {
         width: width,
         height: height,
         color: AppColors.sandBeige,
-        child: const Icon(Icons.image_not_supported_outlined, color: AppColors.textMuted),
+        child: Icon(Icons.image_not_supported_outlined, color: AppColors.textMuted),
       );
 
     @override
@@ -137,7 +138,7 @@ class ReportPhotoStrip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (photos.isEmpty) {
-      return const Text('Tidak ada foto', style: TextStyle(color: AppColors.textMuted));
+      return Text('Tidak ada foto', style: TextStyle(color: AppColors.textMuted));
     }
     return SizedBox(
       height: 120,
@@ -178,7 +179,7 @@ class ReportDetailBody extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           '${r.campaignTitle} • oleh ${r.managerName}',
-          style: const TextStyle(color: AppColors.textMuted),
+          style: TextStyle(color: AppColors.textMuted),
         ),
         const SizedBox(height: 14),
         Row(
@@ -214,13 +215,13 @@ class ReportDetailBody extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8DEDB),
+              color: AppColors.tintRose,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Catatan Admin',
                   style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.error),
                 ),
@@ -265,21 +266,21 @@ class _InfoTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.sandBeige),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 18, color: AppColors.forestGreen),
+          Icon(icon, size: 18, color: AppColors.brandInk),
           const SizedBox(height: 6),
           FittedBox(
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
             child: Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800)),
           ),
-          Text(label, style: const TextStyle(fontSize: 10.5, color: AppColors.textMuted)),
+          Text(label, style: TextStyle(fontSize: 10.5, color: AppColors.textMuted)),
         ],
       ),
     );

@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
 import 'package:sadaqo/core/constants/app_info.dart';
@@ -68,7 +69,7 @@ class HelpPage extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Material(
-            color: Colors.white,
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(16),
             clipBehavior: Clip.antiAlias,
             child: Column(
@@ -100,13 +101,13 @@ class HelpPage extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Material(
-            color: Colors.white,
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(16),
             clipBehavior: Clip.antiAlias,
             child: Column(
               children: [
                 ListTile(
-                  leading: const Icon(Icons.mail_outline, color: AppColors.forestGreen),
+                  leading: Icon(Icons.mail_outline, color: AppColors.brandInk),
                   title: const Text('Email CS'),
                   subtitle: const Text(AppInfo.email),
                   trailing: const Icon(Icons.copy, size: 18),
@@ -114,7 +115,7 @@ class HelpPage extends StatelessWidget {
                 ),
                 const Divider(height: 1),
                 ListTile(
-                  leading: const Icon(Icons.chat_outlined, color: AppColors.forestGreen),
+                  leading: Icon(Icons.chat_outlined, color: AppColors.brandInk),
                   title: const Text('WhatsApp CS'),
                   subtitle: const Text(AppInfo.whatsapp),
                   trailing: const Icon(Icons.copy, size: 18),
@@ -124,7 +125,7 @@ class HelpPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Kontak di atas adalah contoh untuk versi demo. Ketuk untuk menyalin.',
             style: TextStyle(fontSize: 12, color: AppColors.textMuted),
           ),

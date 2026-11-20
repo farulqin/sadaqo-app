@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -99,7 +100,7 @@ class RemoteImage extends StatelessWidget {
         width: width,
         height: height,
         color: AppColors.sandBeige,
-        child: const Icon(Icons.image_not_supported_outlined, color: AppColors.textMuted),
+        child: Icon(Icons.image_not_supported_outlined, color: AppColors.textMuted),
       );
 
   @override
@@ -151,7 +152,7 @@ class CommunityAvatar extends StatelessWidget {
               style: TextStyle(
                 fontSize: radius * 0.85,
                 fontWeight: FontWeight.w800,
-                color: AppColors.forestGreen,
+                color: AppColors.brandInk,
               ),
             ),
           ),
@@ -215,10 +216,10 @@ class AuthorName extends StatelessWidget {
             ),
             child: Text(
               author.roleLabel,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 10.5,
                 fontWeight: FontWeight.w800,
-                color: AppColors.forestGreen,
+                color: AppColors.brandInk,
               ),
             ),
           ),
@@ -318,7 +319,7 @@ class PostCard extends StatelessWidget {
         : (post.category == 'info' ? (Icons.campaign_rounded, 'Pengumuman') : null);
 
     return Material(
-      color: Colors.white,
+      color: AppColors.surface,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
@@ -337,14 +338,14 @@ class PostCard extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Row(
                     children: [
-                      Icon(label.$1, size: 14, color: AppColors.forestGreen),
+                      Icon(label.$1, size: 14, color: AppColors.brandInk),
                       const SizedBox(width: 4),
                       Text(
                         label.$2,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11.5,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.forestGreen,
+                          color: AppColors.brandInk,
                         ),
                       ),
                     ],
@@ -361,13 +362,13 @@ class PostCard extends StatelessWidget {
                         AuthorName(post.author),
                         Text(
                           timeAgo(post.createdAt),
-                          style: const TextStyle(fontSize: 11.5, color: AppColors.textMuted),
+                          style: TextStyle(fontSize: 11.5, color: AppColors.textMuted),
                         ),
                       ],
                     ),
                   ),
                   PopupMenuButton<String>(
-                    icon: const Icon(Icons.more_horiz, color: AppColors.textMuted),
+                    icon: Icon(Icons.more_horiz, color: AppColors.textMuted),
                     onSelected: (v) => _onMenu(context, v),
                     itemBuilder: (context) => [
                       const PopupMenuItem(value: 'share', child: Text('Bagikan')),
@@ -461,7 +462,7 @@ class PollCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.poll_rounded, size: 18, color: AppColors.forestGreen),
+              Icon(Icons.poll_rounded, size: 18, color: AppColors.brandInk),
               const SizedBox(width: 6),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -471,17 +472,17 @@ class PollCard extends StatelessWidget {
                 ),
                 child: Text(
                   poll.isClosed ? 'Selesai' : 'Aktif',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.forestGreen,
+                    color: AppColors.brandInk,
                   ),
                 ),
               ),
               const Spacer(),
               Text(
                 poll.statusLabel,
-                style: const TextStyle(fontSize: 11.5, color: AppColors.textMuted),
+                style: TextStyle(fontSize: 11.5, color: AppColors.textMuted),
               ),
             ],
           ),
@@ -501,8 +502,8 @@ class PollCard extends StatelessWidget {
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size.fromHeight(44),
                         alignment: Alignment.centerLeft,
-                        foregroundColor: AppColors.forestGreen,
-                        side: BorderSide(color: AppColors.forestGreen.withValues(alpha: 0.35)),
+                        foregroundColor: AppColors.brandInk,
+                        side: BorderSide(color: AppColors.brandInk.withValues(alpha: 0.35)),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                       child: Text(o.label),
@@ -510,7 +511,7 @@ class PollCard extends StatelessWidget {
             ),
           Text(
             '${poll.totalVotes} suara',
-            style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+            style: TextStyle(fontSize: 12, color: AppColors.textMuted),
           ),
         ],
       ),
@@ -532,7 +533,7 @@ class _ResultBar extends StatelessWidget {
         Row(
           children: [
             if (mine) ...[
-              const Icon(Icons.check_circle_rounded, size: 16, color: AppColors.success),
+              Icon(Icons.check_circle_rounded, size: 16, color: AppColors.success),
               const SizedBox(width: 4),
             ],
             Expanded(
@@ -557,12 +558,12 @@ class _ResultBar extends StatelessWidget {
             value: option.percent / 100,
             minHeight: 8,
             backgroundColor: AppColors.sandBeige.withValues(alpha: 0.6),
-            color: mine ? AppColors.forestGreen : AppColors.limeGreen,
+            color: mine ? AppColors.brandInk : AppColors.limeGreen,
           ),
         ),
         Text(
           '${option.votes} suara',
-          style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+          style: TextStyle(fontSize: 11, color: AppColors.textMuted),
         ),
       ],
     );

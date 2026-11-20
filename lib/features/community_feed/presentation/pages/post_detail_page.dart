@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
@@ -179,7 +180,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                       else if (_error != null)
                         ErrorView(message: _error!, onRetry: _load)
                       else if (_comments.isEmpty)
-                        const Padding(
+                        Padding(
                           padding: EdgeInsets.symmetric(vertical: 24),
                           child: Center(
                             child: Text(
@@ -218,7 +219,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
   Widget _inputBar() {
     return Material(
       elevation: 8,
-      color: Colors.white,
+      color: AppColors.surface,
       child: SafeArea(
         top: false,
         child: Padding(
@@ -275,7 +276,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                     onPressed: _sending ? null : _send,
                     icon: Icon(
                       Icons.send_rounded,
-                      color: _sending ? AppColors.textMuted : AppColors.forestGreen,
+                      color: _sending ? AppColors.textMuted : AppColors.brandInk,
                     ),
                   ),
                 ],
@@ -316,7 +317,7 @@ class _CommentTile extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.fromLTRB(12, 8, 4, 4),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppColors.sandBeige),
               ),
@@ -328,7 +329,7 @@ class _CommentTile extends StatelessWidget {
                       Expanded(child: AuthorName(comment.author)),
                       PopupMenuButton<String>(
                         padding: EdgeInsets.zero,
-                        icon: const Icon(Icons.more_horiz, size: 18, color: AppColors.textMuted),
+                        icon: Icon(Icons.more_horiz, size: 18, color: AppColors.textMuted),
                         onSelected: (v) => v == 'delete' ? onDelete() : onReport(),
                         itemBuilder: (context) => [
                           const PopupMenuItem(value: 'report', child: Text('Laporkan')),
@@ -346,7 +347,7 @@ class _CommentTile extends StatelessWidget {
                     children: [
                       Text(
                         timeAgo(comment.createdAt),
-                        style: const TextStyle(fontSize: 11.5, color: AppColors.textMuted),
+                        style: TextStyle(fontSize: 11.5, color: AppColors.textMuted),
                       ),
                       TextButton(
                         onPressed: onReply,

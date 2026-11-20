@@ -1,42 +1,63 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
-import '../constants/app_colors.dart';
+import 'package:sadaqo/core/constants/app_colors.dart';
+import 'package:sadaqo/core/theme/app_palette.dart';
+import 'package:sadaqo/core/theme/glass_backdrop.dart';
 
 /// Satu-satunya tempat untuk mengatur tampilan global aplikasi.
 class AppTheme {
   AppTheme._();
 
-  static ThemeData get light {
-    return ThemeData(
+  static ThemeData of(AppThemeMode mode) => _build(AppPalette.of(mode));
+
+  static ThemeData get light => of(AppThemeMode.light);
+
+  static ThemeData _build(AppPalette p) {
+    final dark = p.isDark;
+
+    final scheme = dark
+        ? ColorScheme.dark(
+            primary: AppColors.limeGreen,
+            onPrimary: AppColors.forestGreen,
+            secondary: AppColors.limeGreen,
+            onSecondary: AppColors.forestGreen,
+            surface: p.isGlass ? const Color(0xFF12281D) : p.surface,
+            onSurface: p.textDark,
+            error: p.error,
+            surfaceTint: Colors.transparent,
+          )
+        : ColorScheme.light(
+            primary: AppColors.forestGreen,
+            onPrimary: Colors.white,
+            secondary: AppColors.limeGreen,
+            onSecondary: p.textDark,
+            surface: p.surface,
+            onSurface: p.textDark,
+            error: p.error,
+          );
+
+    final base = ThemeData(
       useMaterial3: true,
-      scaffoldBackgroundColor: AppColors.background,
-      colorScheme: const ColorScheme.light(
-        primary: AppColors.forestGreen,
-        onPrimary: Colors.white,
-        secondary: AppColors.limeGreen,
-        onSecondary: AppColors.textDark,
-        surface: Colors.white,
-        onSurface: AppColors.textDark,
-        error: AppColors.error,
-      ),
+      scaffoldBackgroundColor: p.background,
+      colorScheme: scheme,
       // Riak sentuhan yang sama di semua platform.
       splashFactory: InkRipple.splashFactory,
       // Perpindahan halaman yang halus (zoom/fade) di semua platform.
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
-          TargetPlatform.android: ZoomPageTransitionsBuilder(),
-          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.windows: ZoomPageTransitionsBuilder(),
-          TargetPlatform.linux: ZoomPageTransitionsBuilder(),
-          TargetPlatform.fuchsia: ZoomPageTransitionsBuilder(),
+          TargetPlatform.android: AppPageTransitionsBuilder.material,
+          TargetPlatform.iOS: AppPageTransitionsBuilder.cupertino,
+          TargetPlatform.macOS: AppPageTransitionsBuilder.cupertino,
+          TargetPlatform.windows: AppPageTransitionsBuilder.material,
+          TargetPlatform.linux: AppPageTransitionsBuilder.material,
+          TargetPlatform.fuchsia: AppPageTransitionsBuilder.material,
         },
       ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.forestGreen,
+      appBarTheme: AppBarTheme(
+        backgroundColor: p.appBar,
         foregroundColor: Colors.white,
         centerTitle: true,
         elevation: 0,
+        surfaceTintColor: Colors.transparent,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style:
@@ -57,7 +78,7 @@ class AppTheme {
                 return 2;
               }),
               shadowColor: WidgetStatePropertyAll(
-                AppColors.forestGreen.withValues(alpha: 0.45),
+                dark ? Colors.black.withValues(alpha: 0.5) : AppColors.forestGreen.withValues(alpha: 0.45),
               ),
             ),
       ),
@@ -68,24 +89,71 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.white,
+        fillColor: p.surface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.sandBeige),
+          borderSide: BorderSide(color: p.sandBeige),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.sandBeige),
+          borderSide: BorderSide(color: p.sandBeige),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.forestGreen, width: 2),
+          borderSide: BorderSide(color: p.brandInk, width: 2),
         ),
       ),
-      navigationBarTheme: const NavigationBarThemeData(
-        backgroundColor: Colors.white,
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: p.popup,
         indicatorColor: AppColors.limeGreen,
       ),
+    );
+
+    // Tampilan Terang dibiarkan persis seperti sebelumnya.
+    if (!dark) return base;
+
+    // Tambahan khusus tampilan Gelap dan Liquid Glass.
+    return base.copyWith(
+      canvasColor: p.popup,
+      dividerTheme: DividerThemeData(color: p.sandBeige),
+      dialogTheme: DialogThemeData(
+        backgroundColor: p.popup,
+        surfaceTintColor: Colors.transparent,
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: p.popup,
+        surfaceTintColor: Colors.transparent,
+        modalBackgroundColor: p.popup,
+      ),
+      popupMenuTheme: PopupMenuThemeData(
+        color: p.popup,
+        surfaceTintColor: Colors.transparent,
+      ),
+      cardTheme: CardThemeData(
+        color: p.surface,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+      ),
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith<Color?>(
+          (s) => s.contains(WidgetState.selected) ? AppColors.limeGreen : p.textMuted,
+        ),
+        trackColor: WidgetStateProperty.resolveWith<Color?>(
+          (s) => s.contains(WidgetState.selected) ? AppColors.forestGreen : p.sandBeige,
+        ),
+        trackOutlineColor: WidgetStateProperty.resolveWith<Color?>(
+          (s) => s.contains(WidgetState.selected) ? AppColors.limeGreen : p.textMuted,
+        ),
+      ),
+      checkboxTheme: CheckboxThemeData(
+        fillColor: WidgetStateProperty.resolveWith<Color?>(
+          (s) => s.contains(WidgetState.selected) ? AppColors.limeGreen : null,
+        ),
+        checkColor: const WidgetStatePropertyAll(AppColors.forestGreen),
+        side: BorderSide(color: p.textMuted, width: 1.5),
+      ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(color: p.brandInk),
+      textSelectionTheme: TextSelectionThemeData(cursorColor: p.brandInk),
     );
   }
 }

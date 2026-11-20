@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
 import 'package:sadaqo/core/utils/formatter.dart';
@@ -53,7 +54,7 @@ class _PengelolaDocsPageState extends State<PengelolaDocsPage> {
                   color: AppColors.successSoft,
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
                     Icon(Icons.info_outline_rounded, color: AppColors.success),
                     SizedBox(width: 10),
@@ -80,7 +81,7 @@ class _PengelolaDocsPageState extends State<PengelolaDocsPage> {
               ),
               const SizedBox(height: 12),
               if (items.isEmpty)
-                const Padding(
+                Padding(
                   padding: EdgeInsets.symmetric(vertical: 48),
                   child: Column(
                     children: [
@@ -173,11 +174,11 @@ class _ReportCard extends StatelessWidget {
                         report.campaignTitle,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                        style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                       ),
                       Text(
                         'Dikirim ${Formatter.date(report.submittedAt)} • ${Formatter.rupiah(report.distributedAmount)}',
-                        style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                        style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                       ),
                     ],
                   ),

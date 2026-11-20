@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sadaqo/core/constants/app_colors.dart';
 
 /// Logo penyedia pembayaran (e-wallet, bank, QRIS).
 ///
@@ -44,36 +45,50 @@ class PaymentLogo extends StatelessWidget {
         // Lebar mengikuti rasio logo, tetapi tidak melebihi ruang yang tersedia.
         final maxW = constraints.hasBoundedWidth ? constraints.maxWidth : double.infinity;
         final width = height * aspect < maxW ? height * aspect : maxW;
-        return SizedBox(
-          width: width,
-          height: height,
-          child: Image.asset(
-            'assets/images/payment/$key.png',
-            fit: BoxFit.contain,
-            filterQuality: FilterQuality.medium,
-            semanticLabel: name,
-            errorBuilder: (context, error, stack) => Container(
-              alignment: Alignment.center,
-              padding: EdgeInsets.symmetric(horizontal: height * 0.15),
-              decoration: BoxDecoration(
-                color: brand.bg,
-                borderRadius: BorderRadius.circular(height * 0.22),
-              ),
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  brand.text,
-                  maxLines: 1,
-                  style: TextStyle(
-                    color: brand.fg,
-                    fontWeight: FontWeight.w800,
-                    fontSize: height * 0.42,
-                    letterSpacing: -0.2,
-                  ),
+        final logo = Image.asset(
+          'assets/images/payment/$key.png',
+          fit: BoxFit.contain,
+          filterQuality: FilterQuality.medium,
+          semanticLabel: name,
+          errorBuilder: (context, error, stack) => Container(
+            alignment: Alignment.center,
+            padding: EdgeInsets.symmetric(horizontal: height * 0.15),
+            decoration: BoxDecoration(
+              color: brand.bg,
+              borderRadius: BorderRadius.circular(height * 0.22),
+            ),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                brand.text,
+                maxLines: 1,
+                style: TextStyle(
+                  color: brand.fg,
+                  fontWeight: FontWeight.w800,
+                  fontSize: height * 0.42,
+                  letterSpacing: -0.2,
                 ),
               ),
             ),
           ),
+        );
+        // Logo dirancang untuk latar terang: pada tema Gelap dan Liquid Glass
+        // ditaruh di atas kotak putih agar logo hitam tetap terbaca.
+        return SizedBox(
+          width: width,
+          height: height,
+          child: AppColors.isDark
+              ? DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(height * 0.22),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: height * 0.14, vertical: height * 0.08),
+                    child: logo,
+                  ),
+                )
+              : logo,
         );
       },
     );

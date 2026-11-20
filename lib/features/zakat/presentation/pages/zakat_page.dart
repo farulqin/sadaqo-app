@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -166,7 +167,7 @@ class _FitrahTabState extends State<_FitrahTab> {
                   showCheckmark: false,
                   onSelected: (_) => setState(() => _niatIndex = i),
                   selectedColor: AppColors.forestGreen,
-                  backgroundColor: Colors.white,
+                  backgroundColor: AppColors.surface,
                   labelStyle: TextStyle(
                     fontSize: 12.5,
                     color: _niatIndex == i ? Colors.white : AppColors.textDark,
@@ -185,7 +186,7 @@ class _FitrahTabState extends State<_FitrahTab> {
           child: const Text('Bayar Zakat Fitrah  →'),
         ),
         if (!_niatOk)
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(top: 6),
             child: Text(
               'Centang niat di atas untuk melanjutkan pembayaran.',
@@ -302,7 +303,7 @@ class _MaalTabState extends State<_MaalTab> {
                 showCheckmark: false,
                 onSelected: (_) => setState(() => _type = t),
                 selectedColor: AppColors.forestGreen,
-                backgroundColor: Colors.white,
+                backgroundColor: AppColors.surface,
                 labelStyle: TextStyle(
                   color: _type == t ? Colors.white : AppColors.textDark,
                   fontWeight: FontWeight.w600,
@@ -383,7 +384,7 @@ class _MaalTabState extends State<_MaalTab> {
           child: const Text('Bayar Zakat Maal  →'),
         ),
         if (result.obligated && !_niatOk)
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(top: 6),
             child: Text(
               'Centang niat di atas untuk melanjutkan pembayaran.',
@@ -416,7 +417,7 @@ class _InfoBox extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.info_outline, size: 18, color: AppColors.forestGreen),
+          Icon(Icons.info_outline, size: 18, color: AppColors.brandInk),
           const SizedBox(width: 8),
           Expanded(child: Text(text, style: const TextStyle(fontSize: 13, height: 1.4))),
         ],
@@ -430,7 +431,7 @@ class _Note extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Text(
+    return Text(
       'Hasil perhitungan bersifat perkiraan. Ketentuan lengkap sebaiknya '
       'dikonsultasikan dengan lembaga amil zakat atau ustaz. Pembayaran pada '
       'versi demo ini hanya simulasi.',
@@ -459,7 +460,7 @@ class _Stepper extends StatelessWidget {
         IconButton(
           onPressed: value > min ? () => onChanged(value - 1) : null,
           icon: const Icon(Icons.remove_circle_outline),
-          color: AppColors.forestGreen,
+          color: AppColors.brandInk,
         ),
         SizedBox(
           width: 32,
@@ -472,7 +473,7 @@ class _Stepper extends StatelessWidget {
         IconButton(
           onPressed: value < max ? () => onChanged(value + 1) : null,
           icon: const Icon(Icons.add_circle_outline),
-          color: AppColors.forestGreen,
+          color: AppColors.brandInk,
         ),
       ],
     );
@@ -525,7 +526,7 @@ class _ResultCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.sandBeige),
       ),
@@ -541,7 +542,7 @@ class _ResultCard extends StatelessWidget {
                   Expanded(
                     flex: 4,
                     child: Text(r.$1,
-                        style: const TextStyle(fontSize: 13, color: AppColors.textMuted)),
+                        style: TextStyle(fontSize: 13, color: AppColors.textMuted)),
                   ),
                   Expanded(
                     flex: 6,
@@ -556,13 +557,13 @@ class _ResultCard extends StatelessWidget {
             ),
           const Divider(height: 16),
           Text(totalLabel,
-              style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+              style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
           Text(
             totalValue,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w800,
-              color: AppColors.forestGreen,
+              color: AppColors.brandInk,
             ),
           ),
         ],

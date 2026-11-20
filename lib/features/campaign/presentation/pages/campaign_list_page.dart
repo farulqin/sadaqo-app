@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sadaqo/core/constants/app_assets.dart';
@@ -76,7 +77,7 @@ class _CampaignListPageState extends State<CampaignListPage> {
             for (final s in _Sort.values)
               ListTile(
                 title: Text(s.label),
-                trailing: s == _sort ? const Icon(Icons.check_rounded, color: AppColors.forestGreen) : null,
+                trailing: s == _sort ? Icon(Icons.check_rounded, color: AppColors.brandInk) : null,
                 onTap: () => Navigator.pop(ctx, s),
               ),
           ],
@@ -203,7 +204,7 @@ class _CampaignListPageState extends State<CampaignListPage> {
       height: top + 200,
       child: Stack(
         children: [
-          Positioned.fill(child: Container(color: const Color(0xFFF1EFDD))),
+          Positioned.fill(child: Container(color: AppColors.tintCream)),
           Positioned(
             right: 0,
             top: 0,
@@ -246,7 +247,7 @@ class _CampaignListPageState extends State<CampaignListPage> {
           Positioned(
             right: 0,
             top: top + 6,
-            child: const TopBarActions(color: AppColors.forestGreen),
+            child: TopBarActions(color: AppColors.brandInk),
           ),
           Positioned(
             left: 20,
@@ -258,10 +259,10 @@ class _CampaignListPageState extends State<CampaignListPage> {
               children: [
                 Text(
                   widget.initialCategory?.label ?? 'Program Donasi',
-                  style: const TextStyle(fontSize: 28, height: 1.1, fontWeight: FontWeight.w800, color: AppColors.forestGreen),
+                  style: TextStyle(fontSize: 28, height: 1.1, fontWeight: FontWeight.w800, color: AppColors.brandInk),
                 ),
                 const SizedBox(height: 6),
-                const Text(
+                Text(
                   'Berbagi kebaikan, menebar manfaat untuk sesama',
                   style: TextStyle(fontSize: 13.5, height: 1.3, color: AppColors.textDark),
                 ),
@@ -281,7 +282,7 @@ class _CampaignListPageState extends State<CampaignListPage> {
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(30),
                 border: Border.all(color: AppColors.sandBeige),
               ),
@@ -290,8 +291,8 @@ class _CampaignListPageState extends State<CampaignListPage> {
                 onChanged: (_) => setState(() {}),
                 decoration: InputDecoration(
                   hintText: 'Cari program donasi...',
-                  hintStyle: const TextStyle(fontSize: 13.5, color: AppColors.textMuted),
-                  prefixIcon: const Icon(Icons.search_rounded, color: AppColors.forestGreen),
+                  hintStyle: TextStyle(fontSize: 13.5, color: AppColors.textMuted),
+                  prefixIcon: Icon(Icons.search_rounded, color: AppColors.brandInk),
                   suffixIcon: _search.text.isEmpty
                       ? null
                       : IconButton(icon: const Icon(Icons.close_rounded, size: 20), onPressed: () => setState(_search.clear)),
@@ -306,18 +307,18 @@ class _CampaignListPageState extends State<CampaignListPage> {
           ),
           const SizedBox(width: 10),
           Material(
-            color: _sort == _Sort.newest ? Colors.white : AppColors.limeGreen,
-            shape: const StadiumBorder(side: BorderSide(color: AppColors.sandBeige)),
+            color: _sort == _Sort.newest ? AppColors.surface : AppColors.limeGreen,
+            shape: StadiumBorder(side: BorderSide(color: AppColors.sandBeige)),
             child: InkWell(
               customBorder: const StadiumBorder(),
               onTap: _openFilter,
-              child: const Padding(
+              child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 14, vertical: 14),
                 child: Row(
                   children: [
-                    Icon(Icons.tune_rounded, size: 20, color: AppColors.forestGreen),
+                    Icon(Icons.tune_rounded, size: 20, color: AppColors.brandInk),
                     SizedBox(width: 6),
-                    Text('Filter', style: TextStyle(fontWeight: FontWeight.w700, color: AppColors.forestGreen)),
+                    Text('Filter', style: TextStyle(fontWeight: FontWeight.w700, color: AppColors.brandInk)),
                   ],
                 ),
               ),
@@ -342,7 +343,7 @@ class _CampaignListPageState extends State<CampaignListPage> {
               ),
               child: Row(
                 children: [
-                  icon(selected ? Colors.white : AppColors.forestGreen),
+                  icon(selected ? Colors.white : AppColors.brandInk),
                   const SizedBox(width: 6),
                   Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: selected ? Colors.white : AppColors.textDark)),
                 ],
@@ -372,8 +373,8 @@ class _CampaignListPageState extends State<CampaignListPage> {
             onSelected: (_) => onTap(),
             visualDensity: VisualDensity.compact,
             selectedColor: AppColors.limeGreen,
-            backgroundColor: Colors.white,
-            labelStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: selected ? AppColors.forestGreen : AppColors.textDark),
+            backgroundColor: AppColors.surface,
+            labelStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: selected ? AppColors.onLime : AppColors.onLime),
           ),
         );
     return SingleChildScrollView(
@@ -394,10 +395,10 @@ class _CampaignListPageState extends State<CampaignListPage> {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: const Color(0xFFF3EBC8),
+          color: AppColors.tintGold,
           borderRadius: BorderRadius.circular(18),
         ),
-        child: const Row(
+        child: Row(
           children: [
             Icon(Icons.eco_rounded, color: AppColors.success, size: 30),
             SizedBox(width: 12),

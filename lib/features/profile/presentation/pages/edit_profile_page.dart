@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sadaqo/core/constants/app_assets.dart';
@@ -110,7 +111,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
           ),
           const SizedBox(height: 8),
-          const Center(
+          Center(
             child: Text(
               'Ketuk foto untuk mengganti (galeri atau avatar)',
               style: TextStyle(fontSize: 12, color: AppColors.textMuted),
@@ -141,7 +142,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   showCheckmark: false,
                   onSelected: (_) => setState(() => _gender = g),
                   selectedColor: AppColors.forestGreen,
-                  backgroundColor: Colors.white,
+                  backgroundColor: AppColors.surface,
                   labelStyle: TextStyle(
                     color: _gender == g ? Colors.white : AppColors.textDark,
                     fontWeight: FontWeight.w600,
@@ -150,7 +151,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ],
           ),
           const SizedBox(height: 6),
-          const Text(
+          Text(
             'Dipakai untuk menyarankan foto dan avatar yang sesuai.',
             style: TextStyle(fontSize: 12, color: AppColors.textMuted),
           ),

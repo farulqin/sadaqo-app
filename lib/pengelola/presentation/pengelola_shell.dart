@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:sadaqo/admin/data/admin_verification_store.dart';
 import 'package:sadaqo/core/constants/app_assets.dart';
@@ -180,12 +181,12 @@ class _PengelolaShellState extends State<PengelolaShell> {
                       backgroundColor: Colors.white,
                       indicatorColor: AppColors.limeGreen,
                       selectedIconTheme: const IconThemeData(color: AppColors.forestGreen),
-                      unselectedIconTheme: const IconThemeData(color: AppColors.textMuted),
+                      unselectedIconTheme: IconThemeData(color: AppColors.textMuted),
                       selectedLabelTextStyle: const TextStyle(
                         color: AppColors.forestGreen,
                         fontWeight: FontWeight.w700,
                       ),
-                      unselectedLabelTextStyle: const TextStyle(color: AppColors.textMuted),
+                      unselectedLabelTextStyle: TextStyle(color: AppColors.textMuted),
                       leading: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 18),
                         child: Column(
@@ -210,7 +211,7 @@ class _PengelolaShellState extends State<PengelolaShell> {
                                   color: AppColors.forestGreen,
                                 ),
                               ),
-                              const Text(
+                              Text(
                                 'Pengelola Kampanye',
                                 style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                               ),

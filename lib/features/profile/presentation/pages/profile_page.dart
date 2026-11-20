@@ -1,9 +1,9 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart' hide TextDirection;
-import 'package:flutter/foundation.dart';
 import 'package:sadaqo/core/constants/app_assets.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
 import 'package:sadaqo/core/constants/program_category.dart';
@@ -150,7 +150,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size.fromHeight(48),
                     foregroundColor: AppColors.error,
-                    side: const BorderSide(color: AppColors.error),
+                    side: BorderSide(color: AppColors.error),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                 ),
@@ -170,7 +170,7 @@ class _ProfilePageState extends State<ProfilePage> {
       height: top + 110,
       child: Stack(
         children: [
-          Positioned.fill(child: Container(color: const Color(0xFFF1EFDD))),
+          Positioned.fill(child: Container(color: AppColors.tintCream)),
           Positioned(
             right: 0,
             top: 0,
@@ -229,7 +229,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 IconButton(
                   onPressed: () => _open(const SettingsPage()),
-                  icon: const Icon(Icons.settings_rounded, color: AppColors.forestGreen, size: 26),
+                  icon: Icon(Icons.settings_rounded, color: AppColors.brandInk, size: 26),
                 ),
               ],
             ),
@@ -252,7 +252,7 @@ class _ProfilePageState extends State<ProfilePage> {
             children: [
               Container(
                 padding: const EdgeInsets.all(4),
-                decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                decoration: BoxDecoration(color: AppColors.surface, shape: BoxShape.circle),
                 child: UserAvatar(initial: initial, radius: 42),
               ),
               Positioned(
@@ -288,14 +288,14 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.verified_rounded, size: 14, color: AppColors.success),
+                    Icon(Icons.verified_rounded, size: 14, color: AppColors.success),
                     const SizedBox(width: 4),
-                    Text(active ? 'Donatur Aktif' : 'Donatur Baru', style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: AppColors.forestGreen)),
+                    Text(active ? 'Donatur Aktif' : 'Donatur Baru', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: AppColors.brandInk)),
                   ],
                 ),
               ),
               const SizedBox(height: 4),
-              Text(email, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: AppColors.textMuted, fontSize: 13)),
+              Text(email, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: AppColors.textMuted, fontSize: 13)),
             ],
           ),
         ),
@@ -309,7 +309,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFFF3EBC8),
+        color: AppColors.tintGold,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Row(
@@ -325,11 +325,11 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Level Kebaikan', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                Text('Level Kebaikan', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
                 Text(level.name, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
                 Text(
                   next == null ? '$points Poin' : '$points Poin  •  naik level di ${Formatter.rupiah(next.min)}',
-                  style: const TextStyle(fontSize: 12, color: AppColors.textDark),
+                  style: TextStyle(fontSize: 12, color: AppColors.textDark),
                 ),
               ],
             ),
@@ -409,7 +409,7 @@ class _ProfilePageState extends State<ProfilePage> {
         children: [
           Row(
             children: [
-              const Icon(Icons.bar_chart_rounded, color: AppColors.forestGreen),
+              Icon(Icons.bar_chart_rounded, color: AppColors.brandInk),
               const SizedBox(width: 8),
               const Expanded(child: Text('Ringkasan Aktivitas', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800))),
               Container(
@@ -419,7 +419,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   value: _months,
                   underline: const SizedBox.shrink(),
                   isDense: true,
-                  style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: AppColors.textDark),
+                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: AppColors.textDark),
                   items: const [
                     DropdownMenuItem(value: 3, child: Text('3 Bulan Terakhir')),
                     DropdownMenuItem(value: 6, child: Text('6 Bulan Terakhir')),
@@ -467,7 +467,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 Row(
                   children: [
                     if (badges.isEmpty)
-                      const Expanded(
+                      Expanded(
                         child: Text('Berpartisipasilah di Komunitas untuk meraih badge.', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
                       )
                     else
@@ -478,7 +478,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           margin: const EdgeInsets.only(right: 8),
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF3EBC8),
+                            color: AppColors.tintGold,
                             shape: BoxShape.circle,
                             border: Border.all(color: AppColors.sandBeige),
                           ),
@@ -512,13 +512,13 @@ class _ProfilePageState extends State<ProfilePage> {
       borderRadius: BorderRadius.circular(20),
       onTap: () => _open(const FavoritesPage()),
       child: _card(
-        color: const Color(0xFFE9F3D2),
+        color: AppColors.tintLime,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Row(
+            Row(
               children: [
-                Icon(Icons.card_giftcard_rounded, color: AppColors.forestGreen, size: 34),
+                Icon(Icons.card_giftcard_rounded, color: AppColors.brandInk, size: 34),
                 SizedBox(width: 10),
                 Expanded(child: Text('Program Favorit', style: TextStyle(fontSize: 15.5, fontWeight: FontWeight.w800))),
               ],
@@ -534,12 +534,12 @@ class _ProfilePageState extends State<ProfilePage> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.7), borderRadius: BorderRadius.circular(20)),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Lihat Detail', style: TextStyle(fontWeight: FontWeight.w700, color: AppColors.forestGreen)),
+                  Text('Lihat Detail', style: TextStyle(fontWeight: FontWeight.w700, color: AppColors.brandInk)),
                   SizedBox(width: 4),
-                  Icon(Icons.arrow_forward_rounded, size: 16, color: AppColors.forestGreen),
+                  Icon(Icons.arrow_forward_rounded, size: 16, color: AppColors.brandInk),
                 ],
               ),
             ),
@@ -559,18 +559,18 @@ class _ProfilePageState extends State<ProfilePage> {
         children: [
           Row(
             children: [
-              const Icon(Icons.history_rounded, color: AppColors.forestGreen),
+              Icon(Icons.history_rounded, color: AppColors.brandInk),
               const SizedBox(width: 8),
               const Expanded(child: Text('Aktivitas Terbaru', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800))),
               GestureDetector(
                 onTap: _goHistory,
-                child: const Text('Lihat Semua →', style: TextStyle(color: AppColors.success, fontWeight: FontWeight.w700, fontSize: 12)),
+                child: Text('Lihat Semua →', style: TextStyle(color: AppColors.success, fontWeight: FontWeight.w700, fontSize: 12)),
               ),
             ],
           ),
           const SizedBox(height: 10),
           if (recent.isEmpty)
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(vertical: 12),
               child: Text('Belum ada donasi berhasil. Yuk mulai berbagi kebaikan.', style: TextStyle(color: AppColors.textMuted, fontSize: 13)),
             )
@@ -584,7 +584,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(color: AppColors.successSoft, borderRadius: BorderRadius.circular(12)),
-                      child: Icon(d.category.icon, color: AppColors.forestGreen, size: 22),
+                      child: Icon(d.category.icon, color: AppColors.brandInk, size: 22),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -597,7 +597,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                           ),
-                          Text(_ago(d.createdAt), style: const TextStyle(fontSize: 11.5, color: AppColors.textMuted)),
+                          Text(_ago(d.createdAt), style: TextStyle(fontSize: 11.5, color: AppColors.textMuted)),
                         ],
                       ),
                     ),
@@ -614,7 +614,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _menu() {
     // Material (bukan Container) agar efek tekan ListTile terlihat.
     return Material(
-      color: Colors.white,
+      color: AppColors.surface,
       borderRadius: BorderRadius.circular(20),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -704,7 +704,7 @@ class _ActivityPainter extends CustomPainter {
     final step = n > 6 ? 2 : 1;
     for (var i = 0; i < n; i += step) {
       final tp = TextPainter(
-        text: TextSpan(text: labels[i], style: const TextStyle(fontSize: 11.5, color: AppColors.textDark)),
+        text: TextSpan(text: labels[i], style: TextStyle(fontSize: 11.5, color: AppColors.textDark)),
         textDirection: TextDirection.ltr,
       )..layout();
       tp.paint(canvas, Offset(pts[i].dx - tp.width / 2, size.height - tp.height));
@@ -726,8 +726,8 @@ class _ActivityPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _ActivityPainter old) =>
-    !listEquals(old.values, values) || !listEquals(old.labels, labels);
+  // Selalu gambar ulang agar warna grafik ikut berganti saat tampilan berubah.
+  bool shouldRepaint(covariant _ActivityPainter old) => true;
 }
 
 class _MenuTile extends StatelessWidget {
@@ -743,7 +743,7 @@ class _MenuTile extends StatelessWidget {
     return Column(
       children: [
         ListTile(
-          leading: Icon(icon, color: AppColors.forestGreen),
+          leading: Icon(icon, color: AppColors.brandInk),
           title: Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
           trailing: const Icon(Icons.chevron_right),
           onTap: onTap,

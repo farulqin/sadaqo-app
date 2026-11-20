@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
@@ -93,7 +94,7 @@ class _NotificationPageState extends State<NotificationPage> {
                           selected: _tab == t.$1,
                           showCheckmark: false,
                           selectedColor: AppColors.forestGreen,
-                          backgroundColor: Colors.white,
+                          backgroundColor: AppColors.surface,
                           labelStyle: TextStyle(
                             fontWeight: FontWeight.w700,
                             color: _tab == t.$1 ? Colors.white : AppColors.textDark,
@@ -106,7 +107,7 @@ class _NotificationPageState extends State<NotificationPage> {
               ),
               Expanded(
                 child: items.isEmpty
-                    ? const Center(
+                    ? Center(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -125,7 +126,7 @@ class _NotificationPageState extends State<NotificationPage> {
                           final highlight = _unreadAtOpen.contains(n.id);
                           final tappable = n.refId != null;
                           return Material(
-                            color: highlight ? AppColors.successSoft : Colors.white,
+                            color: highlight ? AppColors.successSoft : AppColors.surface,
                             borderRadius: BorderRadius.circular(14),
                             child: InkWell(
                               borderRadius: BorderRadius.circular(14),
@@ -137,11 +138,11 @@ class _NotificationPageState extends State<NotificationPage> {
                                   children: [
                                     Container(
                                       padding: const EdgeInsets.all(8),
-                                      decoration: const BoxDecoration(
+                                      decoration: BoxDecoration(
                                         color: AppColors.sandBeige,
                                         shape: BoxShape.circle,
                                       ),
-                                      child: Icon(_icon(n), size: 20, color: AppColors.forestGreen),
+                                      child: Icon(_icon(n), size: 20, color: AppColors.brandInk),
                                     ),
                                     const SizedBox(width: 12),
                                     Expanded(
@@ -155,7 +156,7 @@ class _NotificationPageState extends State<NotificationPage> {
                                           const SizedBox(height: 6),
                                           Text(
                                             _time(n.createdAt),
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontSize: 11,
                                               color: AppColors.textMuted,
                                             ),
@@ -164,7 +165,7 @@ class _NotificationPageState extends State<NotificationPage> {
                                       ),
                                     ),
                                     if (tappable)
-                                      const Icon(Icons.chevron_right_rounded,
+                                      Icon(Icons.chevron_right_rounded,
                                           color: AppColors.textMuted),
                                   ],
                                 ),

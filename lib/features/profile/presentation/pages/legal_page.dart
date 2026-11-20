@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
 
@@ -92,7 +93,7 @@ class LegalPage extends StatelessWidget {
             Text(s.$2, style: const TextStyle(height: 1.55)),
             const SizedBox(height: 18),
           ],
-          const Text(
+          Text(
             'Dokumen ini adalah draft untuk versi demo, bukan nasihat hukum.',
             style: TextStyle(fontSize: 12, color: AppColors.textMuted),
           ),

@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
 import 'package:sadaqo/core/utils/formatter.dart';
@@ -17,7 +18,7 @@ class CampaignCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InteractiveCard(radius: 16, child: Material(
-      color: Colors.white,
+      color: AppColors.surface,
       borderRadius: BorderRadius.circular(16),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -79,7 +80,7 @@ class CampaignCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(Icons.location_on_outlined,
+                      Icon(Icons.location_on_outlined,
                           size: 14, color: AppColors.textMuted),
                       const SizedBox(width: 2),
                       Expanded(
@@ -87,7 +88,7 @@ class CampaignCard extends StatelessWidget {
                           campaign.location,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                          style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                         ),
                       ),
                     ],
@@ -124,7 +125,7 @@ class CampaignCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: campaign.isFull ? AppColors.error : AppColors.forestGreen,
+                        color: campaign.isFull ? AppColors.error : AppColors.brandInk,
                       ),
                     ),
                   ],
@@ -151,7 +152,7 @@ class _Amount extends StatelessWidget {
     return Column(
       crossAxisAlignment: alignEnd ? CrossAxisAlignment.end : CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
+        Text(label, style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
         Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
       ],
     );
