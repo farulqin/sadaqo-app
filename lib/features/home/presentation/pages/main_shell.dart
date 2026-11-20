@@ -17,6 +17,7 @@ import 'package:sadaqo/features/report/domain/repositories/report_repository.dar
 import 'package:sadaqo/features/favorite/presentation/cubit/favorite_cubit.dart';
 import 'package:sadaqo/features/notification/presentation/cubit/notification_cubit.dart';
 import 'package:sadaqo/core/widgets/glass_nav_bar.dart';
+import 'package:sadaqo/core/widgets/fade_through_stack.dart';
 
 /// Kerangka utama aplikasi: 5 tab navigasi bawah (ikon dari assets/icons).
 /// Profil tidak lagi menjadi tab: dibuka dari ikon foto di bagian atas.
@@ -71,7 +72,7 @@ class _MainShellState extends State<MainShell> {
     return ValueListenableBuilder<int>(
       valueListenable: _tab.index,
       builder: (context, index, child) => Scaffold(
-        body: IndexedStack(index: index, children: _pages),
+        body: FadeThroughStack(index: index, children: _pages),
         bottomNavigationBar: GlassNavBar(
           selectedIndex: index,
           onSelected: _goTo,

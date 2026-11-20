@@ -1,5 +1,3 @@
-import 'dart:ui' show FontFeature;
-
 import 'package:flutter/material.dart';
 
 /// Teks angka yang naik dari 0 ke [value]. Angka memakai lebar tetap (tabular)

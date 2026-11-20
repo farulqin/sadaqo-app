@@ -17,6 +17,7 @@ import 'package:sadaqo/injection_container.dart';
 import 'package:sadaqo/core/widgets/category_icon.dart';
 import 'package:sadaqo/core/widgets/state_views.dart';
 import 'package:sadaqo/core/widgets/animated_progress_bar.dart';
+import 'package:sadaqo/core/widgets/filter_switcher.dart';
 
 enum _Sort {
   relevant('Paling relevan'),
@@ -117,36 +118,44 @@ class _DonationExploreState extends State<DonationExplore> {
         const SizedBox(height: 12),
         _chips(),
         const SizedBox(height: 14),
-        if (widget.loading)
-          const LoadingView(variant: LoadingVariant.programList)
-        else if (_filtering) ...[
-          _sectionTitle(Icons.search_rounded, 'Hasil pencarian (${results.length})'),
-          const SizedBox(height: 10),
-          if (results.isEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 32),
-              child: Center(child: Text('Program tidak ditemukan. Coba kata kunci lain.')),
-            )
-          else
-            _grid(results),
-        ] else ...[
-          _banner(),
-          const SizedBox(height: 18),
-          _sectionTitle(
-            Icons.local_fire_department_rounded,
-            'Program Unggulan',
-            trailing: TextButton(
-              onPressed: () => sl<MainTabController>().index.value = MainTabController.programs,
-              child: const Text('Lihat Semua →'),
-            ),
+        FilterSwitcher(
+          switchKey: '${widget.loading}|$_category|${_sort.name}|$_filtering',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (widget.loading)
+                const LoadingView(variant: LoadingVariant.programList)
+              else if (_filtering) ...[
+                _sectionTitle(Icons.search_rounded, 'Hasil pencarian (${results.length})'),
+                const SizedBox(height: 10),
+                if (results.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 32),
+                    child: Center(child: Text('Program tidak ditemukan. Coba kata kunci lain.')),
+                  )
+                else
+                  _grid(results),
+              ] else ...[
+                _banner(),
+                const SizedBox(height: 18),
+                _sectionTitle(
+                  Icons.local_fire_department_rounded,
+                  'Program Unggulan',
+                  trailing: TextButton(
+                    onPressed: () => sl<MainTabController>().index.value = MainTabController.programs,
+                    child: const Text('Lihat Semua →'),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                _grid(_featured),
+                const SizedBox(height: 18),
+                _summaryCard(),
+                const SizedBox(height: 12),
+                _favoriteCard(),
+              ],
+            ],
           ),
-          const SizedBox(height: 8),
-          _grid(_featured),
-          const SizedBox(height: 18),
-          _summaryCard(),
-          const SizedBox(height: 12),
-          _favoriteCard(),
-        ],
+        ),
         const SizedBox(height: 8),
         const Text(
           'Untuk zakat, gunakan menu Zakat di beranda.',

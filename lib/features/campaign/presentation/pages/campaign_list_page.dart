@@ -13,6 +13,7 @@ import 'package:sadaqo/features/campaign/presentation/widgets/program_list_card.
 import 'package:sadaqo/features/donation/presentation/pages/donation_page.dart';
 import 'package:sadaqo/features/home/presentation/widgets/top_bar_actions.dart';
 import 'package:sadaqo/core/widgets/category_icon.dart';
+import 'package:sadaqo/core/widgets/filter_switcher.dart';
 
 enum _Sort {
   newest('Terbaru'),
@@ -157,28 +158,35 @@ class _CampaignListPageState extends State<CampaignListPage> {
             children.add(_categoryChips());
             if (subTypes.length > 1) children.add(_subTypeChips(subTypes));
 
-            if (items.isEmpty) {
-              children.add(const Padding(
-                padding: EdgeInsets.symmetric(vertical: 48),
-                child: Center(child: Text('Program tidak ditemukan')),
-              ));
-            } else {
-              for (final c in items) {
-                children.add(Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
-                  child: ProgramListCard(
-                    campaign: c,
-                    badge: _badgeFor(c, top),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => CampaignDetailPage(campaign: c)),
-                    ),
-                    onDonate: () => c.isZakat
-                        ? Navigator.of(context).push(MaterialPageRoute(builder: (_) => CampaignDetailPage(campaign: c)))
-                        : _donate(c),
-                  ),
-                ));
-              }
-            }
+            children.add(
+              FilterSwitcher(
+                switchKey: '$_category|$_subType|${_sort.name}',
+                child: Column(
+                  children: [
+                    if (items.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 48),
+                        child: Center(child: Text('Program tidak ditemukan')),
+                      )
+                    else
+                      for (final c in items)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
+                          child: ProgramListCard(
+                            campaign: c,
+                            badge: _badgeFor(c, top),
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(builder: (_) => CampaignDetailPage(campaign: c)),
+                            ),
+                            onDonate: () => c.isZakat
+                                ? Navigator.of(context).push(MaterialPageRoute(builder: (_) => CampaignDetailPage(campaign: c)))
+                                : _donate(c),
+                          ),
+                        ),
+                  ],
+                ),
+              ),
+            );
             children.add(_tipCard());
           }
 
