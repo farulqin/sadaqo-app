@@ -31,6 +31,7 @@ import 'package:sadaqo/features/profile/presentation/pages/settings_page.dart';
 import 'package:sadaqo/features/profile/presentation/widgets/photo_picker_sheet.dart';
 import 'package:sadaqo/features/profile/presentation/widgets/user_avatar.dart';
 import 'package:sadaqo/injection_container.dart';
+import 'package:sadaqo/core/widgets/count_up_text.dart';
 
 /// Level kebaikan dihitung dari total donasi berhasil.
 /// Poin = total donasi / Rp 10.000 (pembulatan ke bawah).
@@ -339,15 +340,14 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _statsBar(int total, int programs, int social) {
-    Widget stat(IconData icon, String label, String value) => Expanded(
+    const valueStyle = TextStyle(color: Colors.white, fontSize: 15.5, fontWeight: FontWeight.w800);
+    Widget stat(IconData icon, String label, Widget value) => Expanded(
           child: Column(
             children: [
               Icon(icon, color: AppColors.limeGreen, size: 24),
               const SizedBox(height: 4),
               Text(label, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70, fontSize: 11)),
-              FittedBox(
-                child: Text(value, style: const TextStyle(color: Colors.white, fontSize: 15.5, fontWeight: FontWeight.w800)),
-              ),
+              FittedBox(child: value),
             ],
           ),
         );
@@ -356,11 +356,23 @@ class _ProfilePageState extends State<ProfilePage> {
       decoration: BoxDecoration(color: AppColors.forestGreen, borderRadius: BorderRadius.circular(20)),
       child: Row(
         children: [
-          stat(Icons.volunteer_activism_rounded, 'Total Donasi', Formatter.rupiah(total)),
+          stat(
+            Icons.volunteer_activism_rounded,
+            'Total Donasi',
+            CountUpText(value: total, format: Formatter.rupiah, style: valueStyle),
+          ),
           Container(width: 1, height: 44, color: Colors.white24),
-          stat(Icons.favorite_rounded, 'Program Diikuti', '$programs Program'),
+          stat(
+            Icons.favorite_rounded,
+            'Program Diikuti',
+            CountUpText(value: programs, format: (v) => '${v.round()} Program', style: valueStyle),
+          ),
           Container(width: 1, height: 44, color: Colors.white24),
-          stat(Icons.star_rounded, 'Kegiatan Sosial', '$social Kegiatan'),
+          stat(
+            Icons.star_rounded,
+            'Kegiatan Sosial',
+            CountUpText(value: social, format: (v) => '${v.round()} Kegiatan', style: valueStyle),
+          ),
         ],
       ),
     );

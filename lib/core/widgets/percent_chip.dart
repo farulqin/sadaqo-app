@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
+import 'package:sadaqo/core/widgets/count_up_text.dart';
 
-/// Label kecil "75% Terkumpul".
 class PercentChip extends StatelessWidget {
   const PercentChip({super.key, required this.percent});
 
@@ -15,8 +15,10 @@ class PercentChip extends StatelessWidget {
         color: AppColors.limeGreen,
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Text(
-        '$percent% Terkumpul',
+      child: CountUpText(
+        value: percent,
+        duration: const Duration(milliseconds: 800),
+        format: (v) => '${v.round()}% Terkumpul',
         style: const TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w700,

@@ -15,6 +15,7 @@ import 'package:sadaqo/core/constants/app_colors.dart';
 import 'package:sadaqo/admin/data/admin_program_store.dart';
 import 'package:sadaqo/features/campaign/domain/entities/campaign.dart';
 import 'package:sadaqo/injection_container.dart';
+import 'package:sadaqo/core/widgets/count_up_text.dart';
 
 class _Range {
   const _Range(this.label, this.days);
@@ -279,6 +280,8 @@ class _DashboardPageState extends State<DashboardPage> {
         dark: true,
         icon: Icons.groups_rounded,
         value: AdminFmt.number(users.length),
+        countTo: users.length,
+        format: AdminFmt.number,
         label: 'Total Pengguna',
         trend: userTrend,
         trendFallback: '$newUsers baru minggu ini',
@@ -288,6 +291,8 @@ class _DashboardPageState extends State<DashboardPage> {
       _StatCard(
         icon: Icons.favorite_rounded,
         value: AdminFmt.rupiah(total),
+        countTo: total,
+        format: AdminFmt.rupiah,
         label: 'Total Donasi',
         trend: donTrend,
         trendFallback: 'Belum ada pembanding',
@@ -298,6 +303,8 @@ class _DashboardPageState extends State<DashboardPage> {
       _StatCard(
         icon: Icons.campaign_rounded,
         value: '$active',
+        countTo: active,
+        format: (v) => '${v.round()}',
         label: 'Program Aktif',
         trendFallback: 'dari ${campaigns.length} program',
         spark: progSpark,
@@ -308,6 +315,8 @@ class _DashboardPageState extends State<DashboardPage> {
         dark: true,
         icon: Icons.verified_user_rounded,
         value: '${_verification.pendingCount}',
+        countTo: _verification.pendingCount,
+        format: (v) => '${v.round()}',
         label: 'Menunggu Verifikasi',
         onTap: () => widget.nav.go(AdminPage.verification),
       ),
@@ -806,6 +815,8 @@ class _StatCard extends StatelessWidget {
     this.sparkColor,
     this.gradient,
     this.onTap,
+    this.countTo,
+    this.format,
   });
 
   final IconData icon;
@@ -818,6 +829,9 @@ class _StatCard extends StatelessWidget {
   final Color? sparkColor;
   final Gradient? gradient;
   final VoidCallback? onTap;
+  /// Bila diisi, angka dianimasikan dari 0 ke nilai ini.
+  final num? countTo;
+  final String Function(num value)? format;
 
   @override
   Widget build(BuildContext context) {
@@ -874,10 +888,16 @@ class _StatCard extends StatelessWidget {
                     FittedBox(
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.centerLeft,
-                      child: Text(
-                        value,
-                        style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: fg),
-                      ),
+                      child: countTo != null && format != null
+                          ? CountUpText(
+                              value: countTo!,
+                              format: format!,
+                              style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: fg),
+                            )
+                          : Text(
+                              value,
+                              style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: fg),
+                            ),
                     ),
                     Text(label, style: TextStyle(color: sub, fontSize: 13.5)),
                     if (trend != null)

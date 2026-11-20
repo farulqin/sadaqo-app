@@ -13,6 +13,7 @@ import 'package:sadaqo/features/donation/presentation/pages/donation_page.dart';
 import 'package:sadaqo/features/zakat/presentation/pages/zakat_page.dart';
 import 'package:sadaqo/features/favorite/presentation/widgets/favorite_button.dart';
 import 'package:sadaqo/core/widgets/pressable_scale.dart';
+import 'package:sadaqo/core/widgets/animated_progress_bar.dart';
 
 class CampaignDetailPage extends StatelessWidget {
   const CampaignDetailPage({super.key, required this.campaign});
@@ -104,6 +105,14 @@ class CampaignDetailPage extends StatelessWidget {
                         Text(
                           c.title,
                           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
+                        ),
+                        const SizedBox(height: 12),
+                        AnimatedProgressBar(
+                          value: c.progress,
+                          minHeight: 8,
+                          radius: 8,
+                          backgroundColor: AppColors.sandBeige,
+                          color: AppColors.limeGreen,
                         ),
                         const SizedBox(height: 14),
                         _InfoRow(

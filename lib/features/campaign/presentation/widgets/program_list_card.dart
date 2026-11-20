@@ -6,6 +6,7 @@ import 'package:sadaqo/features/campaign/domain/entities/campaign.dart';
 import 'package:sadaqo/features/favorite/presentation/widgets/favorite_button.dart';
 import 'package:sadaqo/core/widgets/interactive_card.dart';
 import 'package:sadaqo/core/widgets/pressable_scale.dart';
+import 'package:sadaqo/core/widgets/animated_progress_bar.dart';
 
 /// Kartu program untuk daftar di tab Program: gambar dengan lencana,
 /// info singkat, progres, dan tombol donasi.
@@ -125,9 +126,12 @@ class ProgramListCard extends StatelessWidget {
                     Row(
                       children: [
                         Expanded(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(6),
-                            child: LinearProgressIndicator(value: c.progress, minHeight: 7, backgroundColor: AppColors.sandBeige, color: AppColors.limeGreen),
+                          child: AnimatedProgressBar(
+                            value: c.progress,
+                            minHeight: 7,
+                            radius: 6,
+                            backgroundColor: AppColors.sandBeige,
+                            color: AppColors.limeGreen,
                           ),
                         ),
                         const SizedBox(width: 8),

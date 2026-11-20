@@ -16,6 +16,7 @@ import 'package:sadaqo/features/report/presentation/widgets/report_widgets.dart'
 import 'package:sadaqo/features/report/domain/repositories/report_repository.dart';
 import 'package:sadaqo/features/favorite/presentation/cubit/favorite_cubit.dart';
 import 'package:sadaqo/features/notification/presentation/cubit/notification_cubit.dart';
+import 'package:sadaqo/core/widgets/glass_nav_bar.dart';
 
 /// Kerangka utama aplikasi: 5 tab navigasi bawah (ikon dari assets/icons).
 /// Profil tidak lagi menjadi tab: dibuka dari ikon foto di bagian atas.
@@ -65,37 +66,37 @@ class _MainShellState extends State<MainShell> {
     }
   }
 
-  @override
+    @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<int>(
       valueListenable: _tab.index,
       builder: (context, index, child) => Scaffold(
         body: IndexedStack(index: index, children: _pages),
-        bottomNavigationBar: NavigationBar(
+        bottomNavigationBar: GlassNavBar(
           selectedIndex: index,
-          onDestinationSelected: _goTo,
-          destinations: const [
-            NavigationDestination(
-              icon: ImageIcon(AssetImage(AppAssets.iconBeranda)),
+          onSelected: _goTo,
+          items: [
+            GlassNavItem(
               label: 'Beranda',
+              iconBuilder: (c) => ImageIcon(const AssetImage(AppAssets.iconBeranda), color: c, size: 24),
             ),
-            NavigationDestination(
-              icon: ImageIcon(AssetImage(AppAssets.iconProgram)),
+            GlassNavItem(
               label: 'Program',
+              iconBuilder: (c) => ImageIcon(const AssetImage(AppAssets.iconProgram), color: c, size: 24),
             ),
-            NavigationDestination(
-              icon: ImageIcon(AssetImage(AppAssets.iconDonasi)),
+            GlassNavItem(
               label: 'Donasi',
+              iconBuilder: (c) => ImageIcon(const AssetImage(AppAssets.iconDonasi), color: c, size: 24),
             ),
-            NavigationDestination(
-              icon: ReportUnreadBadge(
-                child: ImageIcon(AssetImage(AppAssets.iconRiwayat)),
-              ),
+            GlassNavItem(
               label: 'Riwayat',
+              iconBuilder: (c) => ReportUnreadBadge(
+                child: ImageIcon(const AssetImage(AppAssets.iconRiwayat), color: c, size: 24),
+              ),
             ),
-            NavigationDestination(
-              icon: ImageIcon(AssetImage(AppAssets.iconKomunitas)),
+            GlassNavItem(
               label: 'Komunitas',
+              iconBuilder: (c) => ImageIcon(const AssetImage(AppAssets.iconKomunitas), color: c, size: 24),
             ),
           ],
         ),

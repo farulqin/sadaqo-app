@@ -16,6 +16,7 @@ import 'package:sadaqo/features/favorite/presentation/widgets/favorite_button.da
 import 'package:sadaqo/injection_container.dart';
 import 'package:sadaqo/core/widgets/category_icon.dart';
 import 'package:sadaqo/core/widgets/state_views.dart';
+import 'package:sadaqo/core/widgets/animated_progress_bar.dart';
 
 enum _Sort {
   relevant('Paling relevan'),
@@ -512,9 +513,12 @@ class _ProgramTile extends StatelessWidget {
                     child: Text(c.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14, height: 1.2)),
                   ),
                   const SizedBox(height: 8),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(6),
-                    child: LinearProgressIndicator(value: c.progress, minHeight: 6, backgroundColor: AppColors.sandBeige, color: AppColors.limeGreen),
+                  AnimatedProgressBar(
+                    value: c.progress,
+                    minHeight: 6,
+                    radius: 6,
+                    backgroundColor: AppColors.sandBeige,
+                    color: AppColors.limeGreen,
                   ),
                   const SizedBox(height: 6),
                   Text(

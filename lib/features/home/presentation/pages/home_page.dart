@@ -23,6 +23,8 @@ import 'package:sadaqo/features/news/presentation/cubit/news_cubit.dart';
 import 'package:sadaqo/features/news/presentation/cubit/news_state.dart';
 import 'package:sadaqo/features/news/presentation/widgets/news_carousel.dart';
 import 'package:sadaqo/features/zakat/presentation/pages/zakat_page.dart';
+import 'package:sadaqo/core/widgets/animated_progress_bar.dart';
+import 'package:sadaqo/core/widgets/count_up_text.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key, required this.onNavigateTab});
@@ -272,14 +274,12 @@ class _NewProgramTile extends StatelessWidget {
                       style: const TextStyle(fontSize: 11.5, color: AppColors.textMuted),
                     ),
                     const SizedBox(height: 8),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(6),
-                      child: LinearProgressIndicator(
-                        value: c.progress,
-                        minHeight: 6,
-                        backgroundColor: AppColors.sandBeige,
-                        color: AppColors.forestGreen,
-                      ),
+                    AnimatedProgressBar(
+                      value: c.progress,
+                      minHeight: 6,
+                      radius: 6,
+                      backgroundColor: AppColors.sandBeige,
+                      color: AppColors.forestGreen,
                     ),
                     const SizedBox(height: 5),
                     Text(
@@ -372,8 +372,9 @@ class _Header extends StatelessWidget {
                         'Total Donasi Anda',
                         style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                       ),
-                      Text(
-                        Formatter.rupiah(total),
+                      CountUpText(
+                        value: total,
+                        format: Formatter.rupiah,
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,

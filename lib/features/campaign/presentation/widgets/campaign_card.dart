@@ -6,6 +6,7 @@ import 'package:sadaqo/core/widgets/program_image.dart';
 import 'package:sadaqo/features/campaign/domain/entities/campaign.dart';
 import 'package:sadaqo/features/favorite/presentation/widgets/favorite_button.dart';
 import 'package:sadaqo/core/widgets/interactive_card.dart';
+import 'package:sadaqo/core/widgets/animated_progress_bar.dart';
 
 class CampaignCard extends StatelessWidget {
   const CampaignCard({super.key, required this.campaign, required this.onTap});
@@ -92,14 +93,12 @@ class CampaignCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 10),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: LinearProgressIndicator(
-                      value: campaign.progress,
-                      minHeight: 8,
-                      backgroundColor: AppColors.sandBeige,
-                      color: AppColors.limeGreen,
-                    ),
+                  AnimatedProgressBar(
+                    value: campaign.progress,
+                    minHeight: 8,
+                    radius: 8,
+                    backgroundColor: AppColors.sandBeige,
+                    color: AppColors.limeGreen,
                   ),
                   const SizedBox(height: 8),
                   Row(
