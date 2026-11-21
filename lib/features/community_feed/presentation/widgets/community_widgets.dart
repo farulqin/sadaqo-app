@@ -453,7 +453,7 @@ class PollCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: AppColors.pill,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.sandBeige),
       ),

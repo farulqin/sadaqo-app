@@ -149,7 +149,7 @@ class _BadgeTile extends StatelessWidget {
               height: 48,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: earned ? AppColors.successSoft : AppColors.background,
+                color: earned ? AppColors.successSoft : AppColors.pill,
                 shape: BoxShape.circle,
               ),
               child: earned

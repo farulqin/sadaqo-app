@@ -1,7 +1,7 @@
+import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
 import 'package:flutter/material.dart';
 import 'package:sadaqo/core/constants/app_colors.dart';
 import 'package:sadaqo/core/theme/app_palette.dart';
-import 'package:sadaqo/core/theme/glass_backdrop.dart';
 
 /// Satu-satunya tempat untuk mengatur tampilan global aplikasi.
 class AppTheme {
@@ -12,7 +12,8 @@ class AppTheme {
   static ThemeData get light => of(AppThemeMode.light);
 
   static ThemeData _build(AppPalette p) {
-    final dark = p.isDark;
+    final dark = p.mode == AppThemeMode.dark;
+    final glass = p.isGlass;
 
     final scheme = dark
         ? ColorScheme.dark(
@@ -20,7 +21,7 @@ class AppTheme {
             onPrimary: AppColors.forestGreen,
             secondary: AppColors.limeGreen,
             onSecondary: AppColors.forestGreen,
-            surface: p.isGlass ? const Color(0xFF12281D) : p.surface,
+            surface: p.surface,
             onSurface: p.textDark,
             error: p.error,
             surfaceTint: Colors.transparent,
@@ -30,9 +31,11 @@ class AppTheme {
             onPrimary: Colors.white,
             secondary: AppColors.limeGreen,
             onSecondary: p.textDark,
-            surface: p.surface,
+            // Glass: permukaan dasar dibuat pekat agar menu/dialog tetap terbaca.
+            surface: glass ? const Color(0xFFF1F6E8) : p.surface,
             onSurface: p.textDark,
             error: p.error,
+            surfaceTint: glass ? Colors.transparent : AppColors.forestGreen,
           );
 
     final base = ThemeData(
@@ -44,12 +47,12 @@ class AppTheme {
       // Perpindahan halaman yang halus (zoom/fade) di semua platform.
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
-          TargetPlatform.android: AppPageTransitionsBuilder.material,
-          TargetPlatform.iOS: AppPageTransitionsBuilder.cupertino,
-          TargetPlatform.macOS: AppPageTransitionsBuilder.cupertino,
-          TargetPlatform.windows: AppPageTransitionsBuilder.material,
-          TargetPlatform.linux: AppPageTransitionsBuilder.material,
-          TargetPlatform.fuchsia: AppPageTransitionsBuilder.material,
+          TargetPlatform.android: ZoomPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.windows: ZoomPageTransitionsBuilder(),
+          TargetPlatform.linux: ZoomPageTransitionsBuilder(),
+          TargetPlatform.fuchsia: ZoomPageTransitionsBuilder(),
         },
       ),
       appBarTheme: AppBarTheme(
@@ -110,10 +113,10 @@ class AppTheme {
     );
 
     // Tampilan Terang dibiarkan persis seperti sebelumnya.
-    if (!dark) return base;
+    if (!dark && !glass) return base;
 
-    // Tambahan khusus tampilan Gelap dan Liquid Glass.
-    return base.copyWith(
+    // Tambahan untuk Gelap dan Liquid Glass.
+    final extra = base.copyWith(
       canvasColor: p.popup,
       dividerTheme: DividerThemeData(color: p.sandBeige),
       dialogTheme: DialogThemeData(
@@ -134,6 +137,12 @@ class AppTheme {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
       ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(color: p.brandInk),
+      textSelectionTheme: TextSelectionThemeData(cursorColor: p.brandInk),
+    );
+    if (!dark) return extra;
+
+    return extra.copyWith(
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith<Color?>(
           (s) => s.contains(WidgetState.selected) ? AppColors.limeGreen : p.textMuted,
@@ -152,8 +161,6 @@ class AppTheme {
         checkColor: const WidgetStatePropertyAll(AppColors.forestGreen),
         side: BorderSide(color: p.textMuted, width: 1.5),
       ),
-      progressIndicatorTheme: ProgressIndicatorThemeData(color: p.brandInk),
-      textSelectionTheme: TextSelectionThemeData(cursorColor: p.brandInk),
     );
   }
 }

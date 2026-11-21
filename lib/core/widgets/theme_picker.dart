@@ -153,13 +153,13 @@ class _MiniPreview extends StatelessWidget {
       case AppThemeMode.glass:
         bg = const BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF0A1F16), Color(0xFF1B4A2E), Color(0xFF0B2419)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFFC9E1BE), Color(0xFFF6F1E1), Color(0xFFDCEBCB)],
           ),
         );
-        card = Colors.white.withValues(alpha: 0.16);
-        cardBorder = Border.all(color: Colors.white.withValues(alpha: 0.35));
+        card = Colors.white.withValues(alpha: 0.72);
+        cardBorder = Border.all(color: Colors.white.withValues(alpha: 0.95));
     }
     return ClipRRect(
       borderRadius: BorderRadius.circular(11),
@@ -176,7 +176,7 @@ class _MiniPreview extends StatelessWidget {
                   height: 54,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppColors.limeGreen.withValues(alpha: 0.35),
+                    color: const Color(0xFF3E8E41).withValues(alpha: 0.30),
                   ),
                 ),
               ),

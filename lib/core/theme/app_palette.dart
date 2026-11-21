@@ -25,6 +25,7 @@ class AppPalette {
     required this.successSoft,
     required this.error,
     required this.brandInk,
+    required this.pill,
     required this.tintCream,
     required this.tintLime,
     required this.tintGold,
@@ -61,6 +62,8 @@ class AppPalette {
   /// Terang, lime di tema Gelap dan Liquid Glass).
   final Color brandInk;
 
+  /// Latar kapsul/label kecil di dalam kartu.
+  final Color pill;
   final Color tintCream;
   final Color tintLime;
   final Color tintGold;
@@ -74,7 +77,8 @@ class AppPalette {
   final Color shimmerBase;
   final Color shimmerHighlight;
 
-  bool get isDark => mode != AppThemeMode.light;
+  /// Hanya tema Gelap. Liquid Glass tergolong tema terang.
+  bool get isDark => mode == AppThemeMode.dark;
   bool get isGlass => mode == AppThemeMode.glass;
 
   /// Palet yang sedang dipakai seluruh aplikasi.
@@ -105,6 +109,7 @@ class AppPalette {
     successSoft: Color(0xFFDDEFC6),
     error: Color(0xFFB3261E),
     brandInk: Color(0xFF1F3D2B),
+    pill: Color(0xFFF8F4EA),
     tintCream: Color(0xFFF1EFDD),
     tintLime: Color(0xFFE9F3D2),
     tintGold: Color(0xFFF3EBC8),
@@ -131,6 +136,7 @@ class AppPalette {
     successSoft: Color(0xFF1F3B27),
     error: Color(0xFFFF8A80),
     brandInk: Color(0xFFA3D65C),
+    pill: Color(0xFF1B2D22),
     tintCream: Color(0xFF1C2F23),
     tintLime: Color(0xFF23402B),
     tintGold: Color(0xFF3A3519),
@@ -143,29 +149,30 @@ class AppPalette {
     shimmerHighlight: Color(0xFF2B4235),
   );
 
-  // ---- Liquid Glass: gradien hijau tua, kartu kaca ----
+  // ---- Liquid Glass: terang, kaca buram (frosted), teks dan ikon hijau forest ----
   static const glass = AppPalette(
     mode: AppThemeMode.glass,
     background: Color(0x00000000),
-    surface: Color(0x1FFFFFFF),
-    popup: Color(0xF2123024),
-    appBar: Color(0xD9163626),
-    sandBeige: Color(0x33FFFFFF),
-    textDark: Color(0xFFF2F8EE),
-    textMuted: Color(0xFFBED0C3),
-    success: Color(0xFF8FE394),
-    successSoft: Color(0x33A3D65C),
-    error: Color(0xFFFF9E95),
-    brandInk: Color(0xFFA3D65C),
-    tintCream: Color(0x1AFFFFFF),
-    tintLime: Color(0x26A3D65C),
-    tintGold: Color(0x26F2D37A),
-    tintRose: Color(0x26FF8A80),
-    navTop: Color(0x2EFFFFFF),
-    navBottom: Color(0x14FFFFFF),
-    navBorder: Color(0x59FFFFFF),
-    navShadow: Color(0x4D000000),
-    shimmerBase: Color(0xFF1D4430),
-    shimmerHighlight: Color(0xFF2C5A41),
+    surface: Color(0xB8FFFFFF),
+    popup: Color(0xF7F3F8EC),
+    appBar: Color(0xE61F3D2B),
+    sandBeige: Color(0x331F3D2B),
+    textDark: Color(0xFF1F3D2B),
+    textMuted: Color(0xFF557263),
+    success: Color(0xFF2E7D32),
+    successSoft: Color(0x4DA3D65C),
+    error: Color(0xFFB3261E),
+    brandInk: Color(0xFF1F3D2B),
+    pill: Color(0x99FFFFFF),
+    tintCream: Color(0x73FFFFFF),
+    tintLime: Color(0x47A3D65C),
+    tintGold: Color(0x4DF2D37A),
+    tintRose: Color(0x40E57373),
+    navTop: Color(0xC7FFFFFF),
+    navBottom: Color(0x85FFFFFF),
+    navBorder: Color(0xE6FFFFFF),
+    navShadow: Color(0x2E1F3D2B),
+    shimmerBase: Color(0xFFD5E4CA),
+    shimmerHighlight: Color(0xFFF3F8EC),
   );
 }

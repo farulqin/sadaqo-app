@@ -32,6 +32,7 @@ class AppColors {
   /// Teks/ikon merek di atas permukaan: hijau tua (Terang) atau lime (Gelap, Glass).
   static Color get brandInk => _p.brandInk;
 
+  static Color get pill => _p.pill;
   static Color get tintCream => _p.tintCream;
   static Color get tintLime => _p.tintLime;
   static Color get tintGold => _p.tintGold;

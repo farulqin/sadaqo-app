@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sadaqo/core/constants/app_colors.dart';
 
 /// Pembungkus kartu: terangkat dengan bayangan lebih besar saat kursor di
 /// atasnya (web/desktop), dan menyusut sedikit saat ditekan.
@@ -64,6 +65,13 @@ class _InteractiveCardState extends State<InteractiveCard> {
           curve: Curves.easeOutCubic,
           transform: transform,
           transformAlignment: Alignment.center,
+          // Tema Glass: garis tepi putih tipis di atas kartu (efek kilau kaca).
+          foregroundDecoration: AppColors.isGlass
+              ? BoxDecoration(
+                  borderRadius: BorderRadius.circular(widget.radius),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.85), width: 1.2),
+                )
+              : null,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(widget.radius),
             boxShadow: [

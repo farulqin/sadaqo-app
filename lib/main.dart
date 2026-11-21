@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:sadaqo/core/navigation/session_guard.dart';
+import 'package:sadaqo/core/theme/glass_backdrop.dart';
 import 'package:sadaqo/core/theme/theme_controller.dart';
 import 'package:sadaqo/core/theme/theme_scope.dart';
 import 'package:sadaqo/pengelola/core/pengelola_config.dart';
@@ -97,6 +98,7 @@ class SadaqoApp extends StatelessWidget {
           title: 'SADAQO',
           debugShowCheckedModeBanner: false,
           theme: theme,
+          builder: (context, child) => GlassRoot(child: child ?? const SizedBox.shrink()),
           scrollBehavior: const AppScrollBehavior(),
           navigatorKey: appNavigatorKey,
           scaffoldMessengerKey: appMessengerKey,

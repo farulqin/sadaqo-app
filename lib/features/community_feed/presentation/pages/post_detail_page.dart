@@ -237,7 +237,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                   margin: const EdgeInsets.only(bottom: 6),
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: AppColors.background,
+                    color: AppColors.pill,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(

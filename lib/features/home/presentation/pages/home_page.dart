@@ -315,9 +315,16 @@ class _Header extends StatelessWidget {
     final top = MediaQuery.of(context).padding.top;
     return Container(
       padding: EdgeInsets.fromLTRB(16, top + 10, 8, 18),
-      decoration: const BoxDecoration(
-        color: AppColors.forestGreen,
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
+      decoration: BoxDecoration(
+        color: AppColors.isGlass ? null : AppColors.forestGreen,
+        gradient: AppColors.isGlass
+            ? const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF3B7F55), Color(0xFF1F3D2B)],
+              )
+            : null,
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
       ),
       child: Column(
         children: [
